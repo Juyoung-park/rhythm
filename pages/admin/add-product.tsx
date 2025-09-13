@@ -112,6 +112,29 @@ export default function AddProductPage() {
     })
   }, [])
 
+  // Firebase Storage 연결 테스트 함수
+  const testFirebaseStorage = useCallback(async () => {
+    try {
+      console.log("=== Firebase Storage 연결 테스트 시작 ===")
+      const testRef = ref(storage, "test/connection-test.txt")
+      const testBlob = new Blob(["test"], { type: "text/plain" })
+      
+      console.log("테스트 파일 업로드 시도...")
+      const result = await uploadBytes(testRef, testBlob)
+      console.log("테스트 업로드 성공:", result)
+      
+      const url = await getDownloadURL(testRef)
+      console.log("테스트 URL 생성 성공:", url)
+      
+      alert("Firebase Storage 연결 테스트 성공! ✅")
+      return true
+    } catch (error) {
+      console.error("Firebase Storage 연결 테스트 실패:", error)
+      alert(`Firebase Storage 연결 테스트 실패: ${error instanceof Error ? error.message : String(error)}`)
+      return false
+    }
+  }, [])
+
   // 재시도 메커니즘을 포함한 이미지 업로드 함수
   async function uploadImageWithRetry(file: File, maxRetries: number = 3): Promise<string> {
     let lastError: Error | null = null
@@ -160,10 +183,20 @@ export default function AddProductPage() {
       
       const imageRef = ref(storage, `products/${Date.now()}_${file.name}`)
       console.log("Storage 참조 생성:", imageRef.fullPath)
+      console.log("Storage 버킷:", storage.app.options.storageBucket)
+      console.log("업로드할 파일:", file.name, file.size, "bytes")
       
       // 기본 uploadBytes 사용 (문제 해결을 위해)
       console.log("업로드 시작...")
-      const uploadResult = await uploadBytes(imageRef, file)
+      console.log("uploadBytes 함수 호출 전...")
+      
+      // 타임아웃 설정 (10초)
+      const uploadPromise = uploadBytes(imageRef, file)
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("업로드 시간 초과 (10초)")), 10000)
+      )
+      
+      const uploadResult = await Promise.race([uploadPromise, timeoutPromise])
       console.log("업로드 결과:", uploadResult)
       setUploadProgress(90)
       
@@ -351,6 +384,12 @@ export default function AddProductPage() {
                   2. 다음 규칙으로 변경:<br/>
                   <code className="bg-black/20 px-1 rounded">allow read, write: if true;</code>
                 </div>
+                <button
+                  onClick={testFirebaseStorage}
+                  className="mt-2 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                >
+                  Storage 연결 테스트
+                </button>
               </div>
             </div>
           )}
