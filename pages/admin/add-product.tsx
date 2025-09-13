@@ -19,6 +19,7 @@ export default function AddProductPage() {
   const [uploading, setUploading] = useState(false)
   const [uploadStatus, setUploadStatus] = useState<string>("")
   const [firebaseConnected, setFirebaseConnected] = useState<boolean | null>(null)
+  const [uploadProgress, setUploadProgress] = useState(0)
 
   // Firebase 연결 상태 확인
   useEffect(() => {
@@ -66,12 +67,54 @@ export default function AddProductPage() {
     setForm(prev => ({ ...prev, imageUrl: e.target.value }))
   }, [])
 
+  // 이미지 압축 함수
+  const compressImage = useCallback((file: File, maxWidth: number = 800, quality: number = 0.8): Promise<File> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')!
+      const img = new Image()
+      
+      img.onload = () => {
+        // 이미지 크기 계산
+        let { width, height } = img
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width
+          width = maxWidth
+        }
+        
+        canvas.width = width
+        canvas.height = height
+        
+        // 이미지 그리기
+        ctx.drawImage(img, 0, 0, width, height)
+        
+        // 압축된 이미지를 Blob으로 변환
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const compressedFile = new File([blob], file.name, {
+                type: 'image/jpeg',
+                lastModified: Date.now()
+              })
+              resolve(compressedFile)
+            } else {
+              resolve(file)
+            }
+          },
+          'image/jpeg',
+          quality
+        )
+      }
+      
+      img.src = URL.createObjectURL(file)
+    })
+  }, [])
+
   async function uploadImage(file: File): Promise<string> {
     console.log("=== 이미지 업로드 시작 ===")
-    console.log("파일명:", file.name)
-    console.log("파일 크기:", file.size, "bytes")
+    console.log("원본 파일명:", file.name)
+    console.log("원본 파일 크기:", file.size, "bytes")
     console.log("파일 타입:", file.type)
-    console.log("Storage 객체:", storage)
     
     // 파일 크기 제한 (10MB)
     if (file.size > 10 * 1024 * 1024) {
@@ -79,21 +122,41 @@ export default function AddProductPage() {
     }
     
     try {
-      const imageRef = ref(storage, `products/${Date.now()}_${file.name}`)
+      // 이미지 압축
+      setUploadStatus("이미지 압축 중...")
+      setUploadProgress(10)
+      const compressedFile = await compressImage(file, 800, 0.8)
+      console.log("압축 후 파일 크기:", compressedFile.size, "bytes")
+      console.log("압축률:", ((file.size - compressedFile.size) / file.size * 100).toFixed(1) + "%")
+      
+      setUploadStatus("Firebase Storage에 업로드 중...")
+      setUploadProgress(30)
+      
+      const imageRef = ref(storage, `products/${Date.now()}_${compressedFile.name}`)
       console.log("Storage 참조 생성:", imageRef.fullPath)
       
-      // 타임아웃을 위한 Promise.race 사용
-      console.log("업로드 시작...")
-      const uploadPromise = uploadBytes(imageRef, file)
+      // 업로드 진행률 추적
+      const uploadPromise = uploadBytes(imageRef, compressedFile)
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error("이미지 업로드 시간 초과 (30초)")), 30000)
       )
       
+      // 업로드 진행률 시뮬레이션
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => Math.min(prev + 10, 80))
+      }, 500)
+      
       const uploadResult = await Promise.race([uploadPromise, timeoutPromise])
+      clearInterval(progressInterval)
+      setUploadProgress(90)
+      
       console.log("업로드 결과:", uploadResult)
       console.log("이미지 업로드 완료, URL 가져오는 중...")
       
+      setUploadStatus("이미지 URL 생성 중...")
       const url = await getDownloadURL(imageRef)
+      setUploadProgress(100)
+      
       console.log("이미지 URL 생성 완료:", url)
       console.log("=== 이미지 업로드 성공 ===")
       return url
@@ -190,6 +253,7 @@ export default function AddProductPage() {
       setImageFile(null)
       setImagePreview("")
       setUploadStatus("")
+      setUploadProgress(0)
     } catch (err) {
       console.error("업로드 에러:", err)
       const errorMessage = err instanceof Error ? err.message : '알 수 없는 오류'
@@ -215,7 +279,10 @@ export default function AddProductPage() {
       setUploading(false)
       // 상태 메시지는 5초 후에 자동으로 사라짐
       if (uploadStatus && !uploadStatus.includes("에러")) {
-        setTimeout(() => setUploadStatus(""), 5000)
+        setTimeout(() => {
+          setUploadStatus("")
+          setUploadProgress(0)
+        }, 5000)
       }
     }
   }
@@ -434,6 +501,21 @@ export default function AddProductPage() {
                 )}
                 <span>{uploadStatus}</span>
               </div>
+              
+              {/* 진행률 바 */}
+              {uploadProgress > 0 && !uploadStatus.includes("에러") && !uploadStatus.includes("완료") && (
+                <div className="mt-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
+                      style={{ width: `${uploadProgress}%` }}
+                    ></div>
+                  </div>
+                  <div className="text-xs text-blue-600 mt-1 text-center">
+                    {uploadProgress}%
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
