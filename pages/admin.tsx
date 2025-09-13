@@ -22,10 +22,20 @@ interface Customer {
   id: string;
   name: string;
   phone: string;
-  height: number;
-  bust: number;
-  waist: number;
-  hip: number;
+  organization?: string; // 소속
+  address?: string; // 주소
+  carNumber?: string; // 차량번호
+  size?: string; // 사이즈
+  shoulderWidth?: number; // 어깨너비
+  waistCircumference?: number; // 허리둘레
+  bustCircumference?: number; // 가슴둘레
+  hipCircumference?: number; // 엉덩이둘레
+  sleeveLength?: number; // 소매길이
+  thighCircumference?: number; // 허벌지둘레
+  topLength?: number; // 상의길이
+  crotchLength?: number; // 밑위길이
+  skirtLength?: number; // 치마길이
+  pantsLength?: number; // 바지길이
   email: string;
   updatedAt: any;
 }
@@ -53,10 +63,20 @@ const AdminPage = () => {
   const [editForm, setEditForm] = useState({
     name: "",
     phone: "",
-    height: "",
-    bust: "",
-    waist: "",
-    hip: "",
+    organization: "",
+    address: "",
+    carNumber: "",
+    size: "",
+    shoulderWidth: "",
+    waistCircumference: "",
+    bustCircumference: "",
+    hipCircumference: "",
+    sleeveLength: "",
+    thighCircumference: "",
+    topLength: "",
+    crotchLength: "",
+    skirtLength: "",
+    pantsLength: "",
     email: ""
   });
 
@@ -144,13 +164,23 @@ const AdminPage = () => {
   const handleEditCustomer = (customer: Customer) => {
     setEditingCustomer(customer);
     setEditForm({
-      name: customer.name,
-      phone: customer.phone,
-      height: customer.height.toString(),
-      bust: customer.bust.toString(),
-      waist: customer.waist.toString(),
-      hip: customer.hip.toString(),
-      email: customer.email
+      name: customer.name || "",
+      phone: customer.phone || "",
+      organization: customer.organization || "",
+      address: customer.address || "",
+      carNumber: customer.carNumber || "",
+      size: customer.size || "",
+      shoulderWidth: customer.shoulderWidth?.toString() || "",
+      waistCircumference: customer.waistCircumference?.toString() || "",
+      bustCircumference: customer.bustCircumference?.toString() || "",
+      hipCircumference: customer.hipCircumference?.toString() || "",
+      sleeveLength: customer.sleeveLength?.toString() || "",
+      thighCircumference: customer.thighCircumference?.toString() || "",
+      topLength: customer.topLength?.toString() || "",
+      crotchLength: customer.crotchLength?.toString() || "",
+      skirtLength: customer.skirtLength?.toString() || "",
+      pantsLength: customer.pantsLength?.toString() || "",
+      email: customer.email || ""
     });
   };
 
@@ -161,10 +191,20 @@ const AdminPage = () => {
       await updateDoc(doc(db, "users", editingCustomer.id), {
         name: editForm.name,
         phone: editForm.phone,
-        height: Number(editForm.height),
-        bust: Number(editForm.bust),
-        waist: Number(editForm.waist),
-        hip: Number(editForm.hip),
+        organization: editForm.organization,
+        address: editForm.address,
+        carNumber: editForm.carNumber,
+        size: editForm.size,
+        shoulderWidth: editForm.shoulderWidth ? Number(editForm.shoulderWidth) : null,
+        waistCircumference: editForm.waistCircumference ? Number(editForm.waistCircumference) : null,
+        bustCircumference: editForm.bustCircumference ? Number(editForm.bustCircumference) : null,
+        hipCircumference: editForm.hipCircumference ? Number(editForm.hipCircumference) : null,
+        sleeveLength: editForm.sleeveLength ? Number(editForm.sleeveLength) : null,
+        thighCircumference: editForm.thighCircumference ? Number(editForm.thighCircumference) : null,
+        topLength: editForm.topLength ? Number(editForm.topLength) : null,
+        crotchLength: editForm.crotchLength ? Number(editForm.crotchLength) : null,
+        skirtLength: editForm.skirtLength ? Number(editForm.skirtLength) : null,
+        pantsLength: editForm.pantsLength ? Number(editForm.pantsLength) : null,
         email: editForm.email,
         updatedAt: new Date()
       });
@@ -175,10 +215,20 @@ const AdminPage = () => {
               ...customer, 
               name: editForm.name,
               phone: editForm.phone,
-              height: Number(editForm.height),
-              bust: Number(editForm.bust),
-              waist: Number(editForm.waist),
-              hip: Number(editForm.hip),
+              organization: editForm.organization,
+              address: editForm.address,
+              carNumber: editForm.carNumber,
+              size: editForm.size,
+              shoulderWidth: editForm.shoulderWidth ? Number(editForm.shoulderWidth) : null,
+              waistCircumference: editForm.waistCircumference ? Number(editForm.waistCircumference) : null,
+              bustCircumference: editForm.bustCircumference ? Number(editForm.bustCircumference) : null,
+              hipCircumference: editForm.hipCircumference ? Number(editForm.hipCircumference) : null,
+              sleeveLength: editForm.sleeveLength ? Number(editForm.sleeveLength) : null,
+              thighCircumference: editForm.thighCircumference ? Number(editForm.thighCircumference) : null,
+              topLength: editForm.topLength ? Number(editForm.topLength) : null,
+              crotchLength: editForm.crotchLength ? Number(editForm.crotchLength) : null,
+              skirtLength: editForm.skirtLength ? Number(editForm.skirtLength) : null,
+              pantsLength: editForm.pantsLength ? Number(editForm.pantsLength) : null,
               email: editForm.email,
               updatedAt: new Date()
             }
@@ -211,10 +261,20 @@ const AdminPage = () => {
     setEditForm({
       name: "",
       phone: "",
-      height: "",
-      bust: "",
-      waist: "",
-      hip: "",
+      organization: "",
+      address: "",
+      carNumber: "",
+      size: "",
+      shoulderWidth: "",
+      waistCircumference: "",
+      bustCircumference: "",
+      hipCircumference: "",
+      sleeveLength: "",
+      thighCircumference: "",
+      topLength: "",
+      crotchLength: "",
+      skirtLength: "",
+      pantsLength: "",
       email: ""
     });
   };
@@ -374,7 +434,10 @@ const AdminPage = () => {
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">연락처</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">신체 치수</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">소속</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">주소</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">차량번호</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">사이즈</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">등록일</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
                     </tr>
@@ -387,9 +450,10 @@ const AdminPage = () => {
                           <div className="text-sm text-gray-500">{customer.email}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.phone}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          키: {customer.height}cm, 가슴: {customer.bust}cm, 허리: {customer.waist}cm, 힙: {customer.hip}cm
-                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.organization || "-"}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 max-w-xs truncate">{customer.address || "-"}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.carNumber || "-"}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.size || "-"}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {customer.updatedAt?.toDate?.()?.toLocaleDateString() || "N/A"}
                         </td>
@@ -472,85 +536,202 @@ const AdminPage = () => {
 
       {/* 고객 수정 모달 */}
       {editingCustomer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <h3 className="text-lg font-semibold mb-4">고객 정보 수정</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <div className="p-6 border-b">
+              <h3 className="text-lg font-semibold">고객 정보 수정</h3>
+            </div>
             
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">이름</label>
-                <input
-                  type="text"
-                  value={editForm.name}
-                  onChange={(e) => setEditForm({...editForm, name: e.target.value})}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
-                <input
-                  type="email"
-                  value={editForm.email}
-                  onChange={(e) => setEditForm({...editForm, email: e.target.value})}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">연락처</label>
-                <input
-                  type="tel"
-                  value={editForm.phone}
-                  onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">키 (cm)</label>
-                  <input
-                    type="number"
-                    value={editForm.height}
-                    onChange={(e) => setEditForm({...editForm, height: e.target.value})}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  />
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* 기본 정보 */}
+                <div className="space-y-4">
+                  <h4 className="font-medium text-gray-900 border-b pb-2">기본 정보</h4>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">이름 *</label>
+                    <input
+                      type="text"
+                      value={editForm.name}
+                      onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">이메일 *</label>
+                    <input
+                      type="email"
+                      value={editForm.email}
+                      onChange={(e) => setEditForm({...editForm, email: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">연락처 *</label>
+                    <input
+                      type="tel"
+                      value={editForm.phone}
+                      onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">소속</label>
+                    <input
+                      type="text"
+                      value={editForm.organization}
+                      onChange={(e) => setEditForm({...editForm, organization: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">주소</label>
+                    <textarea
+                      value={editForm.address}
+                      onChange={(e) => setEditForm({...editForm, address: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      rows={2}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">차량번호</label>
+                    <input
+                      type="text"
+                      value={editForm.carNumber}
+                      onChange={(e) => setEditForm({...editForm, carNumber: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">사이즈</label>
+                    <input
+                      type="text"
+                      value={editForm.size}
+                      onChange={(e) => setEditForm({...editForm, size: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">가슴 (cm)</label>
-                  <input
-                    type="number"
-                    value={editForm.bust}
-                    onChange={(e) => setEditForm({...editForm, bust: e.target.value})}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">허리 (cm)</label>
-                  <input
-                    type="number"
-                    value={editForm.waist}
-                    onChange={(e) => setEditForm({...editForm, waist: e.target.value})}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">힙 (cm)</label>
-                  <input
-                    type="number"
-                    value={editForm.hip}
-                    onChange={(e) => setEditForm({...editForm, hip: e.target.value})}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  />
+
+                {/* 신체 치수 */}
+                <div className="space-y-4">
+                  <h4 className="font-medium text-gray-900 border-b pb-2">신체 치수 (cm)</h4>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">어깨너비</label>
+                      <input
+                        type="number"
+                        value={editForm.shoulderWidth}
+                        onChange={(e) => setEditForm({...editForm, shoulderWidth: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">허리둘레</label>
+                      <input
+                        type="number"
+                        value={editForm.waistCircumference}
+                        onChange={(e) => setEditForm({...editForm, waistCircumference: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">가슴둘레</label>
+                      <input
+                        type="number"
+                        value={editForm.bustCircumference}
+                        onChange={(e) => setEditForm({...editForm, bustCircumference: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">엉덩이둘레</label>
+                      <input
+                        type="number"
+                        value={editForm.hipCircumference}
+                        onChange={(e) => setEditForm({...editForm, hipCircumference: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">소매길이</label>
+                      <input
+                        type="number"
+                        value={editForm.sleeveLength}
+                        onChange={(e) => setEditForm({...editForm, sleeveLength: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">허벌지둘레</label>
+                      <input
+                        type="number"
+                        value={editForm.thighCircumference}
+                        onChange={(e) => setEditForm({...editForm, thighCircumference: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">상의길이</label>
+                      <input
+                        type="number"
+                        value={editForm.topLength}
+                        onChange={(e) => setEditForm({...editForm, topLength: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">밑위길이</label>
+                      <input
+                        type="number"
+                        value={editForm.crotchLength}
+                        onChange={(e) => setEditForm({...editForm, crotchLength: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">치마길이</label>
+                      <input
+                        type="number"
+                        value={editForm.skirtLength}
+                        onChange={(e) => setEditForm({...editForm, skirtLength: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">바지길이</label>
+                      <input
+                        type="number"
+                        value={editForm.pantsLength}
+                        onChange={(e) => setEditForm({...editForm, pantsLength: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
             
-            <div className="flex justify-end space-x-3 mt-6">
+            <div className="p-6 border-t bg-gray-50 flex justify-end space-x-3">
               <button
                 onClick={cancelEdit}
                 className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
