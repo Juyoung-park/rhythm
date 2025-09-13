@@ -359,9 +359,9 @@ const AdminPage = () => {
     
     const searchLower = searchTerm.toLowerCase();
     return (
-      customer.name.toLowerCase().includes(searchLower) ||
-      customer.phone.includes(searchTerm) ||
-      customer.email.toLowerCase().includes(searchLower) ||
+      (customer.name && customer.name.toLowerCase().includes(searchLower)) ||
+      (customer.phone && customer.phone.includes(searchTerm)) ||
+      (customer.email && customer.email.toLowerCase().includes(searchLower)) ||
       (customer.organization && customer.organization.toLowerCase().includes(searchLower)) ||
       (customer.address && customer.address.toLowerCase().includes(searchLower)) ||
       (customer.carNumber && customer.carNumber.toLowerCase().includes(searchLower)) ||
