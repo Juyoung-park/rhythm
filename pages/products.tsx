@@ -9,10 +9,12 @@ interface Product {
   name: string;
   description: string;
   price: number;
-  category: string;
+  category?: string;
   imageUrl?: string;
-  sizes: string[];
-  colors: string[];
+  sizes?: string[];
+  colors?: string[];
+  active?: boolean;
+  createdAt?: any;
 }
 
 export default function ProductsPage() {
@@ -49,7 +51,7 @@ export default function ProductsPage() {
         // Show specific error messages
         if (error && typeof error === 'object' && 'code' in error) {
           if ((error as any).code === "permission-denied") {
-            setError("Firebase 권한 오류입니다. Firebase Console에서 보안 규칙을 확인해주세요.");
+            setError("Firebase Firestore 권한 오류입니다. Firebase Console에서 보안 규칙을 확인해주세요.");
           } else if ((error as any).code === "unavailable") {
             setError("Firebase 서비스에 연결할 수 없습니다. 인터넷 연결을 확인해주세요.");
           }
@@ -67,9 +69,9 @@ export default function ProductsPage() {
   // Filter and sort products
   const filteredProducts = products
     .filter(product => {
-      const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
+      const matchesCategory = selectedCategory === "all" || (product.category || "기타") === selectedCategory;
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           product.description.toLowerCase().includes(searchTerm.toLowerCase());
+                           (product.description || "").toLowerCase().includes(searchTerm.toLowerCase());
       return matchesCategory && matchesSearch;
     })
     .sort((a, b) => {
@@ -149,14 +151,26 @@ export default function ProductsPage() {
               </div>
               <div className="ml-3">
                 <h3 className="text-sm font-medium text-red-800">오류 발생</h3>
-                <div className="mt-2 text-sm text-red-700">
-                  <p>{error}</p>
-                  <div className="mt-2">
-                    <Link href="/firebase-test" className="text-red-800 underline">
-                      Firebase 연결 테스트하기
-                    </Link>
+                  <div className="mt-2 text-sm text-red-700">
+                    <p>{error}</p>
+                    {error?.includes("권한") && (
+                      <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div className="font-semibold text-yellow-800 mb-2">Firebase Firestore 보안 규칙 수정 방법:</div>
+                        <div className="text-yellow-700 text-xs">
+                          1. Firebase 콘솔 → Firestore Database → Rules<br/>
+                          2. 다음 규칙으로 변경:<br/>
+                          <code className="bg-yellow-100 px-1 rounded text-xs">
+                            allow read, write: if true;
+                          </code>
+                        </div>
+                      </div>
+                    )}
+                    <div className="mt-2">
+                      <Link href="/firebase-test" className="text-red-800 underline">
+                        Firebase 연결 테스트하기
+                      </Link>
+                    </div>
                   </div>
-                </div>
               </div>
             </div>
           </div>
@@ -275,13 +289,16 @@ export default function ProductsPage() {
                     </div>
                   )}
                   {/* Category Badge */}
-                  <div className="absolute top-2 left-2">
-                    <span className="px-2 py-1 bg-purple-600 text-white text-xs rounded-full font-medium">
-                      {product.category === "dress" ? "드레스" :
-                       product.category === "top" ? "상의" :
-                       product.category === "bottom" ? "하의" : "액세서리"}
-                    </span>
-                  </div>
+                  {(product.category || product.active !== false) && (
+                    <div className="absolute top-2 left-2">
+                      <span className="px-2 py-1 bg-purple-600 text-white text-xs rounded-full font-medium">
+                        {product.category === "dress" ? "드레스" :
+                         product.category === "top" ? "상의" :
+                         product.category === "bottom" ? "하의" : 
+                         product.category === "accessory" ? "액세서리" : "기타"}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Product Info */}
@@ -297,7 +314,7 @@ export default function ProductsPage() {
                   </div>
 
                   {/* Colors */}
-                  {product.colors.length > 0 && (
+                  {product.colors && product.colors.length > 0 && (
                     <div className="mb-2">
                       <p className="text-xs text-gray-500 mb-1">색상</p>
                       <div className="flex flex-wrap gap-1">
@@ -316,7 +333,7 @@ export default function ProductsPage() {
                   )}
 
                   {/* Sizes */}
-                  {product.sizes.length > 0 && (
+                  {product.sizes && product.sizes.length > 0 && (
                     <div className="mb-3">
                       <p className="text-xs text-gray-500 mb-1">사이즈</p>
                       <div className="flex flex-wrap gap-1">
