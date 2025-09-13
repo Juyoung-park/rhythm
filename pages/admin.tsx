@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import { useRouter } from "next/router";
 import { db } from "../lib/firebase";
-import { collection, getDocs, query, orderBy, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, doc, updateDoc, deleteDoc, addDoc } from "firebase/firestore";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
