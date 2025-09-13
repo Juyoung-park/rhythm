@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { auth, db } from "@/lib/firebase";
+import { auth, db } from "../lib/firebase";
 import { collection, addDoc, getDocs } from "firebase/firestore";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import Link from "next/link";

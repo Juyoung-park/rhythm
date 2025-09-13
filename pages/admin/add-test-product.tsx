@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useUser } from "@/context/UserContext";
+import { useUser } from "../../context/UserContext";
 import { useRouter } from "next/router";
-import { db } from "@/lib/firebase";
+import { db } from "../../lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import Link from "next/link";
 import dynamic from "next/dynamic";

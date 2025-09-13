@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useUser } from "@/context/UserContext";
-import { db } from "@/lib/firebase";
+import { useUser } from "../../context/UserContext";
+import { db } from "../../lib/firebase";
 import { collection, getDocs, doc, updateDoc, query, orderBy } from "firebase/firestore";
 import Link from "next/link";
 import { useRouter } from "next/router";
