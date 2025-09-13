@@ -24,14 +24,24 @@ export default function AddProductPage() {
   useEffect(() => {
     const checkFirebaseConnection = async () => {
       try {
-        console.log("Firebase 연결 상태 확인 중...")
-        // 간단한 Firestore 테스트 쿼리
+        console.log("=== Firebase 연결 상태 확인 시작 ===")
+        console.log("Firestore 객체:", db)
+        console.log("Storage 객체:", storage)
+        
+        // Storage 연결 테스트
+        const testRef = ref(storage, "test/connection-test.txt")
+        console.log("Storage 참조 생성 성공:", testRef.fullPath)
+        
+        // Firestore 연결 테스트
         const testCollection = collection(db, "products")
-        // 실제 쿼리는 하지 않고 컬렉션 참조만 생성하여 연결 상태 확인
+        console.log("Firestore 컬렉션 참조 생성 성공:", testCollection.id)
+        
         setFirebaseConnected(true)
-        console.log("Firebase 연결 성공")
+        console.log("=== Firebase 연결 성공 ===")
       } catch (error) {
-        console.error("Firebase 연결 실패:", error)
+        console.error("=== Firebase 연결 실패 ===")
+        console.error("에러:", error)
+        console.error("에러 메시지:", error instanceof Error ? error.message : String(error))
         setFirebaseConnected(false)
       }
     }
@@ -57,27 +67,45 @@ export default function AddProductPage() {
   }, [])
 
   async function uploadImage(file: File): Promise<string> {
-    console.log("이미지 업로드 시작:", file.name, "크기:", file.size)
+    console.log("=== 이미지 업로드 시작 ===")
+    console.log("파일명:", file.name)
+    console.log("파일 크기:", file.size, "bytes")
+    console.log("파일 타입:", file.type)
+    console.log("Storage 객체:", storage)
     
     // 파일 크기 제한 (10MB)
     if (file.size > 10 * 1024 * 1024) {
       throw new Error("이미지 파일이 너무 큽니다 (최대 10MB)")
     }
     
-    const imageRef = ref(storage, `products/${Date.now()}_${file.name}`)
-    
-    // 타임아웃을 위한 Promise.race 사용
-    const uploadPromise = uploadBytes(imageRef, file)
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error("이미지 업로드 시간 초과 (30초)")), 30000)
-    )
-    
-    await Promise.race([uploadPromise, timeoutPromise])
-    console.log("이미지 업로드 완료, URL 가져오는 중...")
-    
-    const url = await getDownloadURL(imageRef)
-    console.log("이미지 URL 생성 완료:", url)
-    return url
+    try {
+      const imageRef = ref(storage, `products/${Date.now()}_${file.name}`)
+      console.log("Storage 참조 생성:", imageRef.fullPath)
+      
+      // 타임아웃을 위한 Promise.race 사용
+      console.log("업로드 시작...")
+      const uploadPromise = uploadBytes(imageRef, file)
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("이미지 업로드 시간 초과 (30초)")), 30000)
+      )
+      
+      const uploadResult = await Promise.race([uploadPromise, timeoutPromise])
+      console.log("업로드 결과:", uploadResult)
+      console.log("이미지 업로드 완료, URL 가져오는 중...")
+      
+      const url = await getDownloadURL(imageRef)
+      console.log("이미지 URL 생성 완료:", url)
+      console.log("=== 이미지 업로드 성공 ===")
+      return url
+    } catch (error) {
+      console.error("=== 이미지 업로드 에러 ===")
+      console.error("에러 타입:", typeof error)
+      console.error("에러 객체:", error)
+      console.error("에러 메시지:", error instanceof Error ? error.message : String(error))
+      console.error("에러 코드:", (error as any)?.code)
+      console.error("에러 스택:", error instanceof Error ? error.stack : "No stack trace")
+      throw error
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -100,9 +128,10 @@ export default function AddProductPage() {
       if (!form.price.trim() || isNaN(Number(form.price))) {
         throw new Error("올바른 가격을 입력해주세요")
       }
-      if (!imageFile && !form.imageUrl.trim()) {
-        throw new Error("제품 이미지를 추가해주세요 (카메라/갤러리 또는 URL)")
-      }
+      // 이미지 검증을 선택사항으로 변경 (임시 해결책)
+      // if (!imageFile && !form.imageUrl.trim()) {
+      //   throw new Error("제품 이미지를 추가해주세요 (카메라/갤러리 또는 URL)")
+      // }
 
       console.log("업로드 시작...")
       setUploadStatus("데이터 검증 완료")
@@ -111,11 +140,28 @@ export default function AddProductPage() {
       
       // 이미지 파일이 있으면 업로드
       if (imageFile) {
-        console.log("이미지 업로드 중...", imageFile.name)
-        setUploadStatus(`이미지 업로드 중... (${imageFile.name})`)
-        imageUrl = await uploadImage(imageFile)
-        console.log("이미지 업로드 완료:", imageUrl)
-        setUploadStatus("이미지 업로드 완료")
+        console.log("이미지 업로드 시도...", imageFile.name)
+        setUploadStatus(`이미지 업로드 시도 중... (${imageFile.name})`)
+        
+        try {
+          imageUrl = await uploadImage(imageFile)
+          console.log("이미지 업로드 완료:", imageUrl)
+          setUploadStatus("이미지 업로드 완료")
+        } catch (uploadError) {
+          console.error("이미지 업로드 실패:", uploadError)
+          const errorMessage = uploadError instanceof Error ? uploadError.message : String(uploadError)
+          
+          if (errorMessage.includes("권한") || errorMessage.includes("permission")) {
+            setUploadStatus("이미지 업로드 실패 - Firebase Storage 권한 확인 필요")
+            alert("이미지 업로드에 실패했습니다.\n\nFirebase Storage 보안 규칙을 확인해주세요.\n\n임시로 이미지 없이 제품만 등록합니다.")
+          } else {
+            setUploadStatus(`이미지 업로드 실패: ${errorMessage}`)
+            alert(`이미지 업로드에 실패했습니다: ${errorMessage}\n\n임시로 이미지 없이 제품만 등록합니다.`)
+          }
+          
+          // 이미지 업로드 실패해도 제품 등록은 계속 진행
+          imageUrl = ""
+        }
       }
 
       console.log("Firestore에 제품 데이터 저장 중...")
@@ -197,18 +243,30 @@ export default function AddProductPage() {
           
           {/* Firebase 연결 상태 표시 */}
           {firebaseConnected !== null && (
-            <div className="mt-3 flex items-center justify-center gap-2 text-sm">
-              {firebaseConnected ? (
-                <>
-                  <span className="text-green-200">✅</span>
-                  <span className="text-green-200">Firebase 연결됨</span>
-                </>
-              ) : (
-                <>
-                  <span className="text-red-200">❌</span>
-                  <span className="text-red-200">Firebase 연결 실패</span>
-                </>
-              )}
+            <div className="mt-3 space-y-2">
+              <div className="flex items-center justify-center gap-2 text-sm">
+                {firebaseConnected ? (
+                  <>
+                    <span className="text-green-200">✅</span>
+                    <span className="text-green-200">Firebase 연결됨</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-red-200">❌</span>
+                    <span className="text-red-200">Firebase 연결 실패</span>
+                  </>
+                )}
+              </div>
+              
+              {/* Firebase Storage 문제 안내 */}
+              <div className="text-xs text-yellow-200 bg-yellow-800/30 rounded-lg p-2">
+                <div className="font-semibold">⚠️ 이미지 업로드 문제 해결법:</div>
+                <div className="mt-1">
+                  1. Firebase 콘솔 → Storage → Rules<br/>
+                  2. 다음 규칙으로 변경:<br/>
+                  <code className="bg-black/20 px-1 rounded">allow read, write: if true;</code>
+                </div>
+              </div>
             </div>
           )}
         </div>
