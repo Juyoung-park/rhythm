@@ -60,6 +60,7 @@ const AdminPage = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [editForm, setEditForm] = useState({
     name: "",
     phone: "",
@@ -195,16 +196,16 @@ const AdminPage = () => {
         address: editForm.address,
         carNumber: editForm.carNumber,
         size: editForm.size,
-        shoulderWidth: editForm.shoulderWidth ? Number(editForm.shoulderWidth) : null,
-        waistCircumference: editForm.waistCircumference ? Number(editForm.waistCircumference) : null,
-        bustCircumference: editForm.bustCircumference ? Number(editForm.bustCircumference) : null,
-        hipCircumference: editForm.hipCircumference ? Number(editForm.hipCircumference) : null,
-        sleeveLength: editForm.sleeveLength ? Number(editForm.sleeveLength) : null,
-        thighCircumference: editForm.thighCircumference ? Number(editForm.thighCircumference) : null,
-        topLength: editForm.topLength ? Number(editForm.topLength) : null,
-        crotchLength: editForm.crotchLength ? Number(editForm.crotchLength) : null,
-        skirtLength: editForm.skirtLength ? Number(editForm.skirtLength) : null,
-        pantsLength: editForm.pantsLength ? Number(editForm.pantsLength) : null,
+        shoulderWidth: editForm.shoulderWidth ? Number(editForm.shoulderWidth) : undefined,
+        waistCircumference: editForm.waistCircumference ? Number(editForm.waistCircumference) : undefined,
+        bustCircumference: editForm.bustCircumference ? Number(editForm.bustCircumference) : undefined,
+        hipCircumference: editForm.hipCircumference ? Number(editForm.hipCircumference) : undefined,
+        sleeveLength: editForm.sleeveLength ? Number(editForm.sleeveLength) : undefined,
+        thighCircumference: editForm.thighCircumference ? Number(editForm.thighCircumference) : undefined,
+        topLength: editForm.topLength ? Number(editForm.topLength) : undefined,
+        crotchLength: editForm.crotchLength ? Number(editForm.crotchLength) : undefined,
+        skirtLength: editForm.skirtLength ? Number(editForm.skirtLength) : undefined,
+        pantsLength: editForm.pantsLength ? Number(editForm.pantsLength) : undefined,
         email: editForm.email,
         updatedAt: new Date()
       });
@@ -219,16 +220,16 @@ const AdminPage = () => {
               address: editForm.address,
               carNumber: editForm.carNumber,
               size: editForm.size,
-              shoulderWidth: editForm.shoulderWidth ? Number(editForm.shoulderWidth) : null,
-              waistCircumference: editForm.waistCircumference ? Number(editForm.waistCircumference) : null,
-              bustCircumference: editForm.bustCircumference ? Number(editForm.bustCircumference) : null,
-              hipCircumference: editForm.hipCircumference ? Number(editForm.hipCircumference) : null,
-              sleeveLength: editForm.sleeveLength ? Number(editForm.sleeveLength) : null,
-              thighCircumference: editForm.thighCircumference ? Number(editForm.thighCircumference) : null,
-              topLength: editForm.topLength ? Number(editForm.topLength) : null,
-              crotchLength: editForm.crotchLength ? Number(editForm.crotchLength) : null,
-              skirtLength: editForm.skirtLength ? Number(editForm.skirtLength) : null,
-              pantsLength: editForm.pantsLength ? Number(editForm.pantsLength) : null,
+              shoulderWidth: editForm.shoulderWidth ? Number(editForm.shoulderWidth) : undefined,
+              waistCircumference: editForm.waistCircumference ? Number(editForm.waistCircumference) : undefined,
+              bustCircumference: editForm.bustCircumference ? Number(editForm.bustCircumference) : undefined,
+              hipCircumference: editForm.hipCircumference ? Number(editForm.hipCircumference) : undefined,
+              sleeveLength: editForm.sleeveLength ? Number(editForm.sleeveLength) : undefined,
+              thighCircumference: editForm.thighCircumference ? Number(editForm.thighCircumference) : undefined,
+              topLength: editForm.topLength ? Number(editForm.topLength) : undefined,
+              crotchLength: editForm.crotchLength ? Number(editForm.crotchLength) : undefined,
+              skirtLength: editForm.skirtLength ? Number(editForm.skirtLength) : undefined,
+              pantsLength: editForm.pantsLength ? Number(editForm.pantsLength) : undefined,
               email: editForm.email,
               updatedAt: new Date()
             }
@@ -278,6 +279,22 @@ const AdminPage = () => {
       email: ""
     });
   };
+
+  // 고객 검색 필터링
+  const filteredCustomers = customers.filter(customer => {
+    if (!searchTerm) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      customer.name.toLowerCase().includes(searchLower) ||
+      customer.phone.includes(searchTerm) ||
+      customer.email.toLowerCase().includes(searchLower) ||
+      (customer.organization && customer.organization.toLowerCase().includes(searchLower)) ||
+      (customer.address && customer.address.toLowerCase().includes(searchLower)) ||
+      (customer.carNumber && customer.carNumber.toLowerCase().includes(searchLower)) ||
+      (customer.size && customer.size.toLowerCase().includes(searchLower))
+    );
+  });
 
   if (user === undefined) {
     return <div className="p-4">로딩 중...</div>;
@@ -427,7 +444,28 @@ const AdminPage = () => {
 
           {activeTab === "customers" && (
             <div>
-              <h2 className="text-xl font-semibold mb-6">고객 관리</h2>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold">고객 관리</h2>
+                <div className="flex items-center space-x-4">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="고객 검색..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    총 {customers.length}명 | 검색 결과 {filteredCustomers.length}명
+                  </div>
+                </div>
+              </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -443,36 +481,44 @@ const AdminPage = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {customers.map((customer) => (
-                      <tr key={customer.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">{customer.name}</div>
-                          <div className="text-sm text-gray-500">{customer.email}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.phone}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.organization || "-"}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 max-w-xs truncate">{customer.address || "-"}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.carNumber || "-"}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.size || "-"}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {customer.updatedAt?.toDate?.()?.toLocaleDateString() || "N/A"}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                          <button
-                            onClick={() => handleEditCustomer(customer)}
-                            className="text-blue-600 hover:text-blue-900"
-                          >
-                            수정
-                          </button>
-                          <button
-                            onClick={() => handleDeleteCustomer(customer.id)}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            삭제
-                          </button>
+                    {filteredCustomers.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                          {searchTerm ? `"${searchTerm}"에 대한 검색 결과가 없습니다.` : "등록된 고객이 없습니다."}
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      filteredCustomers.map((customer) => (
+                        <tr key={customer.id}>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">{customer.name}</div>
+                            <div className="text-sm text-gray-500">{customer.email}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.phone}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.organization || "-"}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 max-w-xs truncate">{customer.address || "-"}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.carNumber || "-"}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.size || "-"}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {customer.updatedAt?.toDate?.()?.toLocaleDateString() || "N/A"}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                            <button
+                              onClick={() => handleEditCustomer(customer)}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
+                              수정
+                            </button>
+                            <button
+                              onClick={() => handleDeleteCustomer(customer.id)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              삭제
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
