@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { db, storage } from "../../lib/firebase"
 import { collection, addDoc, serverTimestamp } from "firebase/firestore"
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
@@ -80,7 +81,7 @@ export default function AddProductPage() {
         <span className="text-sm font-semibold text-gray-700">{label}</span>
         <input
           type={type}
-          value={form[name] as any}
+          value={form[name] as string}
           onChange={(e) =>
             setForm((prev) => ({ ...prev, [name]: e.target.value }))
           }
@@ -198,12 +199,12 @@ export default function AddProductPage() {
         {/* 하단 네비게이션 */}
         <div className="p-4 bg-gray-50 border-t">
           <div className="flex justify-center gap-4">
-            <a href="/admin" className="text-purple-600 hover:text-purple-700 font-medium text-sm">
+            <Link href="/admin" className="text-purple-600 hover:text-purple-700 font-medium text-sm">
               ← 관리자 페이지
-            </a>
-            <a href="/products" className="text-pink-600 hover:text-pink-700 font-medium text-sm">
+            </Link>
+            <Link href="/products" className="text-pink-600 hover:text-pink-700 font-medium text-sm">
               제품 보기 →
-            </a>
+            </Link>
           </div>
         </div>
       </div>

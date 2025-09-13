@@ -42,15 +42,17 @@ export default function ProductsPage() {
         
         setProducts(productsData);
         console.log("Products loaded successfully:", productsData);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Error fetching products:", error);
-        setError(error.message || "제품을 불러오는 중 오류가 발생했습니다.");
+        setError("제품을 불러오는 중 오류가 발생했습니다.");
         
         // Show specific error messages
-        if (error.code === "permission-denied") {
-          setError("Firebase 권한 오류입니다. Firebase Console에서 보안 규칙을 확인해주세요.");
-        } else if (error.code === "unavailable") {
-          setError("Firebase 서비스에 연결할 수 없습니다. 인터넷 연결을 확인해주세요.");
+        if (error && typeof error === 'object' && 'code' in error) {
+          if ((error as any).code === "permission-denied") {
+            setError("Firebase 권한 오류입니다. Firebase Console에서 보안 규칙을 확인해주세요.");
+          } else if ((error as any).code === "unavailable") {
+            setError("Firebase 서비스에 연결할 수 없습니다. 인터넷 연결을 확인해주세요.");
+          }
         }
       } finally {
         setLoading(false);
