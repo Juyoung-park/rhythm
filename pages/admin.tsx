@@ -61,6 +61,7 @@ const AdminPage = () => {
   const [loading, setLoading] = useState(true);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showAddCustomer, setShowAddCustomer] = useState(false);
   const [editForm, setEditForm] = useState({
     name: "",
     phone: "",
@@ -257,8 +258,57 @@ const AdminPage = () => {
     }
   };
 
-  const cancelEdit = () => {
-    setEditingCustomer(null);
+  const handleAddCustomer = async () => {
+    // 필수 필드 검증
+    if (!editForm.name.trim()) {
+      alert("이름을 입력해주세요.");
+      return;
+    }
+    if (!editForm.phone.trim()) {
+      alert("연락처를 입력해주세요.");
+      return;
+    }
+
+    try {
+      const newCustomerData = {
+        name: editForm.name.trim(),
+        phone: editForm.phone.trim(),
+        email: editForm.email.trim() || "",
+        organization: editForm.organization.trim() || "",
+        address: editForm.address.trim() || "",
+        carNumber: editForm.carNumber.trim() || "",
+        size: editForm.size.trim() || "",
+        shoulderWidth: editForm.shoulderWidth ? Number(editForm.shoulderWidth) : undefined,
+        waistCircumference: editForm.waistCircumference ? Number(editForm.waistCircumference) : undefined,
+        bustCircumference: editForm.bustCircumference ? Number(editForm.bustCircumference) : undefined,
+        hipCircumference: editForm.hipCircumference ? Number(editForm.hipCircumference) : undefined,
+        sleeveLength: editForm.sleeveLength ? Number(editForm.sleeveLength) : undefined,
+        thighCircumference: editForm.thighCircumference ? Number(editForm.thighCircumference) : undefined,
+        topLength: editForm.topLength ? Number(editForm.topLength) : undefined,
+        crotchLength: editForm.crotchLength ? Number(editForm.crotchLength) : undefined,
+        skirtLength: editForm.skirtLength ? Number(editForm.skirtLength) : undefined,
+        pantsLength: editForm.pantsLength ? Number(editForm.pantsLength) : undefined,
+        updatedAt: new Date()
+      };
+
+      const docRef = await addDoc(collection(db, "users"), newCustomerData);
+      
+      const newCustomer: Customer = {
+        id: docRef.id,
+        ...newCustomerData
+      };
+
+      setCustomers([newCustomer, ...customers]);
+      setShowAddCustomer(false);
+      resetForm();
+      alert("고객이 성공적으로 추가되었습니다.");
+    } catch (error) {
+      console.error("Error adding customer:", error);
+      alert("고객 추가 중 오류가 발생했습니다.");
+    }
+  };
+
+  const resetForm = () => {
     setEditForm({
       name: "",
       phone: "",
@@ -278,6 +328,12 @@ const AdminPage = () => {
       pantsLength: "",
       email: ""
     });
+  };
+
+  const cancelEdit = () => {
+    setEditingCustomer(null);
+    setShowAddCustomer(false);
+    resetForm();
   };
 
   // 고객 검색 필터링
@@ -447,6 +503,12 @@ const AdminPage = () => {
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">고객 관리</h2>
                 <div className="flex items-center space-x-4">
+                  <button
+                    onClick={() => setShowAddCustomer(true)}
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    고객 추가
+                  </button>
                   <div className="relative">
                     <input
                       type="text"
@@ -789,6 +851,221 @@ const AdminPage = () => {
                 className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
               >
                 저장
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 고객 추가 모달 */}
+      {showAddCustomer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <div className="p-6 border-b">
+              <h3 className="text-lg font-semibold">새 고객 추가</h3>
+              <p className="text-sm text-gray-600 mt-1">* 표시된 필드는 필수 입력 항목입니다.</p>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* 기본 정보 */}
+                <div className="space-y-4">
+                  <h4 className="font-medium text-gray-900 border-b pb-2">기본 정보</h4>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">이름 *</label>
+                    <input
+                      type="text"
+                      value={editForm.name}
+                      onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">연락처 *</label>
+                    <input
+                      type="tel"
+                      value={editForm.phone}
+                      onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+                    <input
+                      type="email"
+                      value={editForm.email}
+                      onChange={(e) => setEditForm({...editForm, email: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">소속</label>
+                    <input
+                      type="text"
+                      value={editForm.organization}
+                      onChange={(e) => setEditForm({...editForm, organization: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">주소</label>
+                    <textarea
+                      value={editForm.address}
+                      onChange={(e) => setEditForm({...editForm, address: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      rows={2}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">차량번호</label>
+                    <input
+                      type="text"
+                      value={editForm.carNumber}
+                      onChange={(e) => setEditForm({...editForm, carNumber: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">사이즈</label>
+                    <input
+                      type="text"
+                      value={editForm.size}
+                      onChange={(e) => setEditForm({...editForm, size: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                </div>
+
+                {/* 신체 치수 */}
+                <div className="space-y-4">
+                  <h4 className="font-medium text-gray-900 border-b pb-2">신체 치수 (cm)</h4>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">어깨너비</label>
+                      <input
+                        type="number"
+                        value={editForm.shoulderWidth}
+                        onChange={(e) => setEditForm({...editForm, shoulderWidth: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">허리둘레</label>
+                      <input
+                        type="number"
+                        value={editForm.waistCircumference}
+                        onChange={(e) => setEditForm({...editForm, waistCircumference: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">가슴둘레</label>
+                      <input
+                        type="number"
+                        value={editForm.bustCircumference}
+                        onChange={(e) => setEditForm({...editForm, bustCircumference: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">엉덩이둘레</label>
+                      <input
+                        type="number"
+                        value={editForm.hipCircumference}
+                        onChange={(e) => setEditForm({...editForm, hipCircumference: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">소매길이</label>
+                      <input
+                        type="number"
+                        value={editForm.sleeveLength}
+                        onChange={(e) => setEditForm({...editForm, sleeveLength: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">허벌지둘레</label>
+                      <input
+                        type="number"
+                        value={editForm.thighCircumference}
+                        onChange={(e) => setEditForm({...editForm, thighCircumference: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">상의길이</label>
+                      <input
+                        type="number"
+                        value={editForm.topLength}
+                        onChange={(e) => setEditForm({...editForm, topLength: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">밑위길이</label>
+                      <input
+                        type="number"
+                        value={editForm.crotchLength}
+                        onChange={(e) => setEditForm({...editForm, crotchLength: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">치마길이</label>
+                      <input
+                        type="number"
+                        value={editForm.skirtLength}
+                        onChange={(e) => setEditForm({...editForm, skirtLength: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">바지길이</label>
+                      <input
+                        type="number"
+                        value={editForm.pantsLength}
+                        onChange={(e) => setEditForm({...editForm, pantsLength: e.target.value})}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-6 border-t bg-gray-50 flex justify-end space-x-3">
+              <button
+                onClick={cancelEdit}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleAddCustomer}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+              >
+                고객 추가
               </button>
             </div>
           </div>
