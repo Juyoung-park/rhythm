@@ -270,106 +270,106 @@ export default function ProductsPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
               <div key={product.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                {/* Product Image */}
-                <div className="relative">
-                  {product.imageUrl ? (
-                    <img
-                      src={product.imageUrl.startsWith('data:') ? product.imageUrl : product.imageUrl}
-                      alt={product.name}
-                      className="w-full h-24 object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-24 bg-gray-100 flex items-center justify-center">
-                      <div className="text-center">
-                        <svg className="w-5 h-5 text-gray-300 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                {/* Clickable Product Card */}
+                <Link href={`/order/${product.id}`} className="block">
+                  {/* Product Image */}
+                  <div className="relative">
+                    {product.imageUrl ? (
+                      <img
+                        src={product.imageUrl.startsWith('data:') ? product.imageUrl : product.imageUrl}
+                        alt={product.name}
+                        className="w-full h-24 object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-24 bg-gray-100 flex items-center justify-center">
+                        <div className="text-center">
+                          <svg className="w-5 h-5 text-gray-300 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <p className="text-xs text-gray-400">이미지 없음</p>
+                        </div>
+                      </div>
+                    )}
+                    {/* Category Badge */}
+                    {(product.category || product.active !== false) && (
+                      <div className="absolute top-2 left-2">
+                        <span className="px-2 py-1 bg-purple-600 text-white text-xs rounded-full font-medium">
+                          {product.category === "dress" ? "드레스" :
+                           product.category === "top" ? "상의" :
+                           product.category === "bottom" ? "하의" : 
+                           product.category === "accessory" ? "액세서리" : "기타"}
+                        </span>
+                      </div>
+                    )}
+                    {/* Click Indicator */}
+                    <div className="absolute top-2 right-2">
+                      <div className="w-6 h-6 bg-white/80 rounded-full flex items-center justify-center">
+                        <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
-                        <p className="text-xs text-gray-400">이미지 없음</p>
                       </div>
                     </div>
-                  )}
-                  {/* Category Badge */}
-                  {(product.category || product.active !== false) && (
-                    <div className="absolute top-2 left-2">
-                      <span className="px-2 py-1 bg-purple-600 text-white text-xs rounded-full font-medium">
-                        {product.category === "dress" ? "드레스" :
-                         product.category === "top" ? "상의" :
-                         product.category === "bottom" ? "하의" : 
-                         product.category === "accessory" ? "액세서리" : "기타"}
+                  </div>
+
+                  {/* Product Info */}
+                  <div className="p-3">
+                    <h3 className="text-base font-semibold text-gray-900 mb-2 line-clamp-2">{product.name}</h3>
+                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
+                    
+                    {/* Price */}
+                    <div className="mb-3">
+                      <span className="text-lg font-bold text-purple-600">
+                        ₩{product.price.toLocaleString()}
                       </span>
                     </div>
-                  )}
-                </div>
 
-                {/* Product Info */}
-                <div className="p-3">
-                  <h3 className="text-base font-semibold text-gray-900 mb-2 line-clamp-2">{product.name}</h3>
-                  <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
-                  
-                  {/* Price */}
-                  <div className="mb-3">
-                    <span className="text-lg font-bold text-purple-600">
-                      ₩{product.price.toLocaleString()}
-                    </span>
-                  </div>
-
-                  {/* Colors */}
-                  {product.colors && product.colors.length > 0 && (
-                    <div className="mb-2">
-                      <p className="text-xs text-gray-500 mb-1">색상</p>
-                      <div className="flex flex-wrap gap-1">
-                        {product.colors.slice(0, 2).map((color, index) => (
-                          <span key={index} className="px-1.5 py-0.5 bg-purple-100 text-purple-800 text-xs rounded-full">
-                            {color}
-                          </span>
-                        ))}
-                        {product.colors.length > 2 && (
-                          <span className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
-                            +{product.colors.length - 2}
-                          </span>
-                        )}
+                    {/* Colors */}
+                    {product.colors && product.colors.length > 0 && (
+                      <div className="mb-2">
+                        <p className="text-xs text-gray-500 mb-1">색상</p>
+                        <div className="flex flex-wrap gap-1">
+                          {product.colors.slice(0, 2).map((color, index) => (
+                            <span key={index} className="px-1.5 py-0.5 bg-purple-100 text-purple-800 text-xs rounded-full">
+                              {color}
+                            </span>
+                          ))}
+                          {product.colors.length > 2 && (
+                            <span className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
+                              +{product.colors.length - 2}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
-
-                  {/* Sizes */}
-                  {product.sizes && product.sizes.length > 0 && (
-                    <div className="mb-3">
-                      <p className="text-xs text-gray-500 mb-1">사이즈</p>
-                      <div className="flex flex-wrap gap-1">
-                        {product.sizes.slice(0, 3).map((size, index) => (
-                          <span key={index} className="px-1.5 py-0.5 bg-gray-100 text-gray-800 text-xs rounded-full">
-                            {size}
-                          </span>
-                        ))}
-                        {product.sizes.length > 3 && (
-                          <span className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
-                            +{product.sizes.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Order Button */}
-                  <div className="mt-3">
-                    {user ? (
-                      <Link
-                        href={`/order/${product.id}`}
-                        className="inline-block bg-purple-600 text-white text-center px-4 py-1.5 rounded-lg hover:bg-purple-700 transition-all text-sm font-medium"
-                      >
-                        주문하기
-                      </Link>
-                    ) : (
-                      <Link
-                        href="/login"
-                        className="inline-block bg-gray-600 text-white text-center px-4 py-1.5 rounded-lg hover:bg-gray-700 transition-all text-sm font-medium"
-                      >
-                        로그인 후 주문
-                      </Link>
                     )}
+
+                    {/* Sizes */}
+                    {product.sizes && product.sizes.length > 0 && (
+                      <div className="mb-3">
+                        <p className="text-xs text-gray-500 mb-1">사이즈</p>
+                        <div className="flex flex-wrap gap-1">
+                          {product.sizes.slice(0, 3).map((size, index) => (
+                            <span key={index} className="px-1.5 py-0.5 bg-gray-100 text-gray-800 text-xs rounded-full">
+                              {size}
+                            </span>
+                          ))}
+                          {product.sizes.length > 3 && (
+                            <span className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
+                              +{product.sizes.length - 3}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* View Details Hint */}
+                    <div className="mt-3 text-center">
+                      <span className="text-xs text-gray-500 bg-gray-50 px-3 py-1 rounded-full">
+                        클릭하여 상세보기
+                      </span>
+                    </div>
                   </div>
-                </div>
+                </Link>
               </div>
             ))}
           </div>
