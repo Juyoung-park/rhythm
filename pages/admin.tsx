@@ -49,6 +49,16 @@ const AdminPage = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    phone: "",
+    height: "",
+    bust: "",
+    waist: "",
+    hip: "",
+    email: ""
+  });
 
   // Wait for router to be ready
   if (!router.isReady) {
@@ -129,6 +139,84 @@ const AdminPage = () => {
       console.error("Error updating order:", error);
       alert("업데이트 중 오류가 발생했습니다.");
     }
+  };
+
+  const handleEditCustomer = (customer: Customer) => {
+    setEditingCustomer(customer);
+    setEditForm({
+      name: customer.name,
+      phone: customer.phone,
+      height: customer.height.toString(),
+      bust: customer.bust.toString(),
+      waist: customer.waist.toString(),
+      hip: customer.hip.toString(),
+      email: customer.email
+    });
+  };
+
+  const handleUpdateCustomer = async () => {
+    if (!editingCustomer) return;
+
+    try {
+      await updateDoc(doc(db, "users", editingCustomer.id), {
+        name: editForm.name,
+        phone: editForm.phone,
+        height: Number(editForm.height),
+        bust: Number(editForm.bust),
+        waist: Number(editForm.waist),
+        hip: Number(editForm.hip),
+        email: editForm.email,
+        updatedAt: new Date()
+      });
+
+      setCustomers(customers.map(customer => 
+        customer.id === editingCustomer.id 
+          ? { 
+              ...customer, 
+              name: editForm.name,
+              phone: editForm.phone,
+              height: Number(editForm.height),
+              bust: Number(editForm.bust),
+              waist: Number(editForm.waist),
+              hip: Number(editForm.hip),
+              email: editForm.email,
+              updatedAt: new Date()
+            }
+          : customer
+      ));
+
+      setEditingCustomer(null);
+      alert("고객 정보가 업데이트되었습니다.");
+    } catch (error) {
+      console.error("Error updating customer:", error);
+      alert("업데이트 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleDeleteCustomer = async (customerId: string) => {
+    if (!confirm("정말로 이 고객을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) return;
+    
+    try {
+      await deleteDoc(doc(db, "users", customerId));
+      setCustomers(customers.filter(c => c.id !== customerId));
+      alert("고객이 삭제되었습니다.");
+    } catch (error) {
+      console.error("Error deleting customer:", error);
+      alert("삭제 중 오류가 발생했습니다.");
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingCustomer(null);
+    setEditForm({
+      name: "",
+      phone: "",
+      height: "",
+      bust: "",
+      waist: "",
+      hip: "",
+      email: ""
+    });
   };
 
   if (user === undefined) {
@@ -288,6 +376,7 @@ const AdminPage = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">연락처</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">신체 치수</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">등록일</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -303,6 +392,20 @@ const AdminPage = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {customer.updatedAt?.toDate?.()?.toLocaleDateString() || "N/A"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                          <button
+                            onClick={() => handleEditCustomer(customer)}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
+                            수정
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCustomer(customer.id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            삭제
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -366,6 +469,104 @@ const AdminPage = () => {
           )}
         </div>
       </div>
+
+      {/* 고객 수정 모달 */}
+      {editingCustomer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold mb-4">고객 정보 수정</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">이름</label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+                <input
+                  type="email"
+                  value={editForm.email}
+                  onChange={(e) => setEditForm({...editForm, email: e.target.value})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">연락처</label>
+                <input
+                  type="tel"
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">키 (cm)</label>
+                  <input
+                    type="number"
+                    value={editForm.height}
+                    onChange={(e) => setEditForm({...editForm, height: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">가슴 (cm)</label>
+                  <input
+                    type="number"
+                    value={editForm.bust}
+                    onChange={(e) => setEditForm({...editForm, bust: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">허리 (cm)</label>
+                  <input
+                    type="number"
+                    value={editForm.waist}
+                    onChange={(e) => setEditForm({...editForm, waist: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">힙 (cm)</label>
+                  <input
+                    type="number"
+                    value={editForm.hip}
+                    onChange={(e) => setEditForm({...editForm, hip: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={cancelEdit}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleUpdateCustomer}
+                className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+              >
+                저장
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
