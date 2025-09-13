@@ -4,7 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react"
 import Link from "next/link"
 import { db, storage } from "../../lib/firebase"
 import { collection, addDoc, serverTimestamp } from "firebase/firestore"
-import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from "firebase/storage"
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
 
 export default function AddProductPage() {
   const [form, setForm] = useState({
@@ -21,7 +21,6 @@ export default function AddProductPage() {
   const [firebaseConnected, setFirebaseConnected] = useState<boolean | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [retryCount, setRetryCount] = useState(0)
-  const [uploadTask, setUploadTask] = useState<any>(null)
 
   // Firebase 연결 상태 확인
   useEffect(() => {
@@ -113,19 +112,6 @@ export default function AddProductPage() {
     })
   }, [])
 
-  // 업로드 취소 함수
-  const cancelUpload = useCallback(() => {
-    if (uploadTask) {
-      console.log("업로드 취소 중...")
-      uploadTask.cancel()
-      setUploadTask(null)
-    }
-    setUploading(false)
-    setUploadStatus("업로드가 취소되었습니다")
-    setUploadProgress(0)
-    setRetryCount(0)
-  }, [uploadTask])
-
   // 재시도 메커니즘을 포함한 이미지 업로드 함수
   async function uploadImageWithRetry(file: File, maxRetries: number = 3): Promise<string> {
     let lastError: Error | null = null
@@ -168,51 +154,18 @@ export default function AddProductPage() {
     }
     
     try {
-      // 이미지 압축
-      setUploadStatus("이미지 압축 중...")
-      setUploadProgress(10)
-      const compressedFile = await compressImage(file, 800, 0.8)
-      console.log("압축 후 파일 크기:", compressedFile.size, "bytes")
-      console.log("압축률:", ((file.size - compressedFile.size) / file.size * 100).toFixed(1) + "%")
-      
+      // 이미지 압축 비활성화 (문제 해결을 위해)
       setUploadStatus("Firebase Storage에 업로드 중...")
       setUploadProgress(30)
       
-      const imageRef = ref(storage, `products/${Date.now()}_${compressedFile.name}`)
+      const imageRef = ref(storage, `products/${Date.now()}_${file.name}`)
       console.log("Storage 참조 생성:", imageRef.fullPath)
       
-      // 실제 Firebase Storage 진행률 추적
-      const currentUploadTask = uploadBytesResumable(imageRef, compressedFile)
-      setUploadTask(currentUploadTask)
-      
-      // 업로드 진행률 추적
-      const uploadPromise = new Promise<void>((resolve, reject) => {
-        currentUploadTask.on('state_changed',
-          (snapshot) => {
-            // 실제 업로드 진행률 계산
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-            setUploadProgress(Math.round(progress))
-            console.log(`업로드 진행률: ${Math.round(progress)}%`)
-          },
-          (error) => {
-            console.error('업로드 에러:', error)
-            reject(error)
-          },
-          () => {
-            console.log('업로드 완료')
-            resolve()
-          }
-        )
-      })
-      
-      // 타임아웃 설정 (2분으로 연장)
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("이미지 업로드 시간 초과 (2분)")), 120000)
-      )
-      
-      await Promise.race([uploadPromise, timeoutPromise])
+      // 기본 uploadBytes 사용 (문제 해결을 위해)
+      console.log("업로드 시작...")
+      const uploadResult = await uploadBytes(imageRef, file)
+      console.log("업로드 결과:", uploadResult)
       setUploadProgress(90)
-      setUploadTask(null) // 업로드 완료 후 task 초기화
       
       console.log("이미지 업로드 완료, URL 가져오는 중...")
       
@@ -224,7 +177,6 @@ export default function AddProductPage() {
       console.log("=== 이미지 업로드 성공 ===")
       return url
     } catch (error) {
-      setUploadTask(null) // 에러 발생 시 task 초기화
       console.error("=== 이미지 업로드 에러 ===")
       console.error("에러 타입:", typeof error)
       console.error("에러 객체:", error)
@@ -596,27 +548,20 @@ export default function AddProductPage() {
             </div>
           )}
 
-          {uploading ? (
-            <div className="space-y-3">
-              <button
-                type="button"
-                onClick={cancelUpload}
-                className="w-full rounded-xl bg-red-600 text-white py-4 font-bold text-lg hover:bg-red-700 transition-all duration-200 shadow-lg"
-              >
-                업로드 취소
-              </button>
-              <div className="text-center text-sm text-gray-600">
-                업로드가 너무 오래 걸리면 취소 버튼을 눌러주세요
+          <button
+            type="submit"
+            disabled={uploading}
+            className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 font-bold text-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            {uploading ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                업로드 중...
               </div>
-            </div>
-          ) : (
-            <button
-              type="submit"
-              className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 font-bold text-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
-            >
-              제품 등록하기
-            </button>
-          )}
+            ) : (
+              "제품 등록하기"
+            )}
+          </button>
         </form>
 
         {/* 하단 네비게이션 */}
