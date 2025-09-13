@@ -20,6 +20,7 @@ export default function AddProductPage() {
   const [uploadStatus, setUploadStatus] = useState<string>("")
   const [firebaseConnected, setFirebaseConnected] = useState<boolean | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [retryCount, setRetryCount] = useState(0)
 
   // Firebase 연결 상태 확인
   useEffect(() => {
@@ -110,6 +111,36 @@ export default function AddProductPage() {
     })
   }, [])
 
+  // 재시도 메커니즘을 포함한 이미지 업로드 함수
+  async function uploadImageWithRetry(file: File, maxRetries: number = 3): Promise<string> {
+    let lastError: Error | null = null
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`이미지 업로드 시도 ${attempt}/${maxRetries}`)
+        setRetryCount(attempt - 1)
+        
+        if (attempt > 1) {
+          setUploadStatus(`재시도 중... (${attempt}/${maxRetries})`)
+          setUploadProgress(0)
+          // 재시도 전 잠시 대기
+          await new Promise(resolve => setTimeout(resolve, 2000))
+        }
+        
+        return await uploadImage(file)
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error))
+        console.error(`업로드 시도 ${attempt} 실패:`, lastError.message)
+        
+        if (attempt === maxRetries) {
+          throw lastError
+        }
+      }
+    }
+    
+    throw lastError || new Error("업로드 실패")
+  }
+
   async function uploadImage(file: File): Promise<string> {
     console.log("=== 이미지 업로드 시작 ===")
     console.log("원본 파일명:", file.name)
@@ -158,9 +189,9 @@ export default function AddProductPage() {
         )
       })
       
-      // 타임아웃 설정
+      // 타임아웃 설정 (2분으로 연장)
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("이미지 업로드 시간 초과 (30초)")), 30000)
+        setTimeout(() => reject(new Error("이미지 업로드 시간 초과 (2분)")), 120000)
       )
       
       await Promise.race([uploadPromise, timeoutPromise])
@@ -191,12 +222,12 @@ export default function AddProductPage() {
     setUploading(true)
     setUploadStatus("업로드 준비 중...")
     
-    // 전체 프로세스 타임아웃 (60초)
+    // 전체 프로세스 타임아웃 (5분으로 연장)
     const overallTimeout = setTimeout(() => {
       setUploading(false)
       setUploadStatus("업로드 시간 초과 - 네트워크를 확인해주세요")
       alert("업로드가 시간 초과되었습니다. 네트워크 연결을 확인하고 다시 시도해주세요.")
-    }, 60000)
+    }, 300000)
     
     try {
       // 폼 검증
@@ -222,7 +253,7 @@ export default function AddProductPage() {
         setUploadStatus(`이미지 업로드 시도 중... (${imageFile.name})`)
         
         try {
-          imageUrl = await uploadImage(imageFile)
+          imageUrl = await uploadImageWithRetry(imageFile)
           console.log("이미지 업로드 완료:", imageUrl)
           setUploadStatus("이미지 업로드 완료")
         } catch (uploadError) {
@@ -253,10 +284,10 @@ export default function AddProductPage() {
       }
       console.log("저장할 데이터:", productData)
 
-      // Firestore 저장에도 타임아웃 추가
+      // Firestore 저장에도 타임아웃 추가 (30초로 연장)
       const savePromise = addDoc(collection(db, "products"), productData)
       const saveTimeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("데이터 저장 시간 초과 (15초)")), 15000)
+        setTimeout(() => reject(new Error("데이터 저장 시간 초과 (30초)")), 30000)
       )
       
       await Promise.race([savePromise, saveTimeoutPromise])
@@ -269,6 +300,7 @@ export default function AddProductPage() {
       setImagePreview("")
       setUploadStatus("")
       setUploadProgress(0)
+      setRetryCount(0)
     } catch (err) {
       console.error("업로드 에러:", err)
       const errorMessage = err instanceof Error ? err.message : '알 수 없는 오류'
@@ -297,6 +329,7 @@ export default function AddProductPage() {
         setTimeout(() => {
           setUploadStatus("")
           setUploadProgress(0)
+          setRetryCount(0)
         }, 5000)
       }
     }
@@ -531,9 +564,13 @@ export default function AddProductPage() {
                       {uploadProgress}%
                     </div>
                     <div className="text-xs text-gray-500">
-                      {uploadProgress < 30 ? "압축 중..." : 
+                      {uploadStatus.includes("재시도") ? uploadStatus :
+                       uploadProgress < 30 ? "압축 중..." : 
                        uploadProgress < 90 ? "업로드 중..." : 
                        uploadProgress < 100 ? "처리 중..." : "완료"}
+                      {retryCount > 0 && !uploadStatus.includes("재시도") && (
+                        <span className="text-orange-600"> (재시도 {retryCount}회)</span>
+                      )}
                     </div>
                   </div>
                 </div>
