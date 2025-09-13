@@ -274,7 +274,7 @@ export default function ProductsPage() {
                 <div className="relative">
                   {product.imageUrl ? (
                     <img
-                      src={product.imageUrl}
+                      src={product.imageUrl.startsWith('data:') ? product.imageUrl : product.imageUrl}
                       alt={product.name}
                       className="w-full h-24 object-cover"
                     />

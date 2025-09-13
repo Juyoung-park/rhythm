@@ -2,9 +2,8 @@
 
 import { useState, useCallback, useRef, useEffect } from "react"
 import Link from "next/link"
-import { db, storage } from "../../lib/firebase"
+import { db } from "../../lib/firebase"
 import { collection, addDoc, serverTimestamp } from "firebase/firestore"
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
 
 export default function AddProductPage() {
   const [form, setForm] = useState({
@@ -112,49 +111,40 @@ export default function AddProductPage() {
     })
   }, [])
 
-  // Firebase Storage 연결 테스트 함수
-  const testFirebaseStorage = useCallback(async () => {
-    try {
-      console.log("=== Firebase Storage 연결 테스트 시작 ===")
-      const testRef = ref(storage, "test/connection-test.txt")
-      const testBlob = new Blob(["test"], { type: "text/plain" })
-      
-      console.log("테스트 파일 업로드 시도...")
-      const result = await uploadBytes(testRef, testBlob)
-      console.log("테스트 업로드 성공:", result)
-      
-      const url = await getDownloadURL(testRef)
-      console.log("테스트 URL 생성 성공:", url)
-      
-      alert("Firebase Storage 연결 테스트 성공! ✅")
-      return true
-    } catch (error) {
-      console.error("Firebase Storage 연결 테스트 실패:", error)
-      alert(`Firebase Storage 연결 테스트 실패: ${error instanceof Error ? error.message : String(error)}`)
-      return false
-    }
+  // 이미지를 Base64로 변환하는 함수
+  const convertToBase64 = useCallback((file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        const result = reader.result as string
+        console.log("Base64 변환 완료, 크기:", result.length, "characters")
+        resolve(result)
+      }
+      reader.onerror = () => reject(new Error("파일 읽기 실패"))
+      reader.readAsDataURL(file)
+    })
   }, [])
 
-  // 재시도 메커니즘을 포함한 이미지 업로드 함수
-  async function uploadImageWithRetry(file: File, maxRetries: number = 3): Promise<string> {
+  // 이미지를 Base64로 변환하는 함수 (재시도 포함)
+  async function convertImageWithRetry(file: File, maxRetries: number = 3): Promise<string> {
     let lastError: Error | null = null
     
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        console.log(`이미지 업로드 시도 ${attempt}/${maxRetries}`)
+        console.log(`이미지 변환 시도 ${attempt}/${maxRetries}`)
         setRetryCount(attempt - 1)
         
         if (attempt > 1) {
           setUploadStatus(`재시도 중... (${attempt}/${maxRetries})`)
           setUploadProgress(0)
           // 재시도 전 잠시 대기
-          await new Promise(resolve => setTimeout(resolve, 2000))
+          await new Promise(resolve => setTimeout(resolve, 1000))
         }
         
-        return await uploadImage(file)
+        return await convertImage(file)
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error))
-        console.error(`업로드 시도 ${attempt} 실패:`, lastError.message)
+        console.error(`변환 시도 ${attempt} 실패:`, lastError.message)
         
         if (attempt === maxRetries) {
           throw lastError
@@ -162,60 +152,36 @@ export default function AddProductPage() {
       }
     }
     
-    throw lastError || new Error("업로드 실패")
+    throw lastError || new Error("변환 실패")
   }
 
-  async function uploadImage(file: File): Promise<string> {
-    console.log("=== 이미지 업로드 시작 ===")
+  async function convertImage(file: File): Promise<string> {
+    console.log("=== 이미지 Base64 변환 시작 ===")
     console.log("원본 파일명:", file.name)
-    console.log("원본 파일 크기:", file.size, "bytes")
+    console.log("파일 크기:", file.size, "bytes")
     console.log("파일 타입:", file.type)
     
-    // 파일 크기 제한 (10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      throw new Error("이미지 파일이 너무 큽니다 (최대 10MB)")
+    // 파일 크기 제한 (5MB - Base64는 원본보다 약 33% 큼)
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error("이미지 파일이 너무 큽니다 (최대 5MB)")
     }
     
     try {
-      // 이미지 압축 비활성화 (문제 해결을 위해)
-      setUploadStatus("Firebase Storage에 업로드 중...")
+      setUploadStatus("이미지를 Base64로 변환 중...")
       setUploadProgress(30)
       
-      const imageRef = ref(storage, `products/${Date.now()}_${file.name}`)
-      console.log("Storage 참조 생성:", imageRef.fullPath)
-      console.log("Storage 버킷:", storage.app.options.storageBucket)
-      console.log("업로드할 파일:", file.name, file.size, "bytes")
-      
-      // 기본 uploadBytes 사용 (문제 해결을 위해)
-      console.log("업로드 시작...")
-      console.log("uploadBytes 함수 호출 전...")
-      
-      // 타임아웃 설정 (10초)
-      const uploadPromise = uploadBytes(imageRef, file)
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("업로드 시간 초과 (10초)")), 10000)
-      )
-      
-      const uploadResult = await Promise.race([uploadPromise, timeoutPromise])
-      console.log("업로드 결과:", uploadResult)
-      setUploadProgress(90)
-      
-      console.log("이미지 업로드 완료, URL 가져오는 중...")
-      
-      setUploadStatus("이미지 URL 생성 중...")
-      const url = await getDownloadURL(imageRef)
+      console.log("Base64 변환 시작...")
+      const base64String = await convertToBase64(file)
       setUploadProgress(100)
       
-      console.log("이미지 URL 생성 완료:", url)
-      console.log("=== 이미지 업로드 성공 ===")
-      return url
+      console.log("Base64 변환 완료, 크기:", base64String.length, "characters")
+      console.log("=== 이미지 변환 성공 ===")
+      return base64String
     } catch (error) {
-      console.error("=== 이미지 업로드 에러 ===")
+      console.error("=== 이미지 변환 에러 ===")
       console.error("에러 타입:", typeof error)
       console.error("에러 객체:", error)
       console.error("에러 메시지:", error instanceof Error ? error.message : String(error))
-      console.error("에러 코드:", (error as any)?.code)
-      console.error("에러 스택:", error instanceof Error ? error.stack : "No stack trace")
       throw error
     }
   }
@@ -252,26 +218,21 @@ export default function AddProductPage() {
       
       // 이미지 파일이 있으면 업로드
       if (imageFile) {
-        console.log("이미지 업로드 시도...", imageFile.name)
-        setUploadStatus(`이미지 업로드 시도 중... (${imageFile.name})`)
+        console.log("이미지 변환 시도...", imageFile.name)
+        setUploadStatus(`이미지 변환 시도 중... (${imageFile.name})`)
         
         try {
-          imageUrl = await uploadImageWithRetry(imageFile)
-          console.log("이미지 업로드 완료:", imageUrl)
-          setUploadStatus("이미지 업로드 완료")
-        } catch (uploadError) {
-          console.error("이미지 업로드 실패:", uploadError)
-          const errorMessage = uploadError instanceof Error ? uploadError.message : String(uploadError)
+          imageUrl = await convertImageWithRetry(imageFile)
+          console.log("이미지 변환 완료:", imageUrl.substring(0, 50) + "...")
+          setUploadStatus("이미지 변환 완료")
+        } catch (conversionError) {
+          console.error("이미지 변환 실패:", conversionError)
+          const errorMessage = conversionError instanceof Error ? conversionError.message : String(conversionError)
           
-          if (errorMessage.includes("권한") || errorMessage.includes("permission")) {
-            setUploadStatus("이미지 업로드 실패 - Firebase Storage 권한 확인 필요")
-            alert("이미지 업로드에 실패했습니다.\n\nFirebase Storage 보안 규칙을 확인해주세요.\n\n임시로 이미지 없이 제품만 등록합니다.")
-          } else {
-            setUploadStatus(`이미지 업로드 실패: ${errorMessage}`)
-            alert(`이미지 업로드에 실패했습니다: ${errorMessage}\n\n임시로 이미지 없이 제품만 등록합니다.`)
-          }
+          setUploadStatus(`이미지 변환 실패: ${errorMessage}`)
+          alert(`이미지 변환에 실패했습니다: ${errorMessage}\n\n임시로 이미지 없이 제품만 등록합니다.`)
           
-          // 이미지 업로드 실패해도 제품 등록은 계속 진행
+          // 이미지 변환 실패해도 제품 등록은 계속 진행
           imageUrl = ""
         }
       }
@@ -376,20 +337,14 @@ export default function AddProductPage() {
                 )}
               </div>
               
-              {/* Firebase Storage 문제 안내 */}
-              <div className="text-xs text-yellow-200 bg-yellow-800/30 rounded-lg p-2">
-                <div className="font-semibold">⚠️ 이미지 업로드 문제 해결법:</div>
+              {/* Base64 이미지 저장 안내 */}
+              <div className="text-xs text-green-200 bg-green-800/30 rounded-lg p-2">
+                <div className="font-semibold">✅ Base64 이미지 저장 방식:</div>
                 <div className="mt-1">
-                  1. Firebase 콘솔 → Storage → Rules<br/>
-                  2. 다음 규칙으로 변경:<br/>
-                  <code className="bg-black/20 px-1 rounded">allow read, write: if true;</code>
+                  • 이미지를 Base64로 변환하여 Firestore에 저장<br/>
+                  • Firebase Storage 불필요 (무료 플랜 사용 가능)<br/>
+                  • 최대 파일 크기: 5MB
                 </div>
-                <button
-                  onClick={testFirebaseStorage}
-                  className="mt-2 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
-                >
-                  Storage 연결 테스트
-                </button>
               </div>
             </div>
           )}
