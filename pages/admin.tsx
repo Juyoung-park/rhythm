@@ -270,6 +270,9 @@ const AdminPage = () => {
     }
 
     try {
+      console.log("=== 고객 추가 시작 ===");
+      console.log("입력된 폼 데이터:", editForm);
+      
       const newCustomerData = {
         name: editForm.name.trim(),
         phone: editForm.phone.trim(),
@@ -291,20 +294,34 @@ const AdminPage = () => {
         updatedAt: new Date()
       };
 
+      console.log("처리된 고객 데이터:", newCustomerData);
+      console.log("Firestore DB 객체:", db);
+      
       const docRef = await addDoc(collection(db, "users"), newCustomerData);
+      console.log("Firestore 문서 참조:", docRef);
       
       const newCustomer: Customer = {
         id: docRef.id,
         ...newCustomerData
       };
 
+      console.log("새 고객 객체:", newCustomer);
+      
       setCustomers([newCustomer, ...customers]);
       setShowAddCustomer(false);
       resetForm();
       alert("고객이 성공적으로 추가되었습니다.");
+      console.log("=== 고객 추가 완료 ===");
     } catch (error) {
-      console.error("Error adding customer:", error);
-      alert("고객 추가 중 오류가 발생했습니다.");
+      console.error("=== 고객 추가 에러 ===");
+      console.error("에러 타입:", typeof error);
+      console.error("에러 객체:", error);
+      console.error("에러 메시지:", error instanceof Error ? error.message : String(error));
+      console.error("에러 코드:", (error as any)?.code);
+      console.error("에러 스택:", error instanceof Error ? error.stack : "No stack trace");
+      
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      alert(`고객 추가 중 오류가 발생했습니다.\n\n오류: ${errorMessage}\n\n개발자 도구 콘솔을 확인해주세요.`);
     }
   };
 
@@ -860,13 +877,13 @@ const AdminPage = () => {
       {/* 고객 추가 모달 */}
       {showAddCustomer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden">
-            <div className="p-6 border-b">
+          <div className="bg-white rounded-lg w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
+            <div className="p-6 border-b flex-shrink-0">
               <h3 className="text-lg font-semibold">새 고객 추가</h3>
               <p className="text-sm text-gray-600 mt-1">* 표시된 필드는 필수 입력 항목입니다.</p>
             </div>
             
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+            <div className="p-6 overflow-y-auto flex-1">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* 기본 정보 */}
                 <div className="space-y-4">
@@ -1054,7 +1071,7 @@ const AdminPage = () => {
               </div>
             </div>
             
-            <div className="p-6 border-t bg-gray-50 flex justify-end space-x-3">
+            <div className="p-6 border-t bg-gray-50 flex justify-end space-x-3 flex-shrink-0">
               <button
                 onClick={cancelEdit}
                 className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
