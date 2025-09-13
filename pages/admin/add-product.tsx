@@ -105,6 +105,42 @@ export default function AddProductPage() {
     })
   }, [])
 
+  // 이미지 압축 함수
+  const compressImage = useCallback((file: File, maxWidth: number = 800, quality: number = 0.7): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      const img = new Image()
+      
+      img.onload = () => {
+        // 원본 비율 유지하면서 크기 조정
+        const ratio = Math.min(maxWidth / img.width, maxWidth / img.height)
+        canvas.width = img.width * ratio
+        canvas.height = img.height * ratio
+        
+        // 이미지 그리기
+        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height)
+        
+        // 압축된 이미지를 Blob으로 변환
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name, {
+              type: 'image/jpeg',
+              lastModified: Date.now()
+            })
+            console.log(`이미지 압축 완료: ${file.size} → ${compressedFile.size} bytes`)
+            resolve(compressedFile)
+          } else {
+            reject(new Error('이미지 압축 실패'))
+          }
+        }, 'image/jpeg', quality)
+      }
+      
+      img.onerror = () => reject(new Error('이미지 로드 실패'))
+      img.src = URL.createObjectURL(file)
+    })
+  }, [])
+
   // 이미지를 Base64로 변환하는 함수
   const convertToBase64 = useCallback((file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -150,22 +186,28 @@ export default function AddProductPage() {
   }
 
   async function convertImage(file: File): Promise<string> {
-    console.log("=== 이미지 Base64 변환 시작 ===")
+    console.log("=== 이미지 압축 및 Base64 변환 시작 ===")
     console.log("원본 파일명:", file.name)
-    console.log("파일 크기:", file.size, "bytes")
+    console.log("원본 파일 크기:", file.size, "bytes")
     console.log("파일 타입:", file.type)
     
-    // 파일 크기 제한 (5MB - Base64는 원본보다 약 33% 큼)
-    if (file.size > 5 * 1024 * 1024) {
-      throw new Error("이미지 파일이 너무 큽니다 (최대 5MB)")
+    // 파일 크기 제한 (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      throw new Error("이미지 파일이 너무 큽니다 (최대 10MB)")
     }
     
     try {
-      setUploadStatus("이미지를 Base64로 변환 중...")
-      setUploadProgress(30)
+      setUploadStatus("이미지 압축 중...")
+      setUploadProgress(20)
       
+      // 이미지 압축 (800px 최대, 70% 품질)
+      console.log("이미지 압축 시작...")
+      const compressedFile = await compressImage(file, 800, 0.7)
+      setUploadProgress(60)
+      
+      setUploadStatus("Base64 변환 중...")
       console.log("Base64 변환 시작...")
-      const base64String = await convertToBase64(file)
+      const base64String = await convertToBase64(compressedFile)
       setUploadProgress(100)
       
       console.log("Base64 변환 완료, 크기:", base64String.length, "characters")
@@ -333,11 +375,12 @@ export default function AddProductPage() {
               
               {/* Base64 이미지 저장 안내 */}
               <div className="text-xs text-green-200 bg-green-800/30 rounded-lg p-2">
-                <div className="font-semibold">✅ Base64 이미지 저장 방식:</div>
+                <div className="font-semibold">✅ 압축된 Base64 이미지 저장:</div>
                 <div className="mt-1">
-                  • 이미지를 Base64로 변환하여 Firestore에 저장<br/>
+                  • 이미지 자동 압축 (800px, 70% 품질)<br/>
+                  • Base64로 변환하여 Firestore에 저장<br/>
                   • Firebase Storage 불필요 (무료 플랜 사용 가능)<br/>
-                  • 최대 파일 크기: 5MB
+                  • 최대 파일 크기: 10MB (압축 후 1MB 이하)
                 </div>
               </div>
             </div>
