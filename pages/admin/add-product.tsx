@@ -4,7 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react"
 import Link from "next/link"
 import { db, storage } from "../../lib/firebase"
 import { collection, addDoc, serverTimestamp } from "firebase/firestore"
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
+import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from "firebase/storage"
 
 export default function AddProductPage() {
   const [form, setForm] = useState({
@@ -135,22 +135,37 @@ export default function AddProductPage() {
       const imageRef = ref(storage, `products/${Date.now()}_${compressedFile.name}`)
       console.log("Storage 참조 생성:", imageRef.fullPath)
       
+      // 실제 Firebase Storage 진행률 추적
+      const uploadTask = uploadBytesResumable(imageRef, compressedFile)
+      
       // 업로드 진행률 추적
-      const uploadPromise = uploadBytes(imageRef, compressedFile)
+      const uploadPromise = new Promise<void>((resolve, reject) => {
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            // 실제 업로드 진행률 계산
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            setUploadProgress(Math.round(progress))
+            console.log(`업로드 진행률: ${Math.round(progress)}%`)
+          },
+          (error) => {
+            console.error('업로드 에러:', error)
+            reject(error)
+          },
+          () => {
+            console.log('업로드 완료')
+            resolve()
+          }
+        )
+      })
+      
+      // 타임아웃 설정
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error("이미지 업로드 시간 초과 (30초)")), 30000)
       )
       
-      // 업로드 진행률 시뮬레이션
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => Math.min(prev + 10, 80))
-      }, 500)
-      
-      const uploadResult = await Promise.race([uploadPromise, timeoutPromise])
-      clearInterval(progressInterval)
+      await Promise.race([uploadPromise, timeoutPromise])
       setUploadProgress(90)
       
-      console.log("업로드 결과:", uploadResult)
       console.log("이미지 업로드 완료, URL 가져오는 중...")
       
       setUploadStatus("이미지 URL 생성 중...")
@@ -505,14 +520,21 @@ export default function AddProductPage() {
               {/* 진행률 바 */}
               {uploadProgress > 0 && !uploadStatus.includes("에러") && !uploadStatus.includes("완료") && (
                 <div className="mt-2">
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                     <div 
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
+                      className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500 ease-out"
                       style={{ width: `${uploadProgress}%` }}
                     ></div>
                   </div>
-                  <div className="text-xs text-blue-600 mt-1 text-center">
-                    {uploadProgress}%
+                  <div className="flex justify-between items-center mt-1">
+                    <div className="text-xs text-blue-600 font-medium">
+                      {uploadProgress}%
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {uploadProgress < 30 ? "압축 중..." : 
+                       uploadProgress < 90 ? "업로드 중..." : 
+                       uploadProgress < 100 ? "처리 중..." : "완료"}
+                    </div>
                   </div>
                 </div>
               )}
