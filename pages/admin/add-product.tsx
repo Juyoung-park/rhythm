@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useCallback, useRef } from "react"
 import Link from "next/link"
 import { db, storage } from "../../lib/firebase"
 import { collection, addDoc, serverTimestamp } from "firebase/firestore"
@@ -17,6 +17,23 @@ export default function AddProductPage() {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string>("")
   const [uploading, setUploading] = useState(false)
+
+  // 개별 필드 핸들러로 분리
+  const handleNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm(prev => ({ ...prev, name: e.target.value }))
+  }, [])
+
+  const handlePriceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm(prev => ({ ...prev, price: e.target.value }))
+  }, [])
+
+  const handleDescriptionChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setForm(prev => ({ ...prev, description: e.target.value }))
+  }, [])
+
+  const handleImageUrlChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm(prev => ({ ...prev, imageUrl: e.target.value }))
+  }, [])
 
   async function uploadImage(file: File): Promise<string> {
     const imageRef = ref(storage, `products/${Date.now()}_${file.name}`)
@@ -67,75 +84,6 @@ export default function AddProductPage() {
     }
   }
 
-  const Field = useMemo(() => ({
-    name: ({ label, name, type = "text" }: {
-      label: string
-      name: keyof typeof form
-      type?: string
-    }) => (
-      <label className="grid gap-3">
-        <span className="text-sm font-semibold text-gray-700">{label}</span>
-        <input
-          type={type}
-          value={form[name] as string}
-          onChange={(e) =>
-            setForm((prev) => ({ ...prev, [name]: e.target.value }))
-          }
-          className="rounded-xl border-2 border-gray-200 px-4 py-3 text-base focus:border-purple-500 focus:outline-none transition-colors"
-          placeholder={label + "을(를) 입력하세요"}
-          autoComplete="off"
-          autoCapitalize="off"
-          autoCorrect="off"
-          spellCheck="false"
-        />
-      </label>
-    ),
-    price: ({ label, name, type = "text" }: {
-      label: string
-      name: keyof typeof form
-      type?: string
-    }) => (
-      <label className="grid gap-3">
-        <span className="text-sm font-semibold text-gray-700">{label}</span>
-        <input
-          type={type}
-          value={form[name] as string}
-          onChange={(e) =>
-            setForm((prev) => ({ ...prev, [name]: e.target.value }))
-          }
-          className="rounded-xl border-2 border-gray-200 px-4 py-3 text-base focus:border-purple-500 focus:outline-none transition-colors"
-          placeholder={label + "을(를) 입력하세요"}
-          inputMode="numeric"
-          pattern="[0-9]*"
-          autoComplete="off"
-        />
-      </label>
-    ),
-    default: ({ label, name, type = "text" }: {
-      label: string
-      name: keyof typeof form
-      type?: string
-    }) => (
-      <label className="grid gap-3">
-        <span className="text-sm font-semibold text-gray-700">{label}</span>
-        <input
-          type={type}
-          value={form[name] as string}
-          onChange={(e) =>
-            setForm((prev) => ({ ...prev, [name]: e.target.value }))
-          }
-          className="rounded-xl border-2 border-gray-200 px-4 py-3 text-base focus:border-purple-500 focus:outline-none transition-colors"
-          placeholder={label + "을(를) 입력하세요"}
-          autoComplete="off"
-        />
-      </label>
-    )
-  }), [form])
-
-  const FieldComponent = (props: { label: string; name: keyof typeof form; type?: string }) => {
-    const component = Field[props.name] || Field.default
-    return component(props)
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4">
@@ -148,16 +96,43 @@ export default function AddProductPage() {
 
         {/* 폼 */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <FieldComponent label="제품명" name="name" />
-          <FieldComponent label="가격 (원)" name="price" type="number" />
+          {/* 제품명 */}
+          <label className="grid gap-3">
+            <span className="text-sm font-semibold text-gray-700">제품명</span>
+            <input
+              type="text"
+              value={form.name}
+              onChange={handleNameChange}
+              className="rounded-xl border-2 border-gray-200 px-4 py-3 text-base focus:border-purple-500 focus:outline-none transition-colors"
+              placeholder="제품명을 입력하세요"
+              autoComplete="off"
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck="false"
+            />
+          </label>
 
+          {/* 가격 */}
+          <label className="grid gap-3">
+            <span className="text-sm font-semibold text-gray-700">가격 (원)</span>
+            <input
+              type="number"
+              value={form.price}
+              onChange={handlePriceChange}
+              className="rounded-xl border-2 border-gray-200 px-4 py-3 text-base focus:border-purple-500 focus:outline-none transition-colors"
+              placeholder="가격을 입력하세요"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              autoComplete="off"
+            />
+          </label>
+
+          {/* 제품 설명 */}
           <label className="grid gap-3">
             <span className="text-sm font-semibold text-gray-700">제품 설명</span>
             <textarea
               value={form.description}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, description: e.target.value }))
-              }
+              onChange={handleDescriptionChange}
               className="rounded-xl border-2 border-gray-200 px-4 py-3 min-h-32 text-base focus:border-purple-500 focus:outline-none transition-colors"
               placeholder="제품의 특징과 설명을 입력하세요..."
               autoComplete="off"
@@ -215,7 +190,21 @@ export default function AddProductPage() {
             </div>
           </div>
 
-          <FieldComponent label="이미지 URL (선택사항)" name="imageUrl" />
+          {/* 이미지 URL */}
+          <label className="grid gap-3">
+            <span className="text-sm font-semibold text-gray-700">이미지 URL (선택사항)</span>
+            <input
+              type="url"
+              value={form.imageUrl}
+              onChange={handleImageUrlChange}
+              className="rounded-xl border-2 border-gray-200 px-4 py-3 text-base focus:border-purple-500 focus:outline-none transition-colors"
+              placeholder="이미지 URL을 입력하세요"
+              autoComplete="off"
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck="false"
+            />
+          </label>
 
           <label className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl cursor-pointer">
             <input
