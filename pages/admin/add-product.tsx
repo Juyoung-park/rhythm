@@ -46,28 +46,37 @@ export default function AddProductPage() {
     setUploading(true)
     
     try {
+      console.log("업로드 시작...")
       let imageUrl = form.imageUrl
       
       // 이미지 파일이 있으면 업로드
       if (imageFile) {
+        console.log("이미지 업로드 중...", imageFile.name)
         imageUrl = await uploadImage(imageFile)
+        console.log("이미지 업로드 완료:", imageUrl)
       }
 
-      await addDoc(collection(db, "products"), {
+      console.log("Firestore에 제품 데이터 저장 중...")
+      const productData = {
         ...form,
         price: Number(form.price),
         imageUrl,
         createdAt: serverTimestamp(),
-      })
+      }
+      console.log("저장할 데이터:", productData)
+
+      await addDoc(collection(db, "products"), productData)
+      console.log("제품 저장 완료!")
       
       alert("제품이 추가되었습니다 ✅")
       setForm({ name: "", price: "", description: "", imageUrl: "", active: true })
       setImageFile(null)
       setImagePreview("")
     } catch (err) {
-      console.error(err)
-      alert("제품 추가에 실패했습니다 ❌")
+      console.error("업로드 에러:", err)
+      alert(`제품 추가에 실패했습니다 ❌\n에러: ${err instanceof Error ? err.message : '알 수 없는 오류'}`)
     } finally {
+      console.log("업로드 상태 초기화")
       setUploading(false)
     }
   }
@@ -167,26 +176,44 @@ export default function AddProductPage() {
               </div>
             )}
             
-            {/* 파일 입력 */}
-            <div className="relative">
-              <input
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={handleImageChange}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                id="image-upload"
-              />
-              <label
-                htmlFor="image-upload"
-                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-colors"
-              >
-                <div className="text-4xl mb-2">📷</div>
-                <p className="text-sm font-medium text-gray-700">
-                  {imagePreview ? "다른 사진 선택" : "사진 촬영 또는 선택"}
-                </p>
-                <p className="text-xs text-gray-500">모바일에서 직접 촬영 가능</p>
-              </label>
+            {/* 업로드 옵션 */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* 카메라 버튼 */}
+              <div className="relative">
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleImageChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  id="camera-upload"
+                />
+                <label
+                  htmlFor="camera-upload"
+                  className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-colors"
+                >
+                  <div className="text-2xl mb-1">📷</div>
+                  <p className="text-xs font-medium text-gray-700">카메라</p>
+                </label>
+              </div>
+
+              {/* 갤러리 버튼 */}
+              <div className="relative">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  id="gallery-upload"
+                />
+                <label
+                  htmlFor="gallery-upload"
+                  className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-pink-500 hover:bg-pink-50 transition-colors"
+                >
+                  <div className="text-2xl mb-1">🖼️</div>
+                  <p className="text-xs font-medium text-gray-700">갤러리</p>
+                </label>
+              </div>
             </div>
           </div>
 
