@@ -27,12 +27,6 @@ export default function AddProductPage() {
       try {
         console.log("=== Firebase 연결 상태 확인 시작 ===")
         console.log("Firestore 객체:", db)
-        console.log("Storage 객체:", storage)
-        
-        // Storage 연결 테스트
-        const testRef = ref(storage, "test/connection-test.txt")
-        console.log("Storage 참조 생성 성공:", testRef.fullPath)
-        console.log("Storage 버킷:", storage.app.options.storageBucket)
         
         // Firestore 연결 테스트
         const testCollection = collection(db, "products")
