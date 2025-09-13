@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import Link from "next/link"
 import { db, storage } from "../../lib/firebase"
 import { collection, addDoc, serverTimestamp } from "firebase/firestore"
@@ -67,16 +67,12 @@ export default function AddProductPage() {
     }
   }
 
-  function Field({
-    label,
-    name,
-    type = "text",
-  }: {
-    label: string
-    name: keyof typeof form
-    type?: string
-  }) {
-    return (
+  const Field = useMemo(() => ({
+    name: ({ label, name, type = "text" }: {
+      label: string
+      name: keyof typeof form
+      type?: string
+    }) => (
       <label className="grid gap-3">
         <span className="text-sm font-semibold text-gray-700">{label}</span>
         <input
@@ -87,9 +83,58 @@ export default function AddProductPage() {
           }
           className="rounded-xl border-2 border-gray-200 px-4 py-3 text-base focus:border-purple-500 focus:outline-none transition-colors"
           placeholder={label + "을(를) 입력하세요"}
+          autoComplete="off"
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck="false"
+        />
+      </label>
+    ),
+    price: ({ label, name, type = "text" }: {
+      label: string
+      name: keyof typeof form
+      type?: string
+    }) => (
+      <label className="grid gap-3">
+        <span className="text-sm font-semibold text-gray-700">{label}</span>
+        <input
+          type={type}
+          value={form[name] as string}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, [name]: e.target.value }))
+          }
+          className="rounded-xl border-2 border-gray-200 px-4 py-3 text-base focus:border-purple-500 focus:outline-none transition-colors"
+          placeholder={label + "을(를) 입력하세요"}
+          inputMode="numeric"
+          pattern="[0-9]*"
+          autoComplete="off"
+        />
+      </label>
+    ),
+    default: ({ label, name, type = "text" }: {
+      label: string
+      name: keyof typeof form
+      type?: string
+    }) => (
+      <label className="grid gap-3">
+        <span className="text-sm font-semibold text-gray-700">{label}</span>
+        <input
+          type={type}
+          value={form[name] as string}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, [name]: e.target.value }))
+          }
+          className="rounded-xl border-2 border-gray-200 px-4 py-3 text-base focus:border-purple-500 focus:outline-none transition-colors"
+          placeholder={label + "을(를) 입력하세요"}
+          autoComplete="off"
         />
       </label>
     )
+  }), [form])
+
+  const FieldComponent = (props: { label: string; name: keyof typeof form; type?: string }) => {
+    const component = Field[props.name] || Field.default
+    return component(props)
   }
 
   return (
@@ -103,8 +148,8 @@ export default function AddProductPage() {
 
         {/* 폼 */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <Field label="제품명" name="name" />
-          <Field label="가격 (원)" name="price" type="number" />
+          <FieldComponent label="제품명" name="name" />
+          <FieldComponent label="가격 (원)" name="price" type="number" />
 
           <label className="grid gap-3">
             <span className="text-sm font-semibold text-gray-700">제품 설명</span>
@@ -115,6 +160,10 @@ export default function AddProductPage() {
               }
               className="rounded-xl border-2 border-gray-200 px-4 py-3 min-h-32 text-base focus:border-purple-500 focus:outline-none transition-colors"
               placeholder="제품의 특징과 설명을 입력하세요..."
+              autoComplete="off"
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck="false"
             />
           </label>
 
@@ -166,7 +215,7 @@ export default function AddProductPage() {
             </div>
           </div>
 
-          <Field label="이미지 URL (선택사항)" name="imageUrl" />
+          <FieldComponent label="이미지 URL (선택사항)" name="imageUrl" />
 
           <label className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl cursor-pointer">
             <input
