@@ -21,6 +21,7 @@ export default function AddProductPage() {
   const [firebaseConnected, setFirebaseConnected] = useState<boolean | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [retryCount, setRetryCount] = useState(0)
+  const [uploadTask, setUploadTask] = useState<any>(null)
 
   // Firebase 연결 상태 확인
   useEffect(() => {
@@ -33,6 +34,7 @@ export default function AddProductPage() {
         // Storage 연결 테스트
         const testRef = ref(storage, "test/connection-test.txt")
         console.log("Storage 참조 생성 성공:", testRef.fullPath)
+        console.log("Storage 버킷:", storage.app.options.storageBucket)
         
         // Firestore 연결 테스트
         const testCollection = collection(db, "products")
@@ -111,6 +113,19 @@ export default function AddProductPage() {
     })
   }, [])
 
+  // 업로드 취소 함수
+  const cancelUpload = useCallback(() => {
+    if (uploadTask) {
+      console.log("업로드 취소 중...")
+      uploadTask.cancel()
+      setUploadTask(null)
+    }
+    setUploading(false)
+    setUploadStatus("업로드가 취소되었습니다")
+    setUploadProgress(0)
+    setRetryCount(0)
+  }, [uploadTask])
+
   // 재시도 메커니즘을 포함한 이미지 업로드 함수
   async function uploadImageWithRetry(file: File, maxRetries: number = 3): Promise<string> {
     let lastError: Error | null = null
@@ -167,11 +182,12 @@ export default function AddProductPage() {
       console.log("Storage 참조 생성:", imageRef.fullPath)
       
       // 실제 Firebase Storage 진행률 추적
-      const uploadTask = uploadBytesResumable(imageRef, compressedFile)
+      const currentUploadTask = uploadBytesResumable(imageRef, compressedFile)
+      setUploadTask(currentUploadTask)
       
       // 업로드 진행률 추적
       const uploadPromise = new Promise<void>((resolve, reject) => {
-        uploadTask.on('state_changed',
+        currentUploadTask.on('state_changed',
           (snapshot) => {
             // 실제 업로드 진행률 계산
             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
@@ -196,6 +212,7 @@ export default function AddProductPage() {
       
       await Promise.race([uploadPromise, timeoutPromise])
       setUploadProgress(90)
+      setUploadTask(null) // 업로드 완료 후 task 초기화
       
       console.log("이미지 업로드 완료, URL 가져오는 중...")
       
@@ -207,6 +224,7 @@ export default function AddProductPage() {
       console.log("=== 이미지 업로드 성공 ===")
       return url
     } catch (error) {
+      setUploadTask(null) // 에러 발생 시 task 초기화
       console.error("=== 이미지 업로드 에러 ===")
       console.error("에러 타입:", typeof error)
       console.error("에러 객체:", error)
@@ -578,20 +596,27 @@ export default function AddProductPage() {
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={uploading}
-            className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 font-bold text-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-          >
-            {uploading ? (
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                업로드 중...
+          {uploading ? (
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={cancelUpload}
+                className="w-full rounded-xl bg-red-600 text-white py-4 font-bold text-lg hover:bg-red-700 transition-all duration-200 shadow-lg"
+              >
+                업로드 취소
+              </button>
+              <div className="text-center text-sm text-gray-600">
+                업로드가 너무 오래 걸리면 취소 버튼을 눌러주세요
               </div>
-            ) : (
-              "제품 등록하기"
-            )}
-          </button>
+            </div>
+          ) : (
+            <button
+              type="submit"
+              className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 font-bold text-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
+            >
+              제품 등록하기
+            </button>
+          )}
         </form>
 
         {/* 하단 네비게이션 */}
