@@ -63,7 +63,7 @@ export default function AddProductPage() {
   }, [])
 
   // 이미지 압축 함수
-  const compressImage = useCallback((file: File, maxWidth: number = 800, quality: number = 0.8): Promise<File> => {
+  const compressImage = useCallback((file: File, maxWidth: number = 800, quality: number = 0.7): Promise<File> => {
     return new Promise((resolve) => {
       const canvas = document.createElement('canvas')
       const ctx = canvas.getContext('2d')!
@@ -91,8 +91,10 @@ export default function AddProductPage() {
                 type: 'image/jpeg',
                 lastModified: Date.now()
               })
+              console.log(`이미지 압축 완료: ${file.size} → ${compressedFile.size} bytes`)
               resolve(compressedFile)
             } else {
+              console.log("압축 실패, 원본 파일 사용")
               resolve(file)
             }
           },
@@ -105,41 +107,6 @@ export default function AddProductPage() {
     })
   }, [])
 
-  // 이미지 압축 함수
-  const compressImage = useCallback((file: File, maxWidth: number = 800, quality: number = 0.7): Promise<File> => {
-    return new Promise((resolve, reject) => {
-      const canvas = document.createElement('canvas')
-      const ctx = canvas.getContext('2d')
-      const img = new Image()
-      
-      img.onload = () => {
-        // 원본 비율 유지하면서 크기 조정
-        const ratio = Math.min(maxWidth / img.width, maxWidth / img.height)
-        canvas.width = img.width * ratio
-        canvas.height = img.height * ratio
-        
-        // 이미지 그리기
-        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height)
-        
-        // 압축된 이미지를 Blob으로 변환
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const compressedFile = new File([blob], file.name, {
-              type: 'image/jpeg',
-              lastModified: Date.now()
-            })
-            console.log(`이미지 압축 완료: ${file.size} → ${compressedFile.size} bytes`)
-            resolve(compressedFile)
-          } else {
-            reject(new Error('이미지 압축 실패'))
-          }
-        }, 'image/jpeg', quality)
-      }
-      
-      img.onerror = () => reject(new Error('이미지 로드 실패'))
-      img.src = URL.createObjectURL(file)
-    })
-  }, [])
 
   // 이미지를 Base64로 변환하는 함수
   const convertToBase64 = useCallback((file: File): Promise<string> => {
