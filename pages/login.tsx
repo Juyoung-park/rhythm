@@ -167,6 +167,23 @@ export default function LoginPage() {
               try {
                 await signInWithEmailAndPassword(auth, email, pw);
                 console.log("기존 계정으로 로그인 성공");
+                
+                // 인증 상태 변경을 기다린 후 라우팅
+                await new Promise<void>((resolve) => {
+                  const unsubscribe = onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                      unsubscribe();
+                      resolve();
+                    }
+                  });
+                  // 최대 3초 대기
+                  setTimeout(() => {
+                    unsubscribe();
+                    resolve();
+                  }, 3000);
+                });
+                
+                router.push("/products");
               } catch (loginError) {
                 console.error("기존 계정 로그인 실패:", loginError);
                 alert("기존 계정과 연결되었지만 로그인에 실패했습니다. 비밀번호를 확인해주세요.");
