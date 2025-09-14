@@ -180,31 +180,69 @@ const AdminPage = () => {
 
   const fetchCustomerOrders = async (customer: Customer) => {
     try {
-      console.log("Fetching orders for customer:", customer);
+      console.log("=== FETCHING CUSTOMER ORDERS ===");
+      console.log("Customer info:", {
+        id: customer.id,
+        name: customer.name,
+        email: customer.email
+      });
       
       // 모든 주문을 가져와서 클라이언트에서 필터링
-      const ordersQuery = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+      const ordersQuery = query(collection(db, "orders"));
       const ordersSnapshot = await getDocs(ordersQuery);
       
-      const allOrders = ordersSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Order[];
+      const allOrders = ordersSnapshot.docs.map(doc => {
+        const data = doc.data();
+        console.log("Order data:", {
+          id: doc.id,
+          customerId: data.customerId,
+          customerEmail: data.customerEmail,
+          customerName: data.customerName,
+          productName: data.productName
+        });
+        return {
+          id: doc.id,
+          ...data
+        };
+      }) as Order[];
+      
+      console.log("Total orders in database:", allOrders.length);
       
       // 고객과 관련된 주문들 필터링
       const customerOrders = allOrders.filter(order => {
+        console.log("Checking order:", {
+          orderId: order.id,
+          orderCustomerId: order.customerId,
+          orderCustomerEmail: order.customerEmail,
+          orderCustomerName: order.customerName,
+          customerId: customer.id,
+          customerEmail: customer.email,
+          customerName: customer.name
+        });
+        
         // customerId로 매칭 (Firestore 문서 ID 또는 Firebase Auth UID)
-        if (order.customerId === customer.id) return true;
+        if (order.customerId === customer.id) {
+          console.log("✅ Matched by customerId");
+          return true;
+        }
         
         // customerEmail로 매칭
-        if (order.customerEmail === customer.email) return true;
+        if (order.customerEmail && order.customerEmail === customer.email) {
+          console.log("✅ Matched by customerEmail");
+          return true;
+        }
         
         // customerName으로 매칭
-        if (order.customerName === customer.name || order.customerName === customer.email) return true;
+        if (order.customerName && (order.customerName === customer.name || order.customerName === customer.email)) {
+          console.log("✅ Matched by customerName");
+          return true;
+        }
         
+        console.log("❌ No match found");
         return false;
       });
       
+      console.log("=== FILTERING RESULTS ===");
       console.log("All orders:", allOrders.length);
       console.log("Customer orders found:", customerOrders.length);
       console.log("Customer orders data:", customerOrders);
@@ -1591,6 +1629,15 @@ const AdminPage = () => {
 
             {/* 내용 */}
             <div className="flex-1 overflow-y-auto p-6">
+              {/* 디버깅 정보 */}
+              <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm">
+                <strong>디버깅 정보:</strong>
+                <br />고객 ID: {selectedCustomer?.id}
+                <br />고객 이메일: {selectedCustomer?.email}
+                <br />고객 이름: {selectedCustomer?.name}
+                <br />찾은 주문 수: {customerOrders.length}
+              </div>
+              
               {customerOrders.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="text-gray-400 mb-4">
@@ -1600,6 +1647,7 @@ const AdminPage = () => {
                   </div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">주문 내역이 없습니다</h3>
                   <p className="text-gray-600">이 고객은 아직 주문을 하지 않았습니다.</p>
+                  <p className="text-xs text-gray-500 mt-2">브라우저 개발자 도구 콘솔에서 디버깅 정보를 확인하세요.</p>
                 </div>
               ) : (
                 <div className="space-y-4">
