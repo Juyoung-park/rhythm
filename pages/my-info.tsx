@@ -9,12 +9,30 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 
 interface CustomerInfo {
+  id: string;
   name: string;
   phone: string;
-  height: number;
-  bust: number;
-  waist: number;
-  hip: number;
+  email: string;
+  organization?: string;
+  address?: string;
+  carNumber?: string;
+  size?: string;
+  shoulderWidth?: number;
+  waistCircumference?: number;
+  bustCircumference?: number;
+  hipCircumference?: number;
+  sleeveLength?: number;
+  thighCircumference?: number;
+  topLength?: number;
+  crotchLength?: number;
+  skirtLength?: number;
+  pantsLength?: number;
+  height?: number;
+  bust?: number;
+  waist?: number;
+  hip?: number;
+  createdAt: any;
+  updatedAt: any;
 }
 
 interface Order {
@@ -34,13 +52,30 @@ export default function MyInfoPage() {
   const { user } = useUser();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("info");
-  const [info, setInfo] = useState({
+  const [info, setInfo] = useState<CustomerInfo | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
     name: "",
     phone: "",
+    email: "",
+    organization: "",
+    address: "",
+    carNumber: "",
+    size: "",
+    shoulderWidth: "",
+    waistCircumference: "",
+    bustCircumference: "",
+    hipCircumference: "",
+    sleeveLength: "",
+    thighCircumference: "",
+    topLength: "",
+    crotchLength: "",
+    skirtLength: "",
+    pantsLength: "",
     height: "",
     bust: "",
     waist: "",
-    hip: "",
+    hip: ""
   });
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
@@ -59,14 +94,33 @@ export default function MyInfoPage() {
       const userDoc = await getDoc(doc(db, "users", user!.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        setInfo({
+        const fullUserInfo: CustomerInfo = {
+          id: userDoc.id,
           name: userData.name || "",
           phone: userData.phone || "",
-          height: userData.height?.toString() || "",
-          bust: userData.bust?.toString() || "",
-          waist: userData.waist?.toString() || "",
-          hip: userData.hip?.toString() || "",
-        });
+          email: userData.email || "",
+          organization: userData.organization || "",
+          address: userData.address || "",
+          carNumber: userData.carNumber || "",
+          size: userData.size || "",
+          shoulderWidth: userData.shoulderWidth || 0,
+          waistCircumference: userData.waistCircumference || 0,
+          bustCircumference: userData.bustCircumference || 0,
+          hipCircumference: userData.hipCircumference || 0,
+          sleeveLength: userData.sleeveLength || 0,
+          thighCircumference: userData.thighCircumference || 0,
+          topLength: userData.topLength || 0,
+          crotchLength: userData.crotchLength || 0,
+          skirtLength: userData.skirtLength || 0,
+          pantsLength: userData.pantsLength || 0,
+          height: userData.height || 0,
+          bust: userData.bust || 0,
+          waist: userData.waist || 0,
+          hip: userData.hip || 0,
+          createdAt: userData.createdAt,
+          updatedAt: userData.updatedAt
+        };
+        setInfo(fullUserInfo);
       }
     } catch (error) {
       console.error("Error fetching user info:", error);
@@ -101,6 +155,120 @@ export default function MyInfoPage() {
     }
   };
 
+  const handleEditClick = () => {
+    if (info) {
+      setEditForm({
+        name: info.name || "",
+        phone: info.phone || "",
+        email: info.email || "",
+        organization: info.organization || "",
+        address: info.address || "",
+        carNumber: info.carNumber || "",
+        size: info.size || "",
+        shoulderWidth: info.shoulderWidth?.toString() || "",
+        waistCircumference: info.waistCircumference?.toString() || "",
+        bustCircumference: info.bustCircumference?.toString() || "",
+        hipCircumference: info.hipCircumference?.toString() || "",
+        sleeveLength: info.sleeveLength?.toString() || "",
+        thighCircumference: info.thighCircumference?.toString() || "",
+        topLength: info.topLength?.toString() || "",
+        crotchLength: info.crotchLength?.toString() || "",
+        skirtLength: info.skirtLength?.toString() || "",
+        pantsLength: info.pantsLength?.toString() || "",
+        height: info.height?.toString() || "",
+        bust: info.bust?.toString() || "",
+        waist: info.waist?.toString() || "",
+        hip: info.hip?.toString() || ""
+      });
+      setIsEditing(true);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditForm({
+      name: "",
+      phone: "",
+      email: "",
+      organization: "",
+      address: "",
+      carNumber: "",
+      size: "",
+      shoulderWidth: "",
+      waistCircumference: "",
+      bustCircumference: "",
+      hipCircumference: "",
+      sleeveLength: "",
+      thighCircumference: "",
+      topLength: "",
+      crotchLength: "",
+      skirtLength: "",
+      pantsLength: "",
+      height: "",
+      bust: "",
+      waist: "",
+      hip: ""
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!info || !user) return;
+
+    setLoading(true);
+    try {
+      const updateData: any = {
+        name: editForm.name,
+        phone: editForm.phone,
+        email: editForm.email,
+        organization: editForm.organization,
+        address: editForm.address,
+        carNumber: editForm.carNumber,
+        size: editForm.size,
+        updatedAt: new Date()
+      };
+
+      // 숫자 필드들은 값이 있을 때만 추가
+      const numericFields = [
+        'shoulderWidth',
+        'waistCircumference', 
+        'bustCircumference',
+        'hipCircumference',
+        'sleeveLength',
+        'thighCircumference',
+        'topLength',
+        'crotchLength',
+        'skirtLength',
+        'pantsLength',
+        'height',
+        'bust',
+        'waist',
+        'hip'
+      ];
+
+      numericFields.forEach(field => {
+        const value = editForm[field as keyof typeof editForm];
+        if (value && typeof value === 'string' && value.trim()) {
+          const numValue = Number(value.trim());
+          if (!isNaN(numValue)) {
+            updateData[field] = numValue;
+          }
+        }
+      });
+
+      await updateDoc(doc(db, "users", user.uid), updateData);
+      
+      // 정보 새로고침
+      await fetchUserInfo();
+      setIsEditing(false);
+      alert("정보가 성공적으로 업데이트되었습니다!");
+    } catch (error) {
+      console.error("Error updating user info:", error);
+      alert("정보 업데이트 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // 아직 Firebase가 user 정보를 가져오는 중 (초기 로딩 상태)
   if (user === undefined) {
     return (
@@ -131,34 +299,6 @@ export default function MyInfoPage() {
     );
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInfo({ ...info, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async () => {
-    if (!user) return alert("로그인이 필요합니다.");
-
-    setLoading(true);
-
-    try {
-      const userDocRef = doc(db, "users", user.uid);
-      await setDoc(userDocRef, {
-        ...info,
-        height: Number(info.height),
-        bust: Number(info.bust),
-        waist: Number(info.waist),
-        hip: Number(info.hip),
-        updatedAt: new Date(),
-      });
-
-      alert("정보가 저장되었습니다!");
-    } catch (err) {
-      console.error(err);
-      alert("저장 실패");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const getStatusText = (status: string) => {
     switch (status) {
@@ -298,41 +438,209 @@ export default function MyInfoPage() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-          {activeTab === "info" && (
+          {activeTab === "info" && info && (
             <div>
-              <h2 className="text-xl font-semibold mb-6">개인 정보</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {["name", "phone", "height", "bust", "waist", "hip"].map((field) => (
-                  <div key={field}>
-                    <label htmlFor={field} className="block text-sm font-medium text-gray-700 mb-2">
-                      {field === "name" ? "이름" :
-                       field === "phone" ? "연락처" :
-                       field === "height" ? "키 (cm)" :
-                       field === "bust" ? "가슴 둘레 (cm)" :
-                       field === "waist" ? "허리 둘레 (cm)" : "힙 둘레 (cm)"}
-                    </label>
-                    <input
-                      id={field}
-                      name={field}
-                      type={field === "height" || field === "bust" || field === "waist" || field === "hip" ? "number" : "text"}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      placeholder={field === "name" ? "이름을 입력하세요" :
-                                 field === "phone" ? "연락처를 입력하세요" : "숫자를 입력하세요"}
-                      value={info[field as keyof typeof info]}
-                      onChange={handleChange}
-                    />
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold">개인 정보</h2>
+                {!isEditing && (
+                  <button
+                    onClick={handleEditClick}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                  >
+                    수정
+                  </button>
+                )}
+              </div>
+
+              {!isEditing ? (
+                // 보기 모드
+                <div className="space-y-6">
+                  {/* 기본 정보 */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">이름</label>
+                      <div className="p-3 bg-gray-50 rounded-lg">{info.name || "-"}</div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">연락처</label>
+                      <div className="p-3 bg-gray-50 rounded-lg">{info.phone || "-"}</div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+                      <div className="p-3 bg-gray-50 rounded-lg">{info.email || "-"}</div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">소속</label>
+                      <div className="p-3 bg-gray-50 rounded-lg">{info.organization || "-"}</div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">주소</label>
+                      <div className="p-3 bg-gray-50 rounded-lg">{info.address || "-"}</div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">차량번호</label>
+                      <div className="p-3 bg-gray-50 rounded-lg">{info.carNumber || "-"}</div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">사이즈</label>
+                      <div className="p-3 bg-gray-50 rounded-lg">{info.size || "-"}</div>
+                    </div>
                   </div>
-                ))}
-              </div>
-              <div className="mt-8">
-                <button
-                  onClick={handleSubmit}
-                  disabled={loading}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 font-medium transition-all transform hover:scale-105 shadow-lg"
-                >
-                  {loading ? "저장 중..." : "정보 저장"}
-                </button>
-              </div>
+
+                  {/* 신체 치수 정보 */}
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">신체 치수</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {[
+                        { key: 'height', label: '키 (cm)' },
+                        { key: 'bust', label: '가슴 둘레 (cm)' },
+                        { key: 'waist', label: '허리 둘레 (cm)' },
+                        { key: 'hip', label: '힙 둘레 (cm)' },
+                        { key: 'shoulderWidth', label: '어깨 너비 (cm)' },
+                        { key: 'waistCircumference', label: '허리 둘레 (cm)' },
+                        { key: 'bustCircumference', label: '가슴 둘레 (cm)' },
+                        { key: 'hipCircumference', label: '힙 둘레 (cm)' },
+                        { key: 'sleeveLength', label: '소매 길이 (cm)' },
+                        { key: 'thighCircumference', label: '허벌지 둘레 (cm)' },
+                        { key: 'topLength', label: '상의 길이 (cm)' },
+                        { key: 'crotchLength', label: '밑위 길이 (cm)' },
+                        { key: 'skirtLength', label: '치마 길이 (cm)' },
+                        { key: 'pantsLength', label: '바지 길이 (cm)' }
+                      ].map(({ key, label }) => (
+                        <div key={key}>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+                          <div className="p-3 bg-gray-50 rounded-lg">
+                            {info[key as keyof CustomerInfo] || "-"}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // 수정 모드
+                <div className="space-y-6">
+                  {/* 기본 정보 */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">이름 *</label>
+                      <input
+                        type="text"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        value={editForm.name}
+                        onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">연락처 *</label>
+                      <input
+                        type="text"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        value={editForm.phone}
+                        onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+                      <input
+                        type="email"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        value={editForm.email}
+                        onChange={(e) => setEditForm({...editForm, email: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">소속</label>
+                      <input
+                        type="text"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        value={editForm.organization}
+                        onChange={(e) => setEditForm({...editForm, organization: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">주소</label>
+                      <input
+                        type="text"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        value={editForm.address}
+                        onChange={(e) => setEditForm({...editForm, address: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">차량번호</label>
+                      <input
+                        type="text"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        value={editForm.carNumber}
+                        onChange={(e) => setEditForm({...editForm, carNumber: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">사이즈</label>
+                      <input
+                        type="text"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        value={editForm.size}
+                        onChange={(e) => setEditForm({...editForm, size: e.target.value})}
+                      />
+                    </div>
+                  </div>
+
+                  {/* 신체 치수 정보 */}
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">신체 치수 (선택사항)</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {[
+                        { key: 'height', label: '키 (cm)' },
+                        { key: 'bust', label: '가슴 둘레 (cm)' },
+                        { key: 'waist', label: '허리 둘레 (cm)' },
+                        { key: 'hip', label: '힙 둘레 (cm)' },
+                        { key: 'shoulderWidth', label: '어깨 너비 (cm)' },
+                        { key: 'waistCircumference', label: '허리 둘레 (cm)' },
+                        { key: 'bustCircumference', label: '가슴 둘레 (cm)' },
+                        { key: 'hipCircumference', label: '힙 둘레 (cm)' },
+                        { key: 'sleeveLength', label: '소매 길이 (cm)' },
+                        { key: 'thighCircumference', label: '허벌지 둘레 (cm)' },
+                        { key: 'topLength', label: '상의 길이 (cm)' },
+                        { key: 'crotchLength', label: '밑위 길이 (cm)' },
+                        { key: 'skirtLength', label: '치마 길이 (cm)' },
+                        { key: 'pantsLength', label: '바지 길이 (cm)' }
+                      ].map(({ key, label }) => (
+                        <div key={key}>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+                          <input
+                            type="number"
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            value={editForm[key as keyof typeof editForm]}
+                            onChange={(e) => setEditForm({...editForm, [key]: e.target.value})}
+                            placeholder="0"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 버튼 */}
+                  <div className="flex space-x-4 pt-6">
+                    <button
+                      onClick={handleSaveEdit}
+                      disabled={loading || !editForm.name.trim() || !editForm.phone.trim()}
+                      className="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors"
+                    >
+                      {loading ? "저장 중..." : "저장"}
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-colors"
+                    >
+                      취소
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
