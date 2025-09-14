@@ -143,11 +143,7 @@ const AdminPage = () => {
     const cleanup = fetchData();
     
     // Cleanup function to unsubscribe from listeners
-    return () => {
-      if (cleanup) {
-        cleanup();
-      }
-    };
+    return cleanup;
   }, [user, router]);
 
   const fetchOrders = async () => {
@@ -164,7 +160,7 @@ const AdminPage = () => {
     }
   };
 
-  const fetchData = async () => {
+  const fetchData = () => {
     try {
       // Set up real-time listeners for products
       const productsQuery = query(collection(db, "products"), orderBy("createdAt", "desc"));
