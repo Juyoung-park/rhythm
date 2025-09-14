@@ -11,7 +11,6 @@ export default function ProductDetail() {
   const [product, setProduct] = useState<any>(null)
   const [userInfo, setUserInfo] = useState<any>(null)
   const [orderQuantities, setOrderQuantities] = useState<{[color: string]: {[size: string]: number}}>({})
-  const [selectedColor, setSelectedColor] = useState<string>("")
   const [isOrdering, setIsOrdering] = useState(false)
   const { user } = useUser()
 
@@ -47,10 +46,9 @@ export default function ProductDetail() {
     }))
   }
 
-  // 현재 선택된 색상의 수량 가져오기
-  const getCurrentQuantity = (size: string) => {
-    if (!selectedColor) return 0
-    return orderQuantities[selectedColor]?.[size] || 0
+  // 특정 색상의 특정 사이즈 수량 가져오기
+  const getQuantityForColor = (color: string, size: string) => {
+    return orderQuantities[color]?.[size] || 0
   }
 
   // 모든 색상의 총 주문 수량 확인
@@ -244,17 +242,12 @@ export default function ProductDetail() {
                           <h4 className="text-lg font-semibold text-gray-900 flex items-center">
                             <div className={`w-4 h-4 rounded-full mr-3 ${color === '빨강' ? 'bg-red-500' : color === '파랑' ? 'bg-blue-500' : color === '검정' ? 'bg-black' : color === '흰색' ? 'bg-white border border-gray-300' : 'bg-gray-400'}`}></div>
                             {color}
+                            {Object.values(orderQuantities[color] || {}).some(qty => qty > 0) && (
+                              <span className="ml-2 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                {Object.values(orderQuantities[color] || {}).reduce((sum, qty) => sum + qty, 0)}개 선택됨
+                              </span>
+                            )}
                           </h4>
-                          <button
-                            onClick={() => setSelectedColor(selectedColor === color ? "" : color)}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                              selectedColor === color
-                                ? "bg-purple-600 text-white"
-                                : "bg-gray-100 text-gray-700 hover:bg-purple-100"
-                            }`}
-                          >
-                            {selectedColor === color ? "선택됨" : "선택"}
-                          </button>
                         </div>
                         
                         {product.sizes && product.sizes.length > 0 && (
@@ -264,17 +257,17 @@ export default function ProductDetail() {
                                 <span className="text-sm font-medium text-gray-700">{size}</span>
                                 <div className="flex items-center gap-3">
                                   <button
-                                    onClick={() => updateQuantity(color, size, Math.max(0, getCurrentQuantity(size) - 1))}
+                                    onClick={() => updateQuantity(color, size, Math.max(0, getQuantityForColor(color, size) - 1))}
                                     className="w-8 h-8 rounded-full bg-gray-300 hover:bg-gray-400 flex items-center justify-center text-gray-700 font-bold transition-colors"
-                                    disabled={selectedColor !== color || getCurrentQuantity(size) <= 0}
+                                    disabled={getQuantityForColor(color, size) <= 0}
                                   >
                                     −
                                   </button>
                                   <span className="w-8 text-center font-bold text-gray-900">
-                                    {selectedColor === color ? getCurrentQuantity(size) : (orderQuantities[color]?.[size] || 0)}
+                                    {getQuantityForColor(color, size)}
                                   </span>
                                   <button
-                                    onClick={() => updateQuantity(color, size, (selectedColor === color ? getCurrentQuantity(size) : (orderQuantities[color]?.[size] || 0)) + 1)}
+                                    onClick={() => updateQuantity(color, size, getQuantityForColor(color, size) + 1)}
                                     className="w-8 h-8 rounded-full bg-purple-600 hover:bg-purple-700 flex items-center justify-center text-white font-bold transition-colors"
                                   >
                                     +
@@ -304,17 +297,17 @@ export default function ProductDetail() {
                             <span className="text-lg font-medium text-gray-700">{size}</span>
                             <div className="flex items-center gap-4">
                               <button
-                                onClick={() => updateQuantity("기본", size, Math.max(0, getCurrentQuantity(size) - 1))}
+                                onClick={() => updateQuantity("기본", size, Math.max(0, getQuantityForColor("기본", size) - 1))}
                                 className="w-10 h-10 rounded-full bg-gray-300 hover:bg-gray-400 flex items-center justify-center text-gray-700 font-bold text-lg transition-colors"
-                                disabled={getCurrentQuantity(size) <= 0}
+                                disabled={getQuantityForColor("기본", size) <= 0}
                               >
                                 −
                               </button>
                               <span className="w-12 text-center font-bold text-xl text-gray-900">
-                                {getCurrentQuantity(size)}
+                                {getQuantityForColor("기본", size)}
                               </span>
                               <button
-                                onClick={() => updateQuantity("기본", size, getCurrentQuantity(size) + 1)}
+                                onClick={() => updateQuantity("기본", size, getQuantityForColor("기본", size) + 1)}
                                 className="w-10 h-10 rounded-full bg-purple-600 hover:bg-purple-700 flex items-center justify-center text-white font-bold text-lg transition-colors"
                               >
                                 +
