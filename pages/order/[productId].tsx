@@ -46,14 +46,22 @@ export default function ProductDetail() {
     }
   }, [user])
 
-  // 색상별 사이즈별 수량 변경 함수
+  // 색상별 사이즈별 수량 변경 함수 - 완전히 안전한 방식
   const updateQuantity = (color: string, size: string, quantity: number) => {
     console.log(`🔄 Updating: ${color} - ${size} = ${quantity}`)
-    console.log(`📊 Before update:`, orderQuantities)
+    console.log(`📊 Before update:`, JSON.stringify(orderQuantities))
     
     setOrderQuantities(prev => {
-      // JSON을 사용한 깊은 복사로 완전한 상태 복사
-      const newState = JSON.parse(JSON.stringify(prev))
+      // 완전히 새로운 객체 구조 생성
+      const newState: {[color: string]: {[size: string]: number}} = {}
+      
+      // 기존 모든 색상의 모든 사이즈를 복사
+      Object.keys(prev).forEach(existingColor => {
+        newState[existingColor] = {}
+        Object.keys(prev[existingColor]).forEach(existingSize => {
+          newState[existingColor][existingSize] = prev[existingColor][existingSize]
+        })
+      })
       
       // 해당 색상이 없으면 빈 객체로 초기화
       if (!newState[color]) {
@@ -64,7 +72,7 @@ export default function ProductDetail() {
       // 해당 색상의 사이즈별 수량 업데이트
       newState[color][size] = quantity
       
-      console.log(`📈 After update:`, newState)
+      console.log(`📈 After update:`, JSON.stringify(newState))
       return newState
     })
   }
@@ -272,14 +280,21 @@ export default function ProductDetail() {
                       </h3>
                       <div className="flex flex-wrap gap-3">
                         {product.colors.map((color: string, colorIndex: number) => {
+                          // 각 색상별로 완전히 독립적인 수량 계산
                           const colorQuantities = orderQuantities[color] || {}
                           const hasQuantity = Object.values(colorQuantities).some(qty => qty > 0)
                           const totalQuantity = Object.values(colorQuantities).reduce((sum, qty) => sum + qty, 0)
                           
+                          console.log(`🎨 Color button ${color}: hasQuantity=${hasQuantity}, totalQuantity=${totalQuantity}`)
+                          console.log(`🎨 Color button ${color}: colorQuantities=`, colorQuantities)
+                          
                           return (
                             <button
-                              key={colorIndex}
-                              onClick={() => setSelectedColor(color)}
+                              key={`color-btn-${colorIndex}`}
+                              onClick={() => {
+                                console.log(`🖱️ Clicking color button: ${color}`)
+                                setSelectedColor(color)
+                              }}
                               className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all transform hover:scale-105 ${
                                 selectedColor === color
                                   ? "bg-purple-600 text-white shadow-lg ring-2 ring-purple-300"
@@ -317,14 +332,20 @@ export default function ProductDetail() {
                         {product.sizes && product.sizes.length > 0 && (
                           <div className="space-y-2">
                             {product.sizes.map((size: string, sizeIndex: number) => {
-                              const currentQuantity = orderQuantities[selectedColor]?.[size] || 0
+                              // 선택된 색상의 특정 사이즈 수량을 안전하게 가져오기
+                              const currentQuantity = (orderQuantities[selectedColor] && orderQuantities[selectedColor][size]) || 0
+                              
+                              console.log(`📏 Size ${size} for ${selectedColor}: currentQuantity=${currentQuantity}`)
                               
                               return (
-                                <div key={sizeIndex} className="flex items-center justify-between p-3 bg-white rounded-lg border border-purple-200">
+                                <div key={`size-${selectedColor}-${sizeIndex}`} className="flex items-center justify-between p-3 bg-white rounded-lg border border-purple-200">
                                   <span className="text-sm font-medium text-gray-700">{size}</span>
                                   <div className="flex items-center gap-3">
                                     <button
-                                      onClick={() => updateQuantity(selectedColor, size, Math.max(0, currentQuantity - 1))}
+                                      onClick={() => {
+                                        console.log(`➖ Decreasing ${selectedColor} - ${size} from ${currentQuantity}`)
+                                        updateQuantity(selectedColor, size, Math.max(0, currentQuantity - 1))
+                                      }}
                                       className="w-8 h-8 rounded-full bg-gray-300 hover:bg-gray-400 flex items-center justify-center text-gray-700 font-bold transition-colors"
                                       disabled={currentQuantity <= 0}
                                     >
@@ -334,7 +355,10 @@ export default function ProductDetail() {
                                       {currentQuantity}
                                     </span>
                                     <button
-                                      onClick={() => updateQuantity(selectedColor, size, currentQuantity + 1)}
+                                      onClick={() => {
+                                        console.log(`➕ Increasing ${selectedColor} - ${size} from ${currentQuantity}`)
+                                        updateQuantity(selectedColor, size, currentQuantity + 1)
+                                      }}
                                       className="w-8 h-8 rounded-full bg-purple-600 hover:bg-purple-700 flex items-center justify-center text-white font-bold transition-colors"
                                     >
                                       +
@@ -358,14 +382,18 @@ export default function ProductDetail() {
                       </h4>
                       <div className="space-y-2">
                         {product.colors.map((color: string, colorIndex: number) => {
+                          // 각 색상별로 완전히 독립적인 수량 계산
                           const colorQuantities = orderQuantities[color] || {}
                           const hasQuantity = Object.values(colorQuantities).some(qty => qty > 0)
                           const totalQuantity = Object.values(colorQuantities).reduce((sum, qty) => sum + qty, 0)
                           
+                          console.log(`📊 Status ${color}: hasQuantity=${hasQuantity}, totalQuantity=${totalQuantity}`)
+                          console.log(`📊 Status ${color}: colorQuantities=`, colorQuantities)
+                          
                           if (!hasQuantity) return null
                           
                           return (
-                            <div key={colorIndex} className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                            <div key={`status-${colorIndex}`} className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
                               <div className="flex items-center">
                                 <div className={`w-3 h-3 rounded-full mr-2 ${color === '빨강' ? 'bg-red-500' : color === '파랑' ? 'bg-blue-500' : color === '검정' ? 'bg-black' : color === '흰색' ? 'bg-white border border-gray-300' : 'bg-gray-400'}`}></div>
                                 <span className="font-medium text-green-900">{color}</span>
