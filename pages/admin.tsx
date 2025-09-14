@@ -39,6 +39,7 @@ interface Customer {
   skirtLength?: number; // 치마길이
   pantsLength?: number; // 바지길이
   email: string;
+  createdAt: any;
   updatedAt: any;
 }
 
