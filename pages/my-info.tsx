@@ -325,24 +325,35 @@ export default function MyInfoPage() {
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex-1">
                           <h3 className="font-semibold text-gray-900 text-lg mb-2">{order.productName}</h3>
-                          <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                            <div className="flex items-center">
-                              <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                              </svg>
-                              <span className="font-medium">{order.selectedSize}</span>
-                            </div>
-                            <div className="flex items-center">
-                              <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
-                              </svg>
-                              <span className="font-medium">{order.selectedColor}</span>
-                            </div>
-                            <div className="flex items-center">
-                              <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-                              </svg>
-                              <span className="font-medium">수량: {order.quantity || 1}개</span>
+                          <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                              <div className="flex items-center">
+                                <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                </svg>
+                                <div>
+                                  <span className="text-gray-500 text-xs">사이즈</span>
+                                  <div className="font-medium text-gray-900">{order.selectedSize}</div>
+                                </div>
+                              </div>
+                              <div className="flex items-center">
+                                <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
+                                </svg>
+                                <div>
+                                  <span className="text-gray-500 text-xs">색상</span>
+                                  <div className="font-medium text-gray-900">{order.selectedColor}</div>
+                                </div>
+                              </div>
+                              <div className="flex items-center">
+                                <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                                </svg>
+                                <div>
+                                  <span className="text-gray-500 text-xs">수량</span>
+                                  <div className="font-medium text-purple-600">{order.quantity || 1}개</div>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
