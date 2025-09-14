@@ -194,6 +194,23 @@ export default function MyInfoPage() {
               <Link href="/products" className="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                 제품보기
               </Link>
+              {user && (
+                <>
+                  <div className="flex items-center space-x-2">
+                    <div className="text-sm text-gray-600">
+                      안녕하세요, <span className="font-medium text-purple-600">{user.email}</span>님
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      window.location.href = '/login';
+                    }}
+                    className="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    로그아웃
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

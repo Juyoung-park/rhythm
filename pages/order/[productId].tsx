@@ -153,9 +153,24 @@ export default function ProductDetail() {
                 제품 보기
               </Link>
               {user && (
-                <Link href="/my-info" className="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                  내 정보
-                </Link>
+                <>
+                  <div className="flex items-center space-x-2">
+                    <div className="text-sm text-gray-600">
+                      안녕하세요, <span className="font-medium text-purple-600">{user.email}</span>님
+                    </div>
+                  </div>
+                  <Link href="/my-info" className="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                    내 정보
+                  </Link>
+                  <button
+                    onClick={() => {
+                      window.location.href = '/login';
+                    }}
+                    className="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    로그아웃
+                  </button>
+                </>
               )}
               {!user && (
                 <Link href="/login" className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg text-sm hover:from-purple-700 hover:to-pink-700 transition-all">
