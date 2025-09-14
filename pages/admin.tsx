@@ -217,7 +217,8 @@ const AdminPage = () => {
           customerId: data.customerId,
           customerEmail: data.customerEmail,
           customerName: data.customerName,
-          productName: data.productName,
+          originalProductName: data.productName,
+          latestProductName: productInfo?.name,
           productInfo: productInfo,
           productImageUrl: productInfo?.imageUrl,
           hasProductImage: !!productInfo?.imageUrl
@@ -226,9 +227,9 @@ const AdminPage = () => {
         return {
           id: doc.id,
           ...data,
+          // 제품 정보가 있으면 최신 정보 사용, 없으면 주문에 저장된 정보 사용
+          productName: productInfo?.name || data.productName || "제품 정보 없음",
           productImageUrl: productInfo?.imageUrl || "",
-          // 제품 정보가 업데이트된 경우 최신 정보 사용, 없으면 주문에 저장된 정보 사용
-          productName: productInfo?.name || data.productName,
           productPrice: productInfo?.price || data.productPrice
         };
       }) as Order[];
@@ -307,7 +308,7 @@ const AdminPage = () => {
   };
 
   // 제품 정보가 변경될 때 관련 주문들의 제품 정보도 업데이트
-  const updateOrdersWithProductInfo = async (productId: string, productInfo: { productName: string, productImageUrl?: string }) => {
+  const updateOrdersWithProductInfo = async (productId: string, productInfo: { productName: string, productImageUrl?: string, productPrice?: number }) => {
     try {
       console.log(`Updating orders for product ${productId} with info:`, productInfo);
       
@@ -329,6 +330,11 @@ const AdminPage = () => {
         // 이미지 URL이 변경된 경우에만 업데이트
         if (productInfo.productImageUrl !== undefined) {
           updateData.productImageUrl = productInfo.productImageUrl;
+        }
+        
+        // 제품 가격이 변경된 경우에만 업데이트
+        if (productInfo.productPrice !== undefined) {
+          updateData.productPrice = productInfo.productPrice;
         }
         
         console.log(`Updating order ${orderDoc.id} with:`, updateData);
@@ -416,7 +422,8 @@ const AdminPage = () => {
       // 해당 제품과 관련된 모든 주문의 제품 정보 업데이트
       await updateOrdersWithProductInfo(editingProduct.id, {
         productName: finalUpdateData.name,
-        productImageUrl: finalUpdateData.imageUrl
+        productImageUrl: finalUpdateData.imageUrl,
+        productPrice: finalUpdateData.price
       });
       
       // 로컬 상태 업데이트
@@ -707,6 +714,7 @@ const AdminPage = () => {
   const handleViewCustomerOrders = async (customer: Customer) => {
     setSelectedCustomer(customer);
     setShowCustomerOrders(true);
+    // 최신 제품 정보와 함께 주문내역 가져오기
     await fetchCustomerOrders(customer);
   };
 
@@ -1769,14 +1777,25 @@ const AdminPage = () => {
                     총 {customerOrders.length}건의 주문
                   </p>
                 </div>
-                <button
-                  onClick={closeCustomerOrders}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => selectedCustomer && fetchCustomerOrders(selectedCustomer)}
+                    className="text-blue-600 hover:text-blue-800 transition-colors p-1"
+                    title="새로고침"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={closeCustomerOrders}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
 
