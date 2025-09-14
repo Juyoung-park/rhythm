@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { auth, db } from "../lib/firebase";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import { doc, setDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, setDoc, getDoc, collection, query, where, getDocs, deleteDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
@@ -161,24 +161,34 @@ export default function LoginPage() {
               const existingUser = existingUsers[0];
               console.log("기존 Firestore 사용자와 연결:", existingUser);
               
-              const updatedUserData = {
-                ...existingUser,
-                email: email,
-                // 회원가입 폼의 정보로 업데이트 (기존 정보 유지하면서 새 정보 추가)
-                carNumber: registrationForm.carNumber.trim() || existingUser.carNumber || "",
-                address: registrationForm.address.trim() || existingUser.address || "",
-                organization: registrationForm.organization.trim() || existingUser.organization || "",
-                updatedAt: new Date()
-              };
-              
-              await setDoc(doc(db, "users", existingUser.id), updatedUserData);
-              console.log("기존 사용자 정보 업데이트 완료:", existingUser.id);
-              alert("기존 고객 정보와 연결되어 로그인 정보가 업데이트되었습니다!");
-              
               // Firebase Auth로 로그인 시도
               try {
                 await signInWithEmailAndPassword(auth, email, pw);
                 console.log("기존 계정으로 로그인 성공");
+                
+                // Firebase Auth UID로 기존 사용자 정보를 새 문서에 저장
+                const user = auth.currentUser;
+                if (user) {
+                  const updatedUserData = {
+                    ...existingUser,
+                    email: email,
+                    // 회원가입 폼의 정보로 업데이트 (기존 정보 유지하면서 새 정보 추가)
+                    carNumber: registrationForm.carNumber.trim() || existingUser.carNumber || "",
+                    address: registrationForm.address.trim() || existingUser.address || "",
+                    organization: registrationForm.organization.trim() || existingUser.organization || "",
+                    updatedAt: new Date()
+                  };
+                  
+                  // Firebase Auth UID로 새 문서 생성 (기존 정보 포함)
+                  await setDoc(doc(db, "users", user.uid), updatedUserData);
+                  console.log("Firebase Auth UID로 사용자 정보 저장 완료:", user.uid);
+                  
+                  // 기존 문서 삭제 (선택사항)
+                  await deleteDoc(doc(db, "users", existingUser.id));
+                  console.log("기존 문서 삭제 완료:", existingUser.id);
+                }
+                
+                alert("기존 고객 정보와 연결되어 로그인 정보가 업데이트되었습니다!");
                 
                 // 인증 상태 변경을 기다린 후 라우팅
                 await new Promise<void>((resolve) => {
