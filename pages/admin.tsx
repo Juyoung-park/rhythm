@@ -583,13 +583,14 @@ const AdminPage = () => {
                 </div>
               </div>
               <div className="overflow-x-auto max-w-full">
-                <table className="min-w-full divide-y divide-gray-200" style={{ minWidth: '900px' }}>
+                <table className="min-w-full divide-y divide-gray-200" style={{ minWidth: '1000px' }}>
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이메일</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">연락처</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">소속</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">차량번호</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">등록일</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
                     </tr>
@@ -597,7 +598,7 @@ const AdminPage = () => {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {filteredCustomers.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                        <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
                           {searchTerm ? `"${searchTerm}"에 대한 검색 결과가 없습니다.` : "등록된 고객이 없습니다."}
                         </td>
                       </tr>
@@ -608,6 +609,7 @@ const AdminPage = () => {
                           <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 max-w-32 truncate">{customer.email || "-"}</td>
                           <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{customer.phone || "-"}</td>
                           <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 max-w-24 truncate">{customer.organization || "-"}</td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{customer.carNumber || "-"}</td>
                           <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                             {customer.updatedAt?.toDate?.()?.toLocaleDateString() || "N/A"}
                           </td>
