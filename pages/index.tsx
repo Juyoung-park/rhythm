@@ -2,14 +2,17 @@ import Link from "next/link"
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-pink-50">
-      <div className="text-center space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-pink-50 px-4 py-8">
+      <div className="text-center space-y-8 max-w-4xl w-full">
         {/* 로고 */}
-        <div className="mb-8">
-          <h1 className="text-6xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-            Rhythm
-          </h1>
-          <p className="text-xl text-gray-600">Dance Wear</p>
+        <div className="mb-12">
+          <div className="flex flex-col items-center justify-center mb-6">
+            <div className="text-8xl mb-6">💃</div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+              Rhythm
+            </h1>
+            <p className="text-lg md:text-xl text-gray-600 mt-2">Dance Wear</p>
+          </div>
         </div>
 
         {/* 로그인/회원가입 메뉴 */}
