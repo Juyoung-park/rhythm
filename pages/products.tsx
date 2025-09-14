@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import { db } from "../lib/firebase";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, doc, getDoc } from "firebase/firestore";
 import Link from "next/link";
 
 interface Product {
@@ -25,6 +25,7 @@ export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("newest");
+  const [userInfo, setUserInfo] = useState<any>(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -63,6 +64,22 @@ export default function ProductsPage() {
 
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      const fetchUserInfo = async () => {
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            setUserInfo(userDoc.data());
+          }
+        } catch (error) {
+          console.error("Error fetching user info:", error);
+        }
+      };
+      fetchUserInfo();
+    }
+  }, [user]);
 
   const categories = ["all", "dress", "top", "bottom", "accessory"];
   
@@ -119,7 +136,7 @@ export default function ProductsPage() {
                 <>
                   <div className="flex items-center space-x-2">
                     <div className="text-sm text-gray-600">
-                      안녕하세요, <span className="font-medium text-purple-600">{user.email}</span>님
+                      안녕하세요, <span className="font-medium text-purple-600">{userInfo?.name || user.email}</span>님
                     </div>
                   </div>
                   <Link href="/my-info" className="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">

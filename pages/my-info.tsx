@@ -248,7 +248,7 @@ export default function MyInfoPage() {
                 <>
                   <div className="flex items-center space-x-2">
                     <div className="text-sm text-gray-600">
-                      안녕하세요, <span className="font-medium text-purple-600">{user.email}</span>님
+                      안녕하세요, <span className="font-medium text-purple-600">{info.name || user.email}</span>님
                     </div>
                   </div>
                   <button

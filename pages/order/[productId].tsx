@@ -156,7 +156,7 @@ export default function ProductDetail() {
                 <>
                   <div className="flex items-center space-x-2">
                     <div className="text-sm text-gray-600">
-                      안녕하세요, <span className="font-medium text-purple-600">{user.email}</span>님
+                      안녕하세요, <span className="font-medium text-purple-600">{userInfo?.name || user.email}</span>님
                     </div>
                   </div>
                   <Link href="/my-info" className="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
