@@ -11,6 +11,11 @@ export default function ProductDetail() {
   const [product, setProduct] = useState<any>(null)
   const [userInfo, setUserInfo] = useState<any>(null)
   const [orderQuantities, setOrderQuantities] = useState<{[color: string]: {[size: string]: number}}>({})
+  
+  // 디버깅용: 상태 변화 추적
+  useEffect(() => {
+    console.log(`🎯 Order quantities changed:`, orderQuantities)
+  }, [orderQuantities])
   const [isOrdering, setIsOrdering] = useState(false)
   const { user } = useUser()
 
@@ -41,10 +46,8 @@ export default function ProductDetail() {
     console.log(`📊 Before update:`, orderQuantities)
     
     setOrderQuantities(prev => {
-      // 기존 상태를 완전히 복사하여 새로운 상태 생성
-      const newState = {
-        ...prev
-      }
+      // JSON을 사용한 깊은 복사로 완전한 상태 복사
+      const newState = JSON.parse(JSON.stringify(prev))
       
       // 해당 색상이 없으면 빈 객체로 초기화
       if (!newState[color]) {
@@ -53,10 +56,7 @@ export default function ProductDetail() {
       }
       
       // 해당 색상의 사이즈별 수량 업데이트
-      newState[color] = {
-        ...newState[color],
-        [size]: quantity
-      }
+      newState[color][size] = quantity
       
       console.log(`📈 After update:`, newState)
       return newState
