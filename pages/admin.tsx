@@ -206,11 +206,14 @@ const AdminPage = () => {
         
         console.log("Order data:", {
           id: doc.id,
+          productId: data.productId,
           customerId: data.customerId,
           customerEmail: data.customerEmail,
           customerName: data.customerName,
           productName: data.productName,
-          productImageUrl: productInfo?.imageUrl
+          productInfo: productInfo,
+          productImageUrl: productInfo?.imageUrl,
+          hasProductImage: !!productInfo?.imageUrl
         });
         
         return {
@@ -1676,15 +1679,26 @@ const AdminPage = () => {
                               alt={order.productName}
                               className="w-16 h-16 object-cover rounded-lg border border-gray-200"
                               onError={(e) => {
+                                console.error("Image load error:", order.productImageUrl);
                                 e.currentTarget.style.display = 'none';
                                 e.currentTarget.nextElementSibling?.classList.remove('hidden');
                               }}
+                              onLoad={() => {
+                                console.log("Image loaded successfully:", order.productImageUrl);
+                              }}
                             />
-                          ) : null}
-                          <div className={`w-16 h-16 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center ${order.productImageUrl ? 'hidden' : ''}`}>
-                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
+                          ) : (
+                            <div className="w-16 h-16 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center">
+                              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                          )}
+                          {/* 디버깅 정보 */}
+                          <div className="text-xs text-gray-500 mt-1">
+                            {order.productImageUrl ? "이미지 있음" : "이미지 없음"}
+                            <br />
+                            {order.productId.slice(-4)}
                           </div>
                         </div>
                         
