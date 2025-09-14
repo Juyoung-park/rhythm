@@ -65,6 +65,17 @@ const AdminPage = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [customerOrders, setCustomerOrders] = useState<Order[]>([]);
   const [showCustomerOrders, setShowCustomerOrders] = useState(false);
+  
+  // 제품 수정 상태
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editProductForm, setEditProductForm] = useState({
+    name: "",
+    description: "",
+    price: "",
+    category: "",
+    sizes: [] as string[],
+    colors: [] as string[]
+  });
   const [editForm, setEditForm] = useState({
     name: "",
     phone: "",
@@ -169,6 +180,49 @@ const AdminPage = () => {
     } catch (error) {
       console.error("Error deleting product:", error);
       alert("삭제 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setEditProductForm({
+      name: product.name,
+      description: product.description,
+      price: product.price.toString(),
+      category: product.category,
+      sizes: product.sizes || [],
+      colors: product.colors || []
+    });
+  };
+
+  const handleUpdateProduct = async () => {
+    if (!editingProduct) return;
+    
+    try {
+      const productRef = doc(db, "products", editingProduct.id);
+      await updateDoc(productRef, {
+        name: editProductForm.name,
+        description: editProductForm.description,
+        price: parseFloat(editProductForm.price),
+        category: editProductForm.category,
+        sizes: editProductForm.sizes,
+        colors: editProductForm.colors,
+        updatedAt: new Date()
+      });
+      
+      // 로컬 상태 업데이트
+      setProducts(products.map(p => 
+        p.id === editingProduct.id 
+          ? { ...p, ...editProductForm, price: parseFloat(editProductForm.price) }
+          : p
+      ));
+      
+      setEditingProduct(null);
+      setEditProductForm({ name: "", description: "", price: "", category: "", sizes: [], colors: [] });
+      alert("제품이 수정되었습니다.");
+    } catch (error) {
+      console.error("Error updating product:", error);
+      alert("제품 수정 중 오류가 발생했습니다.");
     }
   };
 
@@ -537,12 +591,20 @@ const AdminPage = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">{product.category}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₩{product.price.toLocaleString()}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button
-                            onClick={() => handleDeleteProduct(product.id)}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            삭제
-                          </button>
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => handleEditProduct(product)}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
+                              수정
+                            </button>
+                            <button
+                              onClick={() => handleDeleteProduct(product.id)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              삭제
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -1121,6 +1183,106 @@ const AdminPage = () => {
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
               >
                 고객 추가
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 제품 수정 모달 */}
+      {editingProduct && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">제품 수정</h3>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">제품명</label>
+                <input
+                  type="text"
+                  value={editProductForm.name}
+                  onChange={(e) => setEditProductForm({...editProductForm, name: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="제품명을 입력하세요"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">설명</label>
+                <textarea
+                  value={editProductForm.description}
+                  onChange={(e) => setEditProductForm({...editProductForm, description: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  rows={3}
+                  placeholder="제품 설명을 입력하세요"
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">가격</label>
+                  <input
+                    type="number"
+                    value={editProductForm.price}
+                    onChange={(e) => setEditProductForm({...editProductForm, price: e.target.value})}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="가격을 입력하세요"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
+                  <select
+                    value={editProductForm.category}
+                    onChange={(e) => setEditProductForm({...editProductForm, category: e.target.value})}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="">카테고리 선택</option>
+                    <option value="dress">드레스</option>
+                    <option value="top">상의</option>
+                    <option value="bottom">하의</option>
+                    <option value="accessory">액세서리</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">사이즈 (쉼표로 구분)</label>
+                <input
+                  type="text"
+                  value={editProductForm.sizes.join(", ")}
+                  onChange={(e) => setEditProductForm({...editProductForm, sizes: e.target.value.split(",").map(s => s.trim()).filter(s => s)})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="예: S, M, L, XL"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">색상 (쉼표로 구분)</label>
+                <input
+                  type="text"
+                  value={editProductForm.colors.join(", ")}
+                  onChange={(e) => setEditProductForm({...editProductForm, colors: e.target.value.split(",").map(s => s.trim()).filter(s => s)})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="예: 빨강, 파랑, 검정, 흰색"
+                />
+              </div>
+            </div>
+            
+            <div className="p-6 border-t bg-gray-50 flex justify-end space-x-3">
+              <button
+                onClick={() => setEditingProduct(null)}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleUpdateProduct}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                수정 완료
               </button>
             </div>
           </div>
