@@ -170,18 +170,43 @@ const AdminPage = () => {
     }
   };
 
-  const fetchCustomerOrders = async (customerId: string) => {
+  const fetchCustomerOrders = async (customer: Customer) => {
     try {
-      const customerOrdersQuery = query(
+      console.log("Fetching orders for customer:", customer);
+      
+      // customerId로 검색 (새로운 주문들)
+      const customerIdQuery = query(
         collection(db, "orders"),
-        where("customerId", "==", customerId),
+        where("customerId", "==", customer.id),
         orderBy("createdAt", "desc")
       );
-      const ordersSnapshot = await getDocs(customerOrdersQuery);
-      const ordersData = ordersSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Order[];
+      
+      // customerEmail로 검색 (기존 주문들)
+      const customerEmailQuery = query(
+        collection(db, "orders"),
+        where("customerEmail", "==", customer.email),
+        orderBy("createdAt", "desc")
+      );
+      
+      const [customerIdSnapshot, customerEmailSnapshot] = await Promise.all([
+        getDocs(customerIdQuery),
+        getDocs(customerEmailQuery)
+      ]);
+      
+      // 두 결과를 합치고 중복 제거
+      const allOrders = new Map();
+      
+      customerIdSnapshot.docs.forEach(doc => {
+        allOrders.set(doc.id, { id: doc.id, ...doc.data() });
+      });
+      
+      customerEmailSnapshot.docs.forEach(doc => {
+        allOrders.set(doc.id, { id: doc.id, ...doc.data() });
+      });
+      
+      const ordersData = Array.from(allOrders.values()) as Order[];
+      console.log("Found orders:", ordersData.length);
+      
       setCustomerOrders(ordersData);
     } catch (error) {
       console.error("Error fetching customer orders:", error);
@@ -517,7 +542,7 @@ const AdminPage = () => {
   const handleViewCustomerOrders = async (customer: Customer) => {
     setSelectedCustomer(customer);
     setShowCustomerOrders(true);
-    await fetchCustomerOrders(customer.id);
+    await fetchCustomerOrders(customer);
   };
 
   const closeCustomerOrders = () => {
