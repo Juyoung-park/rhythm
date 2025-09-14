@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import { db } from "../lib/firebase";
-import { doc, setDoc, getDoc, collection, query, where, orderBy, getDocs } from "firebase/firestore";
+import { doc, setDoc, getDoc, collection, query, where, orderBy, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
@@ -173,7 +173,57 @@ export default function MyInfoPage() {
       case "pending": return "bg-yellow-100 text-yellow-800";
       case "processing": return "bg-blue-100 text-blue-800";
       case "completed": return "bg-green-100 text-green-800";
+      case "cancelled": return "bg-red-100 text-red-800";
       default: return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const cancelOrder = async (orderId: string) => {
+    if (!confirm("이 주문을 취소하시겠습니까?")) {
+      return;
+    }
+    
+    try {
+      const orderRef = doc(db, "orders", orderId);
+      await updateDoc(orderRef, {
+        status: "cancelled",
+        updatedAt: new Date()
+      });
+      
+      // 로컬 상태 업데이트
+      setOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId 
+            ? { ...order, status: "cancelled" }
+            : order
+        )
+      );
+      
+      alert("주문이 취소되었습니다.");
+    } catch (error: any) {
+      console.error("Error cancelling order:", error);
+      alert("주문 취소 중 오류가 발생했습니다.");
+    }
+  };
+
+  const deleteOrder = async (orderId: string) => {
+    if (!confirm("이 주문을 완전히 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
+      return;
+    }
+    
+    try {
+      const orderRef = doc(db, "orders", orderId);
+      await deleteDoc(orderRef);
+      
+      // 로컬 상태에서 제거
+      setOrders(prevOrders => 
+        prevOrders.filter(order => order.id !== orderId)
+      );
+      
+      alert("주문이 삭제되었습니다.");
+    } catch (error: any) {
+      console.error("Error deleting order:", error);
+      alert("주문 삭제 중 오류가 발생했습니다.");
     }
   };
 
@@ -381,6 +431,22 @@ export default function MyInfoPage() {
                           <div className="text-xs text-gray-500 mt-1">
                             주문번호: {order.id.slice(-8)}
                           </div>
+                          {(order.status === "pending" || order.status === "processing") && (
+                            <div className="flex flex-col space-y-1 mt-2">
+                              <button
+                                onClick={() => cancelOrder(order.id)}
+                                className="px-2 py-1 text-xs bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
+                              >
+                                취소
+                              </button>
+                              <button
+                                onClick={() => deleteOrder(order.id)}
+                                className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                              >
+                                삭제
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                       
