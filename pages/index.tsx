@@ -12,42 +12,19 @@ export default function Home() {
           <p className="text-xl text-gray-600">Dance Wear</p>
         </div>
 
-        {/* 관리 메뉴 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-          {/* 제품 등록 */}
+        {/* 로그인/회원가입 메뉴 */}
+        <div className="flex justify-center gap-6 mt-8">
           <Link
-            href="/admin/add-product"
-            className="group p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+            href="/login"
+            className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
           >
-            <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">👗</div>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">제품 등록</h2>
-            <p className="text-gray-600">새로운 댄스 의상을 등록합니다</p>
-          </Link>
-
-          {/* 회원 관리 */}
-          <Link
-            href="/admin"
-            className="group p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-          >
-            <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">👥</div>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">회원 관리</h2>
-            <p className="text-gray-600">고객 정보와 주문을 관리합니다</p>
-          </Link>
-        </div>
-
-        {/* 추가 링크 */}
-        <div className="flex justify-center gap-4 mt-8">
-          <Link
-            href="/products"
-            className="text-purple-600 hover:text-purple-700 font-medium"
-          >
-            제품 보기 →
+            로그인
           </Link>
           <Link
             href="/login"
-            className="text-pink-600 hover:text-pink-700 font-medium"
+            className="px-8 py-4 bg-white text-purple-600 font-semibold rounded-xl border-2 border-purple-600 hover:bg-purple-50 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
           >
-            로그인 →
+            회원가입
           </Link>
         </div>
       </div>
