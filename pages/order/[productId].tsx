@@ -1,6 +1,6 @@
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
-import { doc, getDoc } from "firebase/firestore"
+import { doc, getDoc, collection, addDoc, serverTimestamp } from "firebase/firestore"
 import { db } from "../../lib/firebase"
 import { useUser } from "../../context/UserContext"
 import Link from "next/link"
@@ -9,6 +9,10 @@ export default function ProductDetail() {
   const router = useRouter()
   const { productId } = router.query
   const [product, setProduct] = useState<any>(null)
+  const [userInfo, setUserInfo] = useState<any>(null)
+  const [orderQuantities, setOrderQuantities] = useState<{[size: string]: number}>({})
+  const [selectedColor, setSelectedColor] = useState<string>("")
+  const [isOrdering, setIsOrdering] = useState(false)
   const { user } = useUser()
 
   useEffect(() => {
@@ -19,6 +23,79 @@ export default function ProductDetail() {
     }
     fetchProduct()
   }, [productId])
+
+  useEffect(() => {
+    if (user) {
+      const fetchUserInfo = async () => {
+        const userSnap = await getDoc(doc(db, "users", user.uid))
+        if (userSnap.exists()) {
+          setUserInfo({ id: userSnap.id, ...userSnap.data() })
+        }
+      }
+      fetchUserInfo()
+    }
+  }, [user])
+
+  // 사이즈별 수량 변경 함수
+  const updateQuantity = (size: string, quantity: number) => {
+    setOrderQuantities(prev => ({
+      ...prev,
+      [size]: quantity
+    }))
+  }
+
+  // 주문하기 함수
+  const handleOrder = async () => {
+    if (!user || !product || !userInfo) {
+      alert("로그인이 필요합니다.")
+      return
+    }
+
+    // 주문할 수량이 있는지 확인
+    const hasQuantity = Object.values(orderQuantities).some(qty => qty > 0)
+    if (!hasQuantity) {
+      alert("주문할 수량을 선택해주세요.")
+      return
+    }
+
+    if (!selectedColor) {
+      alert("색상을 선택해주세요.")
+      return
+    }
+
+    setIsOrdering(true)
+
+    try {
+      // 각 사이즈별로 주문 생성
+      for (const [size, quantity] of Object.entries(orderQuantities)) {
+        if (quantity > 0) {
+          await addDoc(collection(db, "orders"), {
+            customerId: user.uid,
+            productId: product.id,
+            customerName: userInfo.name || userInfo.email,
+            productName: product.name,
+            selectedSize: size,
+            selectedColor: selectedColor,
+            quantity: quantity,
+            status: "pending",
+            deliveryAddress: userInfo.address || "",
+            phoneNumber: userInfo.phone || "",
+            specialRequests: "",
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          })
+        }
+      }
+
+      alert("주문이 완료되었습니다!")
+      router.push("/my-info")
+    } catch (error) {
+      console.error("주문 오류:", error)
+      alert("주문 중 오류가 발생했습니다. 다시 시도해주세요.")
+    } finally {
+      setIsOrdering(false)
+    }
+  }
 
   if (!product) {
     return (
@@ -117,65 +194,107 @@ export default function ProductDetail() {
               </div>
             )}
 
-            {/* 제품 옵션 */}
-            {(product.colors || product.sizes) && (
+            {/* 주문 폼 */}
+            {user ? (
               <div className="bg-white rounded-xl p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">제품 옵션</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">주문하기</h3>
                 
+                {/* 색상 선택 */}
                 {product.colors && product.colors.length > 0 && (
-                  <div className="mb-4">
-                    <p className="text-sm font-medium text-gray-700 mb-2">색상</p>
+                  <div className="mb-6">
+                    <p className="text-sm font-medium text-gray-700 mb-3">색상 선택 <span className="text-red-500">*</span></p>
                     <div className="flex flex-wrap gap-2">
                       {product.colors.map((color: string, index: number) => (
-                        <span key={index} className="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full">
+                        <button
+                          key={index}
+                          onClick={() => setSelectedColor(color)}
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                            selectedColor === color
+                              ? "bg-purple-600 text-white shadow-md"
+                              : "bg-purple-100 text-purple-800 hover:bg-purple-200"
+                          }`}
+                        >
                           {color}
-                        </span>
+                        </button>
                       ))}
                     </div>
                   </div>
                 )}
 
+                {/* 사이즈별 수량 선택 */}
                 {product.sizes && product.sizes.length > 0 && (
-                  <div>
-                    <p className="text-sm font-medium text-gray-700 mb-2">사이즈</p>
-                    <div className="flex flex-wrap gap-2">
+                  <div className="mb-6">
+                    <p className="text-sm font-medium text-gray-700 mb-3">사이즈별 수량 선택 <span className="text-red-500">*</span></p>
+                    <div className="space-y-3">
                       {product.sizes.map((size: string, index: number) => (
-                        <span key={index} className="px-3 py-1 bg-gray-100 text-gray-800 text-sm rounded-full">
-                          {size}
-                        </span>
+                        <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                          <span className="text-sm font-medium text-gray-700">{size}</span>
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => updateQuantity(size, Math.max(0, (orderQuantities[size] || 0) - 1))}
+                              className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-600 font-bold"
+                              disabled={!orderQuantities[size] || orderQuantities[size] <= 0}
+                            >
+                              -
+                            </button>
+                            <span className="w-8 text-center font-medium">
+                              {orderQuantities[size] || 0}
+                            </span>
+                            <button
+                              onClick={() => updateQuantity(size, (orderQuantities[size] || 0) + 1)}
+                              className="w-8 h-8 rounded-full bg-purple-600 hover:bg-purple-700 flex items-center justify-center text-white font-bold"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
                 )}
+
+                {/* 주문 요약 */}
+                {Object.values(orderQuantities).some(qty => qty > 0) && selectedColor && (
+                  <div className="mb-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <h4 className="font-medium text-purple-900 mb-2">주문 요약</h4>
+                    <div className="space-y-1 text-sm text-purple-800">
+                      {Object.entries(orderQuantities).map(([size, quantity]) => (
+                        quantity > 0 && (
+                          <div key={size} className="flex justify-between">
+                            <span>{size} 사이즈 - {selectedColor}</span>
+                            <span>{quantity}개</span>
+                          </div>
+                        )
+                      ))}
+                      <div className="border-t border-purple-200 pt-2 mt-2 font-medium">
+                        총 수량: {Object.values(orderQuantities).reduce((sum, qty) => sum + qty, 0)}개
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 주문하기 버튼 */}
+                <button
+                  onClick={handleOrder}
+                  disabled={isOrdering || !Object.values(orderQuantities).some(qty => qty > 0) || !selectedColor}
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all transform hover:scale-105 shadow-lg"
+                >
+                  {isOrdering ? "주문 처리 중..." : "주문하기"}
+                </button>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl p-6 shadow-sm text-center">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">로그인 후 주문하세요</h3>
+                <p className="text-gray-600 mb-4">주문하려면 로그인이 필요합니다.</p>
+                <Link 
+                  href="/login" 
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all"
+                >
+                  로그인하기
+                </Link>
               </div>
             )}
 
-            {/* 주문하기 버튼 */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <div className="text-center">
-                {user ? (
-                  <button
-                    onClick={() => {
-                      // 주문 로직을 여기에 추가할 수 있습니다
-                      alert('주문 기능이 곧 추가될 예정입니다!')
-                    }}
-                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 px-8 rounded-xl font-bold text-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
-                  >
-                    주문하기
-                  </button>
-                ) : (
-                  <div className="space-y-3">
-                    <p className="text-gray-600 mb-4">주문하려면 로그인이 필요합니다</p>
-                    <Link
-                      href="/login"
-                      className="inline-block w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 px-8 rounded-xl font-bold text-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg text-center"
-                    >
-                      로그인 후 주문하기
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
         </div>
       </div>

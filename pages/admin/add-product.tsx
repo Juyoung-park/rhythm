@@ -12,6 +12,8 @@ export default function AddProductPage() {
     description: "",
     imageUrl: "",
     active: true,
+    sizes: [] as string[],
+    colors: [] as string[],
   })
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string>("")
@@ -20,6 +22,8 @@ export default function AddProductPage() {
   const [firebaseConnected, setFirebaseConnected] = useState<boolean | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [retryCount, setRetryCount] = useState(0)
+  const [newSize, setNewSize] = useState("")
+  const [newColor, setNewColor] = useState("")
 
   // Firebase 연결 상태 확인
   useEffect(() => {
@@ -60,6 +64,30 @@ export default function AddProductPage() {
 
   const handleImageUrlChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setForm(prev => ({ ...prev, imageUrl: e.target.value }))
+  }, [])
+
+  // 사이즈 관리 함수들
+  const addSize = useCallback(() => {
+    if (newSize.trim() && !form.sizes.includes(newSize.trim())) {
+      setForm(prev => ({ ...prev, sizes: [...prev.sizes, newSize.trim()] }))
+      setNewSize("")
+    }
+  }, [newSize, form.sizes])
+
+  const removeSize = useCallback((sizeToRemove: string) => {
+    setForm(prev => ({ ...prev, sizes: prev.sizes.filter(size => size !== sizeToRemove) }))
+  }, [])
+
+  // 색상 관리 함수들
+  const addColor = useCallback(() => {
+    if (newColor.trim() && !form.colors.includes(newColor.trim())) {
+      setForm(prev => ({ ...prev, colors: [...prev.colors, newColor.trim()] }))
+      setNewColor("")
+    }
+  }, [newColor, form.colors])
+
+  const removeColor = useCallback((colorToRemove: string) => {
+    setForm(prev => ({ ...prev, colors: prev.colors.filter(color => color !== colorToRemove) }))
   }, [])
 
   // 이미지 압축 함수
@@ -483,6 +511,98 @@ export default function AddProductPage() {
               spellCheck="false"
             />
           </label>
+
+          {/* 사이즈 관리 */}
+          <div className="space-y-3">
+            <label className="text-sm font-semibold text-gray-700">사이즈 설정</label>
+            
+            {/* 사이즈 입력 */}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newSize}
+                onChange={(e) => setNewSize(e.target.value)}
+                className="flex-1 rounded-xl border-2 border-gray-200 px-4 py-3 text-base focus:border-purple-500 focus:outline-none transition-colors"
+                placeholder="사이즈 입력 (예: S, M, L, XL)"
+                autoComplete="off"
+                onKeyPress={(e) => e.key === 'Enter' && addSize()}
+              />
+              <button
+                type="button"
+                onClick={addSize}
+                className="px-4 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-medium"
+              >
+                추가
+              </button>
+            </div>
+            
+            {/* 사이즈 목록 */}
+            {form.sizes.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {form.sizes.map((size, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center gap-2 px-3 py-2 bg-purple-100 text-purple-800 rounded-lg text-sm font-medium"
+                  >
+                    {size}
+                    <button
+                      type="button"
+                      onClick={() => removeSize(size)}
+                      className="text-purple-600 hover:text-purple-800 font-bold"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 색상 관리 */}
+          <div className="space-y-3">
+            <label className="text-sm font-semibold text-gray-700">색상 설정</label>
+            
+            {/* 색상 입력 */}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newColor}
+                onChange={(e) => setNewColor(e.target.value)}
+                className="flex-1 rounded-xl border-2 border-gray-200 px-4 py-3 text-base focus:border-purple-500 focus:outline-none transition-colors"
+                placeholder="색상 입력 (예: 빨강, 파랑, 검정)"
+                autoComplete="off"
+                onKeyPress={(e) => e.key === 'Enter' && addColor()}
+              />
+              <button
+                type="button"
+                onClick={addColor}
+                className="px-4 py-3 bg-pink-600 text-white rounded-xl hover:bg-pink-700 transition-colors font-medium"
+              >
+                추가
+              </button>
+            </div>
+            
+            {/* 색상 목록 */}
+            {form.colors.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {form.colors.map((color, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center gap-2 px-3 py-2 bg-pink-100 text-pink-800 rounded-lg text-sm font-medium"
+                  >
+                    {color}
+                    <button
+                      type="button"
+                      onClick={() => removeColor(color)}
+                      className="text-pink-600 hover:text-pink-800 font-bold"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
 
           <label className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl cursor-pointer">
             <input
