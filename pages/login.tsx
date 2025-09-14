@@ -40,6 +40,11 @@ export default function LoginPage() {
     });
   };
 
+  // 전화번호 정규화 함수 (숫자만 추출)
+  const normalizePhone = (phone: string) => {
+    return phone.replace(/[^0-9]/g, "");
+  };
+
   // 이름과 전화번호로 기존 회원 검색
   const searchExistingUsers = async () => {
     if (!registrationForm.name.trim() || !registrationForm.phone.trim()) {
@@ -47,22 +52,34 @@ export default function LoginPage() {
     }
 
     try {
-      // 이름으로 검색
-      const nameQuery = query(collection(db, "users"), where("name", "==", registrationForm.name.trim()));
-      const nameSnapshot = await getDocs(nameQuery);
+      const normalizedInputPhone = normalizePhone(registrationForm.phone);
+      const inputName = registrationForm.name.trim();
+      
+      console.log(`검색 시작: 이름 "${inputName}", 전화번호 "${normalizedInputPhone}"`);
+      
+      // 모든 사용자를 가져와서 클라이언트에서 필터링 (더 정확한 검색을 위해)
+      const usersRef = collection(db, "users");
+      const allUsersSnapshot = await getDocs(usersRef);
       
       const foundUsers: any[] = [];
-      nameSnapshot.forEach(doc => {
+      
+      allUsersSnapshot.forEach(doc => {
         const userData = doc.data();
-        // 전화번호도 일치하는지 확인 (부분 일치)
-        if (userData.phone && userData.phone.includes(registrationForm.phone.replace(/-/g, ""))) {
-          foundUsers.push({
-            id: doc.id,
-            ...userData
-          });
+        
+        // 이름과 전화번호 모두 정확히 일치하는지 확인
+        if (userData.name === inputName && userData.phone) {
+          const normalizedStoredPhone = normalizePhone(userData.phone);
+          if (normalizedStoredPhone === normalizedInputPhone) {
+            foundUsers.push({
+              id: doc.id,
+              ...userData
+            });
+            console.log(`일치하는 사용자 발견: ID=${doc.id}, 이름=${userData.name}, 전화번호=${userData.phone} (정규화: ${normalizedStoredPhone})`);
+          }
         }
       });
 
+      console.log(`최종 검색 결과: ${foundUsers.length}명 발견`);
       return foundUsers;
     } catch (error) {
       console.error("사용자 검색 오류:", error);
@@ -105,18 +122,29 @@ export default function LoginPage() {
 
     try {
       if (isNew) {
+        console.log("=== 회원가입 시작 ===");
+        console.log("입력된 정보:", {
+          name: registrationForm.name.trim(),
+          phone: registrationForm.phone.trim(),
+          email: email
+        });
+        
         // 먼저 기존 회원 정보 검색
         const existingUsers = await searchExistingUsers();
+        console.log("기존 회원 검색 결과:", existingUsers);
         
         // Firebase Authentication에 계정 생성
         const userCredential = await createUserWithEmailAndPassword(auth, email, pw);
         const newUser = userCredential.user;
+        console.log("Firebase Auth 계정 생성 완료:", newUser.uid);
         
         // Firestore에 사용자 정보 생성 또는 기존 사용자 정보 업데이트
         try {
           if (existingUsers && existingUsers.length > 0) {
             // 기존 사용자와 연결 - 첫 번째 일치하는 사용자와 연결
             const existingUser = existingUsers[0];
+            console.log("기존 사용자와 연결:", existingUser);
+            
             const updatedUserData = {
               ...existingUser,
               email: email,
@@ -128,11 +156,11 @@ export default function LoginPage() {
             };
             
             await setDoc(doc(db, "users", existingUser.id), updatedUserData);
-            console.log("기존 사용자 정보와 연결 완료 - 회원가입 정보 업데이트됨");
+            console.log("기존 사용자 정보 업데이트 완료:", existingUser.id);
             alert("기존 고객 정보와 연결되어 회원가입이 완료되었습니다!");
           } else {
             // 새로운 사용자 생성
-            await setDoc(doc(db, "users", newUser.uid), {
+            const newUserData = {
               email: email,
               name: registrationForm.name.trim(),
               phone: registrationForm.phone.trim(),
@@ -145,11 +173,13 @@ export default function LoginPage() {
               hip: "",
               createdAt: new Date(),
               updatedAt: new Date()
-            });
-            console.log("새로운 사용자 정보 생성 완료");
+            };
+            
+            await setDoc(doc(db, "users", newUser.uid), newUserData);
+            console.log("새로운 사용자 정보 생성 완료:", newUser.uid, newUserData);
             alert("회원가입이 완료되었습니다!");
           }
-          console.log("Firestore에 사용자 정보 생성 완료");
+          console.log("=== 회원가입 완료 ===");
         } catch (firestoreError) {
           console.error("Firestore 사용자 정보 생성 실패:", firestoreError);
           // Firestore 실패해도 회원가입은 성공으로 처리
