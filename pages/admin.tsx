@@ -45,9 +45,17 @@ interface Order {
   customerId: string;
   productId: string;
   customerName: string;
+  customerEmail?: string;
   productName: string;
+  selectedSize?: string;
+  selectedColor?: string;
+  quantity?: number;
   status: string;
+  deliveryAddress?: string;
+  phoneNumber?: string;
+  specialRequests?: string;
   createdAt: any;
+  updatedAt?: any;
 }
 
 // Force client-side rendering
