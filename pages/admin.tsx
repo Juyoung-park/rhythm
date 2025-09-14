@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import { useRouter } from "next/router";
 import { db } from "../lib/firebase";
-import { collection, getDocs, query, orderBy, doc, updateDoc, deleteDoc, addDoc, where } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, doc, updateDoc, deleteDoc, addDoc, where, serverTimestamp } from "firebase/firestore";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
@@ -75,6 +75,19 @@ const AdminPage = () => {
     category: "",
     sizes: [] as string[],
     colors: [] as string[]
+  });
+
+  // 주문 추가 상태
+  const [showAddOrder, setShowAddOrder] = useState(false);
+  const [newOrder, setNewOrder] = useState({
+    customerEmail: "",
+    productId: "",
+    selectedSize: "",
+    selectedColor: "",
+    quantity: 1,
+    deliveryAddress: "",
+    phoneNumber: "",
+    specialRequests: ""
   });
   const [editForm, setEditForm] = useState({
     name: "",
@@ -223,6 +236,75 @@ const AdminPage = () => {
     } catch (error) {
       console.error("Error updating product:", error);
       alert("제품 수정 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleAddOrder = async () => {
+    if (!newOrder.customerEmail || !newOrder.productId || !newOrder.selectedSize || !newOrder.selectedColor) {
+      alert("필수 항목을 모두 입력해주세요.");
+      return;
+    }
+
+    try {
+      const selectedProduct = products.find(p => p.id === newOrder.productId);
+      if (!selectedProduct) {
+        alert("선택된 제품을 찾을 수 없습니다.");
+        return;
+      }
+
+      // 고객 정보 가져오기
+      const customersQuery = query(collection(db, "users"), where("email", "==", newOrder.customerEmail));
+      const customersSnapshot = await getDocs(customersQuery);
+      
+      let customerId = "";
+      let customerName = "";
+      
+      if (customersSnapshot.empty) {
+        alert("해당 이메일의 고객을 찾을 수 없습니다. 고객이 먼저 회원가입을 해야 합니다.");
+        return;
+      } else {
+        const customerData = customersSnapshot.docs[0].data();
+        customerId = customersSnapshot.docs[0].id;
+        customerName = customerData.name || newOrder.customerEmail;
+      }
+
+      await addDoc(collection(db, "orders"), {
+        customerId: customerId,
+        productId: newOrder.productId,
+        customerName: customerName,
+        customerEmail: newOrder.customerEmail,
+        productName: selectedProduct.name,
+        selectedSize: newOrder.selectedSize,
+        selectedColor: newOrder.selectedColor,
+        quantity: newOrder.quantity,
+        status: "pending",
+        deliveryAddress: newOrder.deliveryAddress,
+        phoneNumber: newOrder.phoneNumber,
+        specialRequests: newOrder.specialRequests,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+
+      // 폼 초기화
+      setNewOrder({
+        customerEmail: "",
+        productId: "",
+        selectedSize: "",
+        selectedColor: "",
+        quantity: 1,
+        deliveryAddress: "",
+        phoneNumber: "",
+        specialRequests: ""
+      });
+      setShowAddOrder(false);
+      
+      // 주문 목록 새로고침
+      fetchOrders();
+      
+      alert("주문이 성공적으로 추가되었습니다.");
+    } catch (error) {
+      console.error("Error adding order:", error);
+      alert("주문 추가 중 오류가 발생했습니다.");
     }
   };
 
@@ -706,7 +788,15 @@ const AdminPage = () => {
 
           {activeTab === "orders" && (
             <div>
-              <h2 className="text-xl font-semibold mb-6">주문 관리</h2>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold">주문 관리</h2>
+                <button
+                  onClick={() => setShowAddOrder(true)}
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  주문 추가
+                </button>
+              </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -1183,6 +1273,157 @@ const AdminPage = () => {
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
               >
                 고객 추가
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 주문 추가 모달 */}
+      {showAddOrder && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">새 주문 추가</h3>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">고객 이메일 *</label>
+                <input
+                  type="email"
+                  value={newOrder.customerEmail}
+                  onChange={(e) => setNewOrder({...newOrder, customerEmail: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="고객의 이메일을 입력하세요"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">제품 선택 *</label>
+                <select
+                  value={newOrder.productId}
+                  onChange={(e) => {
+                    const selectedProduct = products.find(p => p.id === e.target.value);
+                    setNewOrder({
+                      ...newOrder, 
+                      productId: e.target.value,
+                      selectedSize: "",
+                      selectedColor: ""
+                    });
+                  }}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="">제품을 선택하세요</option>
+                  {products.map(product => (
+                    <option key={product.id} value={product.id}>
+                      {product.name} - ₩{product.price.toLocaleString()}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {newOrder.productId && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">사이즈 *</label>
+                    <select
+                      value={newOrder.selectedSize}
+                      onChange={(e) => setNewOrder({...newOrder, selectedSize: e.target.value})}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                      <option value="">사이즈를 선택하세요</option>
+                      {products.find(p => p.id === newOrder.productId)?.sizes?.map(size => (
+                        <option key={size} value={size}>{size}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">색상 *</label>
+                    <select
+                      value={newOrder.selectedColor}
+                      onChange={(e) => setNewOrder({...newOrder, selectedColor: e.target.value})}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                      <option value="">색상을 선택하세요</option>
+                      {products.find(p => p.id === newOrder.productId)?.colors?.map(color => (
+                        <option key={color} value={color}>{color}</option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              )}
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">수량 *</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={newOrder.quantity}
+                  onChange={(e) => setNewOrder({...newOrder, quantity: parseInt(e.target.value) || 1})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">배송지</label>
+                <input
+                  type="text"
+                  value={newOrder.deliveryAddress}
+                  onChange={(e) => setNewOrder({...newOrder, deliveryAddress: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="배송지를 입력하세요"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">연락처</label>
+                <input
+                  type="tel"
+                  value={newOrder.phoneNumber}
+                  onChange={(e) => setNewOrder({...newOrder, phoneNumber: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="연락처를 입력하세요"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">특별 요청사항</label>
+                <textarea
+                  value={newOrder.specialRequests}
+                  onChange={(e) => setNewOrder({...newOrder, specialRequests: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  rows={3}
+                  placeholder="특별 요청사항이 있다면 입력하세요"
+                />
+              </div>
+            </div>
+            
+            <div className="p-6 border-t bg-gray-50 flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowAddOrder(false);
+                  setNewOrder({
+                    customerEmail: "",
+                    productId: "",
+                    selectedSize: "",
+                    selectedColor: "",
+                    quantity: 1,
+                    deliveryAddress: "",
+                    phoneNumber: "",
+                    specialRequests: ""
+                  });
+                }}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleAddOrder}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                주문 추가
               </button>
             </div>
           </div>
