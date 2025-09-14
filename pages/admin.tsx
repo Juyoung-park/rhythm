@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import { useRouter } from "next/router";
 import { db } from "../lib/firebase";
-import { collection, getDocs, query, orderBy, doc, updateDoc, deleteDoc, addDoc, where, serverTimestamp } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, doc, updateDoc, deleteDoc, addDoc, where, serverTimestamp, deleteField } from "firebase/firestore";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
@@ -11,11 +11,12 @@ interface Product {
   name: string;
   description: string;
   price: number;
-  category: string;
+  category?: string;
   imageUrl?: string;
-  sizes: string[];
-  colors: string[];
+  sizes?: string[];
+  colors?: string[];
   createdAt: any;
+  updatedAt?: any;
 }
 
 interface Customer {
@@ -307,29 +308,62 @@ const AdminPage = () => {
     try {
       const productRef = doc(db, "products", editingProduct.id);
       
-      // undefined 값을 제거하고 업데이트할 데이터 준비
-      const updateData: any = {
-        name: editProductForm.name,
-        description: editProductForm.description,
-        price: parseFloat(editProductForm.price),
-        updatedAt: new Date()
-      };
+      // 모든 값을 명시적으로 검증하고 undefined 제거
+      const updateData: any = {};
       
-      // undefined가 아닌 값만 추가
-      if (editProductForm.category !== undefined && editProductForm.category !== "") {
-        updateData.category = editProductForm.category;
+      // 필수 필드들 (항상 포함)
+      if (editProductForm.name && editProductForm.name.trim() !== "") {
+        updateData.name = editProductForm.name.trim();
       }
       
-      if (editProductForm.sizes && editProductForm.sizes.length > 0) {
+      if (editProductForm.description && editProductForm.description.trim() !== "") {
+        updateData.description = editProductForm.description.trim();
+      }
+      
+      if (editProductForm.price && !isNaN(parseFloat(editProductForm.price))) {
+        updateData.price = parseFloat(editProductForm.price);
+      }
+      
+      // 선택적 필드들 (값이 있을 때만 포함)
+      if (editProductForm.category && editProductForm.category.trim() !== "") {
+        updateData.category = editProductForm.category.trim();
+      }
+      
+      if (editProductForm.sizes && Array.isArray(editProductForm.sizes) && editProductForm.sizes.length > 0) {
         updateData.sizes = editProductForm.sizes;
       }
       
-      if (editProductForm.colors && editProductForm.colors.length > 0) {
+      if (editProductForm.colors && Array.isArray(editProductForm.colors) && editProductForm.colors.length > 0) {
         updateData.colors = editProductForm.colors;
       }
       
+      // 항상 포함할 필드
+      updateData.updatedAt = new Date();
+      
       console.log("Updating product with data:", updateData);
-      await updateDoc(productRef, updateData);
+      console.log("Original form data:", editProductForm);
+      
+      // 최소한의 필수 데이터가 있는지 확인
+      if (!updateData.name || !updateData.description || updateData.price === undefined) {
+        throw new Error("필수 필드가 누락되었습니다.");
+      }
+      
+      // 안전한 업데이트를 위해 기존 데이터와 병합
+      const finalUpdateData: any = {
+        ...editingProduct,
+        ...updateData,
+        updatedAt: serverTimestamp()
+      };
+      
+      // undefined 값들을 제거
+      Object.keys(finalUpdateData).forEach(key => {
+        if (finalUpdateData[key] === undefined || finalUpdateData[key] === null) {
+          delete finalUpdateData[key];
+        }
+      });
+      
+      console.log("Final update data:", finalUpdateData);
+      await updateDoc(productRef, finalUpdateData);
       
       // 로컬 상태 업데이트
       setProducts(products.map(p => 
