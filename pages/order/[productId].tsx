@@ -281,6 +281,14 @@ export default function ProductDetail() {
                 >
                   {isOrdering ? "주문 처리 중..." : "주문하기"}
                 </button>
+                
+                {/* 디버깅 정보 */}
+                <div className="mt-4 p-2 bg-gray-100 rounded text-xs text-gray-600">
+                  <div>수량 선택됨: {Object.values(orderQuantities).some(qty => qty > 0) ? '예' : '아니오'}</div>
+                  <div>색상 필요: {product.colors && product.colors.length > 0 ? '예' : '아니오'}</div>
+                  <div>색상 선택됨: {selectedColor ? '예' : '아니오'}</div>
+                  <div>버튼 활성화: {!isOrdering && Object.values(orderQuantities).some(qty => qty > 0) && (!product.colors || product.colors.length === 0 || selectedColor) ? '예' : '아니오'}</div>
+                </div>
               </div>
             ) : (
               <div className="bg-white rounded-xl p-6 shadow-sm text-center">
