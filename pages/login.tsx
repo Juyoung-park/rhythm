@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { auth, db } from "../lib/firebase";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
@@ -18,6 +18,10 @@ export default function LoginPage() {
     address: "",
     organization: "",
   });
+  const [matchingUsers, setMatchingUsers] = useState<any[]>([]);
+  const [showMatchingUsers, setShowMatchingUsers] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [isVerifyingUser, setIsVerifyingUser] = useState(false);
   const router = useRouter();
 
   const handleRegistrationFormChange = (field: string, value: string) => {
@@ -38,6 +42,80 @@ export default function LoginPage() {
       address: "",
       organization: "",
     });
+    setMatchingUsers([]);
+    setShowMatchingUsers(false);
+    setSelectedUser(null);
+    setIsVerifyingUser(false);
+  };
+
+  // 이름과 전화번호로 기존 회원 검색
+  const searchExistingUsers = async () => {
+    if (!registrationForm.name.trim() || !registrationForm.phone.trim()) {
+      setError("이름과 연락처를 입력해주세요.");
+      return;
+    }
+
+    setIsVerifyingUser(true);
+    setError(null);
+
+    try {
+      // 이름으로 검색
+      const nameQuery = query(collection(db, "users"), where("name", "==", registrationForm.name.trim()));
+      const nameSnapshot = await getDocs(nameQuery);
+      
+      const foundUsers: any[] = [];
+      nameSnapshot.forEach(doc => {
+        const userData = doc.data();
+        // 전화번호도 일치하는지 확인 (부분 일치)
+        if (userData.phone && userData.phone.includes(registrationForm.phone.replace(/-/g, ""))) {
+          foundUsers.push({
+            id: doc.id,
+            ...userData
+          });
+        }
+      });
+
+      if (foundUsers.length > 0) {
+        setMatchingUsers(foundUsers);
+        setShowMatchingUsers(true);
+      } else {
+        setError("일치하는 회원 정보를 찾을 수 없습니다. 새로운 회원으로 가입을 진행하시겠습니까?");
+        setShowMatchingUsers(false);
+      }
+    } catch (error) {
+      console.error("사용자 검색 오류:", error);
+      setError("회원 정보 검색 중 오류가 발생했습니다.");
+    } finally {
+      setIsVerifyingUser(false);
+    }
+  };
+
+  // 이름의 가운데 글자를 *로 치환하는 함수
+  const maskMiddleName = (name: string) => {
+    if (name.length <= 2) return name;
+    const middleIndex = Math.floor(name.length / 2);
+    return name.substring(0, middleIndex) + "*" + name.substring(middleIndex + 1);
+  };
+
+  // 전화번호 뒤 4자리를 *로 치환하는 함수
+  const maskPhoneLast4 = (phone: string) => {
+    if (phone.length < 4) return phone;
+    const phoneDigits = phone.replace(/-/g, "");
+    const maskedPart = phoneDigits.substring(0, phoneDigits.length - 4);
+    return maskedPart + "****";
+  };
+
+  // 선택된 회원 정보 확인
+  const confirmUserSelection = (user: any) => {
+    setSelectedUser(user);
+    setShowMatchingUsers(false);
+  };
+
+  // 새로운 회원으로 가입 진행
+  const proceedAsNewUser = () => {
+    setShowMatchingUsers(false);
+    setMatchingUsers([]);
+    handleAuth();
   };
 
   const handleAuth = async () => {
@@ -56,6 +134,12 @@ export default function LoginPage() {
         setError("연락처를 입력해주세요.");
         return;
       }
+
+      // 기존 회원 정보 검색이 필요한지 확인
+      if (!selectedUser && !showMatchingUsers && matchingUsers.length === 0) {
+        await searchExistingUsers();
+        return; // 검색 결과에 따라 사용자에게 선택하도록 함
+      }
     }
 
     setLoading(true);
@@ -67,22 +151,34 @@ export default function LoginPage() {
         const userCredential = await createUserWithEmailAndPassword(auth, email, pw);
         const newUser = userCredential.user;
         
-        // Firestore에 사용자 정보 생성 (관리자 페이지에서 보이도록)
+        // Firestore에 사용자 정보 생성 또는 기존 사용자 정보 업데이트
         try {
-          await setDoc(doc(db, "users", newUser.uid), {
-            email: email,
-            name: registrationForm.name.trim(),
-            phone: registrationForm.phone.trim(),
-            carNumber: registrationForm.carNumber.trim(),
-            address: registrationForm.address.trim(),
-            organization: registrationForm.organization.trim(),
-            height: "",
-            bust: "",
-            waist: "",
-            hip: "",
-            createdAt: new Date(),
-            updatedAt: new Date()
-          });
+          if (selectedUser) {
+            // 기존 사용자와 연결 - 기존 정보에 이메일 추가
+            await setDoc(doc(db, "users", selectedUser.id), {
+              ...selectedUser,
+              email: email,
+              updatedAt: new Date()
+            });
+            console.log("기존 사용자 정보와 연결 완료");
+          } else {
+            // 새로운 사용자 생성
+            await setDoc(doc(db, "users", newUser.uid), {
+              email: email,
+              name: registrationForm.name.trim(),
+              phone: registrationForm.phone.trim(),
+              carNumber: registrationForm.carNumber.trim(),
+              address: registrationForm.address.trim(),
+              organization: registrationForm.organization.trim(),
+              height: "",
+              bust: "",
+              waist: "",
+              hip: "",
+              createdAt: new Date(),
+              updatedAt: new Date()
+            });
+            console.log("새로운 사용자 정보 생성 완료");
+          }
           console.log("Firestore에 사용자 정보 생성 완료");
         } catch (firestoreError) {
           console.error("Firestore 사용자 정보 생성 실패:", firestoreError);
@@ -240,6 +336,79 @@ export default function LoginPage() {
                   <h3 className="text-lg font-medium text-gray-900 mb-4">추가 정보</h3>
                 </div>
 
+                {/* 기존 회원 검색 결과 표시 */}
+                {showMatchingUsers && matchingUsers.length > 0 && (
+                  <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h4 className="text-md font-medium text-blue-800 mb-3">
+                      일치하는 회원 정보를 찾았습니다. 본인의 정보인지 확인해주세요:
+                    </h4>
+                    <div className="space-y-2">
+                      {matchingUsers.map((user, index) => (
+                        <div key={user.id} className="p-3 bg-white border border-blue-200 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="text-sm text-gray-700">
+                                <span className="font-medium">이름:</span> {maskMiddleName(user.name)}
+                              </div>
+                              <div className="text-sm text-gray-700">
+                                <span className="font-medium">전화번호:</span> {maskPhoneLast4(user.phone)}
+                              </div>
+                              {user.address && (
+                                <div className="text-sm text-gray-700">
+                                  <span className="font-medium">주소:</span> {user.address}
+                                </div>
+                              )}
+                              {user.organization && (
+                                <div className="text-sm text-gray-700">
+                                  <span className="font-medium">소속:</span> {user.organization}
+                                </div>
+                              )}
+                            </div>
+                            <button
+                              onClick={() => confirmUserSelection(user)}
+                              className="ml-3 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                              맞습니다
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      <div className="pt-2">
+                        <button
+                          onClick={proceedAsNewUser}
+                          className="text-sm text-gray-600 hover:text-gray-800 underline"
+                        >
+                          아니요, 새로운 회원으로 가입하겠습니다
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 선택된 회원 정보 표시 */}
+                {selectedUser && (
+                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <h4 className="text-md font-medium text-green-800 mb-2">
+                      선택된 회원 정보:
+                    </h4>
+                    <div className="text-sm text-green-700">
+                      <div>이름: {selectedUser.name}</div>
+                      <div>전화번호: {selectedUser.phone}</div>
+                      {selectedUser.address && <div>주소: {selectedUser.address}</div>}
+                      {selectedUser.organization && <div>소속: {selectedUser.organization}</div>}
+                    </div>
+                    <button
+                      onClick={() => {
+                        setSelectedUser(null);
+                        setShowMatchingUsers(true);
+                      }}
+                      className="mt-2 text-sm text-green-600 hover:text-green-800 underline"
+                    >
+                      다른 정보로 변경
+                    </button>
+                  </div>
+                )}
+
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                     이름 <span className="text-red-500">*</span>
@@ -317,10 +486,12 @@ export default function LoginPage() {
             <div>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || isVerifyingUser}
                 className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 font-medium transition-all transform hover:scale-105 shadow-lg"
               >
-                {loading ? "처리 중..." : (isNew ? "회원가입" : "로그인")}
+                {loading ? "처리 중..." : 
+                 isVerifyingUser ? "회원 정보 확인 중..." :
+                 isNew ? (selectedUser ? "기존 회원과 연결하여 가입" : "회원가입") : "로그인"}
               </button>
             </div>
           </form>
