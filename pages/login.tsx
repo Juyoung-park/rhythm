@@ -133,56 +133,106 @@ export default function LoginPage() {
         const existingUsers = await searchExistingUsers();
         console.log("기존 회원 검색 결과:", existingUsers);
         
-        // Firebase Authentication에 계정 생성
-        const userCredential = await createUserWithEmailAndPassword(auth, email, pw);
-        const newUser = userCredential.user;
-        console.log("Firebase Auth 계정 생성 완료:", newUser.uid);
-        
-        // Firestore에 사용자 정보 생성 또는 기존 사용자 정보 업데이트
+        // Firebase Authentication에 계정 생성 시도
+        let newUser = null;
         try {
-          if (existingUsers && existingUsers.length > 0) {
-            // 기존 사용자와 연결 - 첫 번째 일치하는 사용자와 연결
-            const existingUser = existingUsers[0];
-            console.log("기존 사용자와 연결:", existingUser);
+          const userCredential = await createUserWithEmailAndPassword(auth, email, pw);
+          newUser = userCredential.user;
+          console.log("Firebase Auth 계정 생성 완료:", newUser.uid);
+        } catch (authError: any) {
+          if (authError.code === "auth/email-already-in-use") {
+            // 이메일이 이미 사용 중인 경우 - 기존 사용자와 연결 시도
+            console.log("이메일이 이미 사용 중입니다. 기존 사용자와 연결을 시도합니다.");
             
-            const updatedUserData = {
-              ...existingUser,
-              email: email,
-              // 회원가입 폼의 정보로 업데이트 (기존 정보 유지하면서 새 정보 추가)
-              carNumber: registrationForm.carNumber.trim() || existingUser.carNumber || "",
-              address: registrationForm.address.trim() || existingUser.address || "",
-              organization: registrationForm.organization.trim() || existingUser.organization || "",
-              updatedAt: new Date()
-            };
-            
-            await setDoc(doc(db, "users", existingUser.id), updatedUserData);
-            console.log("기존 사용자 정보 업데이트 완료:", existingUser.id);
-            alert("기존 고객 정보와 연결되어 회원가입이 완료되었습니다!");
+            if (existingUsers && existingUsers.length > 0) {
+              // 기존 Firestore 사용자와 연결
+              const existingUser = existingUsers[0];
+              console.log("기존 Firestore 사용자와 연결:", existingUser);
+              
+              const updatedUserData = {
+                ...existingUser,
+                email: email,
+                // 회원가입 폼의 정보로 업데이트 (기존 정보 유지하면서 새 정보 추가)
+                carNumber: registrationForm.carNumber.trim() || existingUser.carNumber || "",
+                address: registrationForm.address.trim() || existingUser.address || "",
+                organization: registrationForm.organization.trim() || existingUser.organization || "",
+                updatedAt: new Date()
+              };
+              
+              await setDoc(doc(db, "users", existingUser.id), updatedUserData);
+              console.log("기존 사용자 정보 업데이트 완료:", existingUser.id);
+              alert("기존 고객 정보와 연결되어 로그인 정보가 업데이트되었습니다!");
+              
+              // Firebase Auth로 로그인 시도
+              try {
+                await signInWithEmailAndPassword(auth, email, pw);
+                console.log("기존 계정으로 로그인 성공");
+              } catch (loginError) {
+                console.error("기존 계정 로그인 실패:", loginError);
+                alert("기존 계정과 연결되었지만 로그인에 실패했습니다. 비밀번호를 확인해주세요.");
+              }
+            } else {
+              // 이메일은 사용 중이지만 Firestore에 사용자 정보가 없는 경우
+              console.log("이메일은 사용 중이지만 Firestore에 사용자 정보가 없습니다.");
+              alert("이 이메일은 이미 사용 중입니다. 다른 이메일을 사용하거나 로그인을 시도해주세요.");
+              setError("이 이메일은 이미 사용 중입니다. 다른 이메일을 사용하거나 로그인을 시도해주세요.");
+            }
+            setLoading(false);
+            return;
           } else {
-            // 새로운 사용자 생성
-            const newUserData = {
-              email: email,
-              name: registrationForm.name.trim(),
-              phone: registrationForm.phone.trim(),
-              carNumber: registrationForm.carNumber.trim() || "",
-              address: registrationForm.address.trim() || "",
-              organization: registrationForm.organization.trim() || "",
-              height: "",
-              bust: "",
-              waist: "",
-              hip: "",
-              createdAt: new Date(),
-              updatedAt: new Date()
-            };
-            
-            await setDoc(doc(db, "users", newUser.uid), newUserData);
-            console.log("새로운 사용자 정보 생성 완료:", newUser.uid, newUserData);
-            alert("회원가입이 완료되었습니다!");
+            // 다른 인증 오류
+            throw authError;
           }
-          console.log("=== 회원가입 완료 ===");
-        } catch (firestoreError) {
-          console.error("Firestore 사용자 정보 생성 실패:", firestoreError);
-          // Firestore 실패해도 회원가입은 성공으로 처리
+        }
+        
+        // 새로운 계정이 성공적으로 생성된 경우
+        if (newUser) {
+          // Firestore에 사용자 정보 생성 또는 기존 사용자 정보 업데이트
+          try {
+            if (existingUsers && existingUsers.length > 0) {
+              // 기존 사용자와 연결 - 첫 번째 일치하는 사용자와 연결
+              const existingUser = existingUsers[0];
+              console.log("기존 사용자와 연결:", existingUser);
+              
+              const updatedUserData = {
+                ...existingUser,
+                email: email,
+                // 회원가입 폼의 정보로 업데이트 (기존 정보 유지하면서 새 정보 추가)
+                carNumber: registrationForm.carNumber.trim() || existingUser.carNumber || "",
+                address: registrationForm.address.trim() || existingUser.address || "",
+                organization: registrationForm.organization.trim() || existingUser.organization || "",
+                updatedAt: new Date()
+              };
+              
+              await setDoc(doc(db, "users", existingUser.id), updatedUserData);
+              console.log("기존 사용자 정보 업데이트 완료:", existingUser.id);
+              alert("기존 고객 정보와 연결되어 회원가입이 완료되었습니다!");
+            } else {
+              // 새로운 사용자 생성
+              const newUserData = {
+                email: email,
+                name: registrationForm.name.trim(),
+                phone: registrationForm.phone.trim(),
+                carNumber: registrationForm.carNumber.trim() || "",
+                address: registrationForm.address.trim() || "",
+                organization: registrationForm.organization.trim() || "",
+                height: "",
+                bust: "",
+                waist: "",
+                hip: "",
+                createdAt: new Date(),
+                updatedAt: new Date()
+              };
+              
+              await setDoc(doc(db, "users", newUser.uid), newUserData);
+              console.log("새로운 사용자 정보 생성 완료:", newUser.uid, newUserData);
+              alert("회원가입이 완료되었습니다!");
+            }
+            console.log("=== 회원가입 완료 ===");
+          } catch (firestoreError) {
+            console.error("Firestore 사용자 정보 생성 실패:", firestoreError);
+            // Firestore 실패해도 회원가입은 성공으로 처리
+          }
         }
         
         // 인증 상태 변경을 기다린 후 라우팅

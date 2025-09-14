@@ -610,12 +610,12 @@ const AdminPage = () => {
   };
 
   const handleDeleteCustomer = async (customerId: string) => {
-    if (!confirm("정말로 이 고객을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) return;
+    if (!confirm("정말로 이 고객을 삭제하시겠습니까?\n\n⚠️ 주의: 이 작업은 되돌릴 수 없습니다.\n- Firestore의 고객 정보만 삭제됩니다\n- Firebase Authentication 계정은 별도로 관리됩니다")) return;
     
     try {
       await deleteDoc(doc(db, "users", customerId));
       setCustomers(customers.filter(c => c.id !== customerId));
-      alert("고객이 삭제되었습니다.");
+      alert("고객 정보가 삭제되었습니다.\n\n참고: Firebase Authentication 계정이 별도로 존재할 수 있습니다.");
     } catch (error) {
       console.error("Error deleting customer:", error);
       alert("삭제 중 오류가 발생했습니다.");
