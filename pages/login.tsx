@@ -11,12 +11,51 @@ export default function LoginPage() {
   const [isNew, setIsNew] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [registrationForm, setRegistrationForm] = useState({
+    name: "",
+    phone: "",
+    carNumber: "",
+    address: "",
+    organization: "",
+  });
   const router = useRouter();
+
+  const handleRegistrationFormChange = (field: string, value: string) => {
+    setRegistrationForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const resetForms = () => {
+    setEmail("");
+    setPw("");
+    setError(null);
+    setRegistrationForm({
+      name: "",
+      phone: "",
+      carNumber: "",
+      address: "",
+      organization: "",
+    });
+  };
 
   const handleAuth = async () => {
     if (!email || !pw) {
       setError("이메일과 비밀번호를 입력해주세요.");
       return;
+    }
+
+    if (isNew) {
+      // 회원가입 시 필수 필드 검증
+      if (!registrationForm.name.trim()) {
+        setError("이름을 입력해주세요.");
+        return;
+      }
+      if (!registrationForm.phone.trim()) {
+        setError("연락처를 입력해주세요.");
+        return;
+      }
     }
 
     setLoading(true);
@@ -32,8 +71,11 @@ export default function LoginPage() {
         try {
           await setDoc(doc(db, "users", newUser.uid), {
             email: email,
-            name: email.split('@')[0], // 이메일 앞부분을 기본 이름으로 사용
-            phone: "",
+            name: registrationForm.name.trim(),
+            phone: registrationForm.phone.trim(),
+            carNumber: registrationForm.carNumber.trim(),
+            address: registrationForm.address.trim(),
+            organization: registrationForm.organization.trim(),
             height: "",
             bust: "",
             waist: "",
@@ -163,7 +205,7 @@ export default function LoginPage() {
           <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleAuth(); }}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                이메일
+                이메일 <span className="text-red-500">*</span>
               </label>
               <input
                 id="email"
@@ -178,7 +220,7 @@ export default function LoginPage() {
             
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                비밀번호
+                비밀번호 <span className="text-red-500">*</span>
               </label>
               <input
                 id="password"
@@ -190,6 +232,87 @@ export default function LoginPage() {
                 onChange={e => setPw(e.target.value)}
               />
             </div>
+
+            {/* 회원가입 시에만 표시되는 추가 필드들 */}
+            {isNew && (
+              <>
+                <div className="border-t pt-6 mt-6">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">추가 정보</h3>
+                </div>
+
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                    이름 <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="name"
+                    type="text"
+                    required
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="이름을 입력하세요"
+                    value={registrationForm.name}
+                    onChange={e => handleRegistrationFormChange("name", e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                    연락처 <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="phone"
+                    type="tel"
+                    required
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="연락처를 입력하세요 (예: 010-1234-5678)"
+                    value={registrationForm.phone}
+                    onChange={e => handleRegistrationFormChange("phone", e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="carNumber" className="block text-sm font-medium text-gray-700 mb-2">
+                    차량번호
+                  </label>
+                  <input
+                    id="carNumber"
+                    type="text"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="차량번호를 입력하세요 (선택사항)"
+                    value={registrationForm.carNumber}
+                    onChange={e => handleRegistrationFormChange("carNumber", e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+                    주소
+                  </label>
+                  <input
+                    id="address"
+                    type="text"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="주소를 입력하세요 (선택사항)"
+                    value={registrationForm.address}
+                    onChange={e => handleRegistrationFormChange("address", e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="organization" className="block text-sm font-medium text-gray-700 mb-2">
+                    소속
+                  </label>
+                  <input
+                    id="organization"
+                    type="text"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="소속을 입력하세요 (선택사항)"
+                    value={registrationForm.organization}
+                    onChange={e => handleRegistrationFormChange("organization", e.target.value)}
+                  />
+                </div>
+              </>
+            )}
 
             <div>
               <button
@@ -206,7 +329,7 @@ export default function LoginPage() {
             <button
               onClick={() => {
                 setIsNew(!isNew);
-                setError(null);
+                resetForms();
               }}
               className="text-purple-600 hover:text-purple-700 text-sm font-medium"
             >
