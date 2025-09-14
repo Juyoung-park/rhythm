@@ -295,8 +295,10 @@ export default function AdminOrdersPage() {
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="font-semibold text-gray-900 text-lg">{order.productName}</h3>
-                      <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                        주문번호: {order.id.slice(-8)}
+                      <div className="flex items-center space-x-2">
+                        <div className="text-xs text-purple-600 bg-purple-100 px-3 py-1 rounded-full font-medium">
+                          주문번호: {order.id.slice(-8)}
+                        </div>
                       </div>
                     </div>
                     
@@ -313,18 +315,18 @@ export default function AdminOrdersPage() {
                           </div>
                         </div>
                         <div className="flex items-center">
-                          <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
-                          </svg>
-                          <div>
-                            <span className="text-gray-500 text-xs">색상</span>
-                            <div className="font-medium text-gray-900">{order.selectedColor}</div>
+                          <div className="flex items-center">
+                            <div className={`w-4 h-4 rounded-full mr-2 ${order.selectedColor === '빨강' ? 'bg-red-500' : order.selectedColor === '파랑' ? 'bg-blue-500' : order.selectedColor === '검정' ? 'bg-black' : order.selectedColor === '흰색' ? 'bg-white border border-gray-300' : 'bg-gray-400'}`}></div>
+                            <div>
+                              <span className="text-gray-500 text-xs">색상</span>
+                              <div className="font-medium text-gray-900">{order.selectedColor}</div>
+                            </div>
                           </div>
                         </div>
                         <div className="flex items-center">
-                          <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-                          </svg>
+                          <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-2">
+                            <span className="text-purple-600 font-bold text-sm">{order.quantity || 1}</span>
+                          </div>
                           <div>
                             <span className="text-gray-500 text-xs">수량</span>
                             <div className="font-medium text-purple-600">{order.quantity || 1}개</div>
