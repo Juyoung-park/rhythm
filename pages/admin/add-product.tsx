@@ -2,10 +2,13 @@
 
 import { useState, useCallback, useRef, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/router"
 import { db } from "../../lib/firebase"
 import { collection, addDoc, serverTimestamp } from "firebase/firestore"
+import { handleLogout } from "../../lib/auth"
 
 export default function AddProductPage() {
+  const router = useRouter()
   const [form, setForm] = useState({
     name: "",
     price: "",
@@ -691,6 +694,12 @@ export default function AddProductPage() {
             <Link href="/products" className="text-pink-600 hover:text-pink-700 font-medium text-sm">
               제품 보기 →
             </Link>
+            <button
+              onClick={() => handleLogout(router)}
+              className="text-red-600 hover:text-red-700 font-medium text-sm"
+            >
+              로그아웃
+            </button>
           </div>
         </div>
       </div>

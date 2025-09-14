@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import { db } from "../lib/firebase";
 import { doc, setDoc, getDoc, collection, query, where, orderBy, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
+import { handleLogout } from "../lib/auth";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
@@ -252,9 +253,7 @@ export default function MyInfoPage() {
                     </div>
                   </div>
                   <button
-                    onClick={() => {
-                      window.location.href = '/login';
-                    }}
+                    onClick={() => handleLogout(router)}
                     className="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                   >
                     로그아웃

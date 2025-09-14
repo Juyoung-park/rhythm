@@ -218,7 +218,7 @@ export default function LoginPage() {
           }, 3000);
         });
         
-        router.push("/my-info");
+        router.push("/products");
       } else {
         await signInWithEmailAndPassword(auth, email, pw);
         alert("로그인 성공!");
@@ -241,7 +241,7 @@ export default function LoginPage() {
         if (email === "admin@rhythm.com") {
           router.push("/admin");
         } else {
-          router.push("/");
+          router.push("/products");
         }
       }
     } catch (err: any) {

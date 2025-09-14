@@ -3,6 +3,7 @@ import { useUser } from "../context/UserContext";
 import { useRouter } from "next/router";
 import { db } from "../lib/firebase";
 import { collection, getDocs, query, orderBy, doc, updateDoc, deleteDoc, addDoc, where, serverTimestamp, deleteField } from "firebase/firestore";
+import { handleLogout } from "../lib/auth";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
@@ -825,6 +826,12 @@ const AdminPage = () => {
               <Link href="/products" className="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium">
                 제품보기
               </Link>
+              <button
+                onClick={() => handleLogout(router)}
+                className="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                로그아웃
+              </button>
             </div>
           </div>
         </div>

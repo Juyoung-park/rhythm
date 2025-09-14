@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import { db } from "../lib/firebase";
 import { collection, getDocs, query, orderBy, doc, getDoc } from "firebase/firestore";
+import { handleLogout } from "../lib/auth";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 interface Product {
   id: string;
@@ -19,6 +21,7 @@ interface Product {
 
 export default function ProductsPage() {
   const { user } = useUser();
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -143,10 +146,7 @@ export default function ProductsPage() {
                     내 정보
                   </Link>
                   <button
-                    onClick={() => {
-                      // 로그아웃 로직 추가 필요
-                      window.location.href = '/login';
-                    }}
+                    onClick={() => handleLogout(router)}
                     className="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                   >
                     로그아웃

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { doc, getDoc, collection, addDoc, serverTimestamp } from "firebase/firestore"
 import { db } from "../../lib/firebase"
 import { useUser } from "../../context/UserContext"
+import { handleLogout } from "../../lib/auth"
 import Link from "next/link"
 
 export default function ProductDetail() {
@@ -163,9 +164,7 @@ export default function ProductDetail() {
                     내 정보
                   </Link>
                   <button
-                    onClick={() => {
-                      window.location.href = '/login';
-                    }}
+                    onClick={() => handleLogout(router)}
                     className="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                   >
                     로그아웃

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useUser } from "../../context/UserContext";
 import { db } from "../../lib/firebase";
 import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "firebase/firestore";
+import { handleLogout } from "../../lib/auth";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -235,6 +236,12 @@ export default function AdminOrdersPage() {
               <Link href="/my-info" className="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                 내 정보
               </Link>
+              <button
+                onClick={() => handleLogout(router)}
+                className="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                로그아웃
+              </button>
             </div>
           </div>
         </div>
