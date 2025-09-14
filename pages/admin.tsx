@@ -174,40 +174,34 @@ const AdminPage = () => {
     try {
       console.log("Fetching orders for customer:", customer);
       
-      // customerId로 검색 (새로운 주문들)
-      const customerIdQuery = query(
-        collection(db, "orders"),
-        where("customerId", "==", customer.id),
-        orderBy("createdAt", "desc")
-      );
+      // 모든 주문을 가져와서 클라이언트에서 필터링
+      const ordersQuery = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+      const ordersSnapshot = await getDocs(ordersQuery);
       
-      // customerEmail로 검색 (기존 주문들)
-      const customerEmailQuery = query(
-        collection(db, "orders"),
-        where("customerEmail", "==", customer.email),
-        orderBy("createdAt", "desc")
-      );
+      const allOrders = ordersSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Order[];
       
-      const [customerIdSnapshot, customerEmailSnapshot] = await Promise.all([
-        getDocs(customerIdQuery),
-        getDocs(customerEmailQuery)
-      ]);
-      
-      // 두 결과를 합치고 중복 제거
-      const allOrders = new Map();
-      
-      customerIdSnapshot.docs.forEach(doc => {
-        allOrders.set(doc.id, { id: doc.id, ...doc.data() });
+      // 고객과 관련된 주문들 필터링
+      const customerOrders = allOrders.filter(order => {
+        // customerId로 매칭 (Firestore 문서 ID 또는 Firebase Auth UID)
+        if (order.customerId === customer.id) return true;
+        
+        // customerEmail로 매칭
+        if (order.customerEmail === customer.email) return true;
+        
+        // customerName으로 매칭
+        if (order.customerName === customer.name || order.customerName === customer.email) return true;
+        
+        return false;
       });
       
-      customerEmailSnapshot.docs.forEach(doc => {
-        allOrders.set(doc.id, { id: doc.id, ...doc.data() });
-      });
+      console.log("All orders:", allOrders.length);
+      console.log("Customer orders found:", customerOrders.length);
+      console.log("Customer orders data:", customerOrders);
       
-      const ordersData = Array.from(allOrders.values()) as Order[];
-      console.log("Found orders:", ordersData.length);
-      
-      setCustomerOrders(ordersData);
+      setCustomerOrders(customerOrders);
     } catch (error) {
       console.error("Error fetching customer orders:", error);
       setCustomerOrders([]);
