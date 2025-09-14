@@ -47,6 +47,7 @@ interface Order {
   customerName: string;
   customerEmail?: string;
   productName: string;
+  productImageUrl?: string;
   selectedSize?: string;
   selectedColor?: string;
   quantity?: number;
@@ -187,22 +188,35 @@ const AdminPage = () => {
         email: customer.email
       });
       
-      // 모든 주문을 가져와서 클라이언트에서 필터링
-      const ordersQuery = query(collection(db, "orders"));
-      const ordersSnapshot = await getDocs(ordersQuery);
+      // 모든 주문과 제품을 가져와서 클라이언트에서 필터링
+      const [ordersSnapshot, productsSnapshot] = await Promise.all([
+        getDocs(collection(db, "orders")),
+        getDocs(collection(db, "products"))
+      ]);
+      
+      // 제품 정보를 Map으로 변환하여 빠른 조회 가능
+      const productsMap = new Map();
+      productsSnapshot.docs.forEach(doc => {
+        productsMap.set(doc.id, { id: doc.id, ...doc.data() });
+      });
       
       const allOrders = ordersSnapshot.docs.map(doc => {
         const data = doc.data();
+        const productInfo = productsMap.get(data.productId);
+        
         console.log("Order data:", {
           id: doc.id,
           customerId: data.customerId,
           customerEmail: data.customerEmail,
           customerName: data.customerName,
-          productName: data.productName
+          productName: data.productName,
+          productImageUrl: productInfo?.imageUrl
         });
+        
         return {
           id: doc.id,
-          ...data
+          ...data,
+          productImageUrl: productInfo?.imageUrl || ""
         };
       }) as Order[];
       
@@ -1653,7 +1667,28 @@ const AdminPage = () => {
                 <div className="space-y-4">
                   {customerOrders.map((order) => (
                     <div key={order.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 bg-gradient-to-r from-white to-gray-50">
-                      <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-start gap-4 mb-4">
+                        {/* 제품 이미지 */}
+                        <div className="flex-shrink-0">
+                          {order.productImageUrl ? (
+                            <img
+                              src={order.productImageUrl}
+                              alt={order.productName}
+                              className="w-16 h-16 object-cover rounded-lg border border-gray-200"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                              }}
+                            />
+                          ) : null}
+                          <div className={`w-16 h-16 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center ${order.productImageUrl ? 'hidden' : ''}`}>
+                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                        </div>
+                        
+                        {/* 주문 정보 */}
                         <div className="flex-1">
                           <h4 className="font-semibold text-gray-900 text-lg mb-2">{order.productName}</h4>
                           <div className="text-sm text-gray-600">
