@@ -49,19 +49,11 @@ export default function ProductDetail() {
   // 색상별 사이즈별 수량 변경 함수 - 완전히 안전한 방식
   const updateQuantity = (color: string, size: string, quantity: number) => {
     console.log(`🔄 Updating: ${color} - ${size} = ${quantity}`)
-    console.log(`📊 Before update:`, JSON.stringify(orderQuantities))
+    console.log(`📊 Before update:`, JSON.stringify(orderQuantities, null, 2))
     
     setOrderQuantities(prev => {
-      // 완전히 새로운 객체 구조 생성
-      const newState: {[color: string]: {[size: string]: number}} = {}
-      
-      // 기존 모든 색상의 모든 사이즈를 복사
-      Object.keys(prev).forEach(existingColor => {
-        newState[existingColor] = {}
-        Object.keys(prev[existingColor]).forEach(existingSize => {
-          newState[existingColor][existingSize] = prev[existingColor][existingSize]
-        })
-      })
+      // 기존 상태를 완전히 복사
+      const newState = JSON.parse(JSON.stringify(prev))
       
       // 해당 색상이 없으면 빈 객체로 초기화
       if (!newState[color]) {
@@ -72,7 +64,13 @@ export default function ProductDetail() {
       // 해당 색상의 사이즈별 수량 업데이트
       newState[color][size] = quantity
       
-      console.log(`📈 After update:`, JSON.stringify(newState))
+      console.log(`📈 After update:`, JSON.stringify(newState, null, 2))
+      
+      // 각 색상별 상태 확인
+      Object.keys(newState).forEach(checkColor => {
+        console.log(`🔍 Color ${checkColor}:`, newState[checkColor])
+      })
+      
       return newState
     })
   }
@@ -458,25 +456,30 @@ export default function ProductDetail() {
                     </h4>
                     <div className="space-y-3">
                       {/* 각 색상별로 독립적으로 주문 요약 생성 */}
-                      {product.colors && product.colors.length > 0 && product.colors.map((color: string) => {
+                      {product.colors && product.colors.length > 0 && product.colors.map((color: string, colorIndex: number) => {
                         const colorQuantities = orderQuantities[color] || {}
                         const hasColorQuantity = Object.values(colorQuantities).some(qty => qty > 0)
+                        
+                        console.log(`📋 Order Summary for ${color}:`, colorQuantities)
+                        console.log(`📋 Order Summary ${color} hasQuantity:`, hasColorQuantity)
                         
                         if (!hasColorQuantity) return null
                         
                         return (
-                          <div key={color} className="border border-purple-200 rounded-lg p-3">
+                          <div key={`order-summary-${colorIndex}-${color}`} className="border border-purple-200 rounded-lg p-3">
                             <div className="flex items-center mb-2">
                               <div className={`w-3 h-3 rounded-full mr-2 ${color === '빨강' ? 'bg-red-500' : color === '파랑' ? 'bg-blue-500' : color === '검정' ? 'bg-black' : color === '흰색' ? 'bg-white border border-gray-300' : 'bg-gray-400'}`}></div>
                               <span className="font-semibold text-purple-900">{color}</span>
                             </div>
                             <div className="space-y-1 ml-5">
-                              {product.sizes && product.sizes.map((size: string) => {
+                              {product.sizes && product.sizes.map((size: string, sizeIndex: number) => {
                                 const quantity = colorQuantities[size] || 0
+                                console.log(`📋 Order Summary ${color} - ${size}: quantity=${quantity}`)
+                                
                                 if (quantity <= 0) return null
                                 
                                 return (
-                                  <div key={size} className="flex justify-between items-center">
+                                  <div key={`order-size-${colorIndex}-${sizeIndex}-${size}`} className="flex justify-between items-center">
                                     <span className="text-purple-800">{size} 사이즈</span>
                                     <span className="bg-purple-600 text-white px-2 py-1 rounded-full text-sm font-bold">{quantity}개</span>
                                   </div>
