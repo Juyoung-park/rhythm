@@ -75,6 +75,11 @@ const AdminPage = () => {
   const [customerOrders, setCustomerOrders] = useState<Order[]>([]);
   const [showCustomerOrders, setShowCustomerOrders] = useState(false);
   
+  // 이미지 확대 모달 상태
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState("");
+  const [selectedImageAlt, setSelectedImageAlt] = useState("");
+  
   // 제품 수정 상태
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editProductForm, setEditProductForm] = useState({
@@ -607,6 +612,34 @@ const AdminPage = () => {
     setShowCustomerOrders(false);
     setCustomerOrders([]);
   };
+
+  const handleImageClick = (imageUrl: string, imageAlt: string) => {
+    setSelectedImageUrl(imageUrl);
+    setSelectedImageAlt(imageAlt);
+    setShowImageModal(true);
+  };
+
+  const closeImageModal = () => {
+    setShowImageModal(false);
+    setSelectedImageUrl("");
+    setSelectedImageAlt("");
+  };
+
+  // ESC 키로 모달 닫기
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        if (showImageModal) {
+          closeImageModal();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleEscKey);
+    return () => {
+      document.removeEventListener('keydown', handleEscKey);
+    };
+  }, [showImageModal]);
 
   const cancelEdit = () => {
     setEditingCustomer(null);
@@ -1677,7 +1710,8 @@ const AdminPage = () => {
                             <img
                               src={order.productImageUrl}
                               alt={order.productName}
-                              className="w-16 h-16 object-cover rounded-lg border border-gray-200"
+                              className="w-16 h-16 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-80 transition-opacity"
+                              onClick={() => handleImageClick(order.productImageUrl!, order.productName)}
                               onError={(e) => {
                                 console.error("Image load error:", order.productImageUrl);
                                 e.currentTarget.style.display = 'none';
@@ -1786,6 +1820,60 @@ const AdminPage = () => {
             <div className="p-6 border-t bg-gray-50 flex justify-end flex-shrink-0">
               <button
                 onClick={closeCustomerOrders}
+                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 이미지 확대 모달 */}
+      {showImageModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[60]">
+          <div className="relative max-w-4xl max-h-[90vh] bg-white rounded-xl shadow-2xl overflow-hidden">
+            {/* 헤더 */}
+            <div className="p-4 border-b bg-gradient-to-r from-purple-50 to-pink-50 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-900">{selectedImageAlt}</h3>
+              <button
+                onClick={closeImageModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* 이미지 영역 */}
+            <div className="p-4">
+              <div className="relative">
+                <img
+                  src={selectedImageUrl}
+                  alt={selectedImageAlt}
+                  className="max-w-full max-h-[70vh] object-contain mx-auto rounded-lg"
+                  onError={(e) => {
+                    console.error("Modal image load error:", selectedImageUrl);
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                <div className="hidden max-w-full max-h-[70vh] bg-gray-100 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p className="text-gray-600">이미지를 불러올 수 없습니다</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 푸터 */}
+            <div className="p-4 border-t bg-gray-50 flex justify-center">
+              <button
+                onClick={closeImageModal}
                 className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
               >
                 닫기
