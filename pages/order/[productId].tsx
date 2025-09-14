@@ -13,15 +13,6 @@ export default function ProductDetail() {
   const [orderQuantities, setOrderQuantities] = useState<{[color: string]: {[size: string]: number}}>({})
   const [selectedColor, setSelectedColor] = useState<string>("")
   
-  // 디버깅용: 상태 변화 추적
-  useEffect(() => {
-    console.log(`🎯 Order quantities changed:`, orderQuantities)
-  }, [orderQuantities])
-  
-  useEffect(() => {
-    console.log(`🎨 Selected color changed:`, selectedColor)
-  }, [selectedColor])
-  
   const [isOrdering, setIsOrdering] = useState(false)
   const { user } = useUser()
 
@@ -48,28 +39,23 @@ export default function ProductDetail() {
 
   // 색상별 사이즈별 수량 변경 함수 - 완전히 안전한 방식
   const updateQuantity = (color: string, size: string, quantity: number) => {
-    console.log(`🔄 Updating: ${color} - ${size} = ${quantity}`)
-    console.log(`📊 Before update:`, JSON.stringify(orderQuantities, null, 2))
-    
     setOrderQuantities(prev => {
-      // 기존 상태를 완전히 복사
-      const newState = JSON.parse(JSON.stringify(prev))
+      // 새로운 상태 객체 생성
+      const newState: {[color: string]: {[size: string]: number}} = {}
       
-      // 해당 색상이 없으면 빈 객체로 초기화
-      if (!newState[color]) {
-        newState[color] = {}
-        console.log(`🆕 Created new color object for: ${color}`)
+      // 기존 모든 색상 데이터 복사 (완전히 새로운 객체로)
+      for (const existingColor in prev) {
+        newState[existingColor] = {}
+        for (const existingSize in prev[existingColor]) {
+          newState[existingColor][existingSize] = prev[existingColor][existingSize]
+        }
       }
       
-      // 해당 색상의 사이즈별 수량 업데이트
+      // 현재 색상의 데이터 업데이트
+      if (!newState[color]) {
+        newState[color] = {}
+      }
       newState[color][size] = quantity
-      
-      console.log(`📈 After update:`, JSON.stringify(newState, null, 2))
-      
-      // 각 색상별 상태 확인
-      Object.keys(newState).forEach(checkColor => {
-        console.log(`🔍 Color ${checkColor}:`, newState[checkColor])
-      })
       
       return newState
     })
@@ -77,10 +63,7 @@ export default function ProductDetail() {
 
   // 특정 색상의 특정 사이즈 수량 가져오기
   const getQuantityForColor = (color: string, size: string) => {
-    const quantity = orderQuantities[color]?.[size] || 0
-    console.log(`📖 Getting quantity for ${color} - ${size}: ${quantity}`)
-    console.log(`🗂️ Current state:`, orderQuantities)
-    return quantity
+    return orderQuantities[color]?.[size] || 0
   }
 
   // 모든 색상의 총 주문 수량 확인
@@ -283,16 +266,10 @@ export default function ProductDetail() {
                           const hasQuantity = Object.values(colorQuantities).some(qty => qty > 0)
                           const totalQuantity = Object.values(colorQuantities).reduce((sum, qty) => sum + qty, 0)
                           
-                          console.log(`🎨 Color button ${color}: hasQuantity=${hasQuantity}, totalQuantity=${totalQuantity}`)
-                          console.log(`🎨 Color button ${color}: colorQuantities=`, colorQuantities)
-                          
                           return (
                             <button
                               key={`color-btn-${colorIndex}`}
-                              onClick={() => {
-                                console.log(`🖱️ Clicking color button: ${color}`)
-                                setSelectedColor(color)
-                              }}
+                              onClick={() => setSelectedColor(color)}
                               className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all transform hover:scale-105 ${
                                 selectedColor === color
                                   ? "bg-purple-600 text-white shadow-lg ring-2 ring-purple-300"
@@ -333,17 +310,12 @@ export default function ProductDetail() {
                               // 선택된 색상의 특정 사이즈 수량을 안전하게 가져오기
                               const currentQuantity = (orderQuantities[selectedColor] && orderQuantities[selectedColor][size]) || 0
                               
-                              console.log(`📏 Size ${size} for ${selectedColor}: currentQuantity=${currentQuantity}`)
-                              
                               return (
                                 <div key={`size-${selectedColor}-${sizeIndex}`} className="flex items-center justify-between p-3 bg-white rounded-lg border border-purple-200">
                                   <span className="text-sm font-medium text-gray-700">{size}</span>
                                   <div className="flex items-center gap-3">
                                     <button
-                                      onClick={() => {
-                                        console.log(`➖ Decreasing ${selectedColor} - ${size} from ${currentQuantity}`)
-                                        updateQuantity(selectedColor, size, Math.max(0, currentQuantity - 1))
-                                      }}
+                                      onClick={() => updateQuantity(selectedColor, size, Math.max(0, currentQuantity - 1))}
                                       className="w-8 h-8 rounded-full bg-gray-300 hover:bg-gray-400 flex items-center justify-center text-gray-700 font-bold transition-colors"
                                       disabled={currentQuantity <= 0}
                                     >
@@ -353,10 +325,7 @@ export default function ProductDetail() {
                                       {currentQuantity}
                                     </span>
                                     <button
-                                      onClick={() => {
-                                        console.log(`➕ Increasing ${selectedColor} - ${size} from ${currentQuantity}`)
-                                        updateQuantity(selectedColor, size, currentQuantity + 1)
-                                      }}
+                                      onClick={() => updateQuantity(selectedColor, size, currentQuantity + 1)}
                                       className="w-8 h-8 rounded-full bg-purple-600 hover:bg-purple-700 flex items-center justify-center text-white font-bold transition-colors"
                                     >
                                       +
@@ -384,9 +353,6 @@ export default function ProductDetail() {
                           const colorQuantities = orderQuantities[color] || {}
                           const hasQuantity = Object.values(colorQuantities).some(qty => qty > 0)
                           const totalQuantity = Object.values(colorQuantities).reduce((sum, qty) => sum + qty, 0)
-                          
-                          console.log(`📊 Status ${color}: hasQuantity=${hasQuantity}, totalQuantity=${totalQuantity}`)
-                          console.log(`📊 Status ${color}: colorQuantities=`, colorQuantities)
                           
                           if (!hasQuantity) return null
                           
@@ -460,9 +426,6 @@ export default function ProductDetail() {
                         const colorQuantities = orderQuantities[color] || {}
                         const hasColorQuantity = Object.values(colorQuantities).some(qty => qty > 0)
                         
-                        console.log(`📋 Order Summary for ${color}:`, colorQuantities)
-                        console.log(`📋 Order Summary ${color} hasQuantity:`, hasColorQuantity)
-                        
                         if (!hasColorQuantity) return null
                         
                         return (
@@ -474,7 +437,6 @@ export default function ProductDetail() {
                             <div className="space-y-1 ml-5">
                               {product.sizes && product.sizes.map((size: string, sizeIndex: number) => {
                                 const quantity = colorQuantities[size] || 0
-                                console.log(`📋 Order Summary ${color} - ${size}: quantity=${quantity}`)
                                 
                                 if (quantity <= 0) return null
                                 
