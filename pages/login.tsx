@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [isNew, setIsNew] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [registrationForm, setRegistrationForm] = useState({
     name: "",
     phone: "",
@@ -65,16 +66,27 @@ export default function LoginPage() {
       
       allUsersSnapshot.forEach(doc => {
         const userData = doc.data();
+        console.log(`검색 중인 사용자: ID=${doc.id}, 이름="${userData.name}", 전화번호="${userData.phone}"`);
         
         // 이름과 전화번호 모두 정확히 일치하는지 확인
         if (userData.name === inputName && userData.phone) {
           const normalizedStoredPhone = normalizePhone(userData.phone);
+          console.log(`이름 일치! 전화번호 비교: 저장된="${normalizedStoredPhone}", 입력="${normalizedInputPhone}"`);
           if (normalizedStoredPhone === normalizedInputPhone) {
             foundUsers.push({
               id: doc.id,
               ...userData
             });
-            console.log(`일치하는 사용자 발견: ID=${doc.id}, 이름=${userData.name}, 전화번호=${userData.phone} (정규화: ${normalizedStoredPhone})`);
+            console.log(`✅ 일치하는 사용자 발견: ID=${doc.id}, 이름=${userData.name}, 전화번호=${userData.phone} (정규화: ${normalizedStoredPhone})`);
+          } else {
+            console.log(`❌ 전화번호 불일치: ${normalizedStoredPhone} !== ${normalizedInputPhone}`);
+          }
+        } else {
+          if (userData.name !== inputName) {
+            console.log(`❌ 이름 불일치: "${userData.name}" !== "${inputName}"`);
+          }
+          if (!userData.phone) {
+            console.log(`❌ 전화번호 없음`);
           }
         }
       });

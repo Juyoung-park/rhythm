@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import { useRouter } from "next/router";
 import { db } from "../lib/firebase";
-import { collection, getDocs, query, orderBy, doc, updateDoc, deleteDoc, addDoc, where, serverTimestamp, deleteField } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, doc, updateDoc, deleteDoc, addDoc, where, serverTimestamp, deleteField, onSnapshot } from "firebase/firestore";
 import { handleLogout } from "../lib/auth";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -139,7 +139,15 @@ const AdminPage = () => {
       return;
     }
 
-    fetchData();
+    // Set up real-time listeners
+    const cleanup = fetchData();
+    
+    // Cleanup function to unsubscribe from listeners
+    return () => {
+      if (cleanup) {
+        cleanup();
+      }
+    };
   }, [user, router]);
 
   const fetchOrders = async () => {
@@ -158,30 +166,47 @@ const AdminPage = () => {
 
   const fetchData = async () => {
     try {
-      // Fetch products
+      // Set up real-time listeners for products
       const productsQuery = query(collection(db, "products"), orderBy("createdAt", "desc"));
-      const productsSnapshot = await getDocs(productsQuery);
-      const productsData = productsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Product[];
+      const unsubscribeProducts = onSnapshot(productsQuery, (snapshot) => {
+        const productsData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Product[];
+        setProducts(productsData);
+        console.log("제품 데이터 실시간 업데이트:", productsData.length + "개");
+      });
 
-      // Fetch customers (users)
-      const usersQuery = query(collection(db, "users"), orderBy("updatedAt", "desc"));
-      const usersSnapshot = await getDocs(usersQuery);
-      const customersData = usersSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Customer[];
-      
-      console.log("Firestore에서 가져온 사용자 수:", customersData.length);
-      console.log("사용자 목록:", customersData.map(u => ({ email: u.email, name: u.name })));
+      // Set up real-time listeners for customers (users)
+      const usersQuery = query(collection(db, "users"), orderBy("createdAt", "desc"));
+      const unsubscribeUsers = onSnapshot(usersQuery, (snapshot) => {
+        const customersData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Customer[];
+        setCustomers(customersData);
+        console.log("고객 데이터 실시간 업데이트:", customersData.length + "명");
+      });
 
-      setProducts(productsData);
-      setCustomers(customersData);
-      await fetchOrders();
+      // Set up real-time listeners for orders
+      const ordersQuery = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+      const unsubscribeOrders = onSnapshot(ordersQuery, (snapshot) => {
+        const ordersData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Order[];
+        setOrders(ordersData);
+        console.log("주문 데이터 실시간 업데이트:", ordersData.length + "개");
+      });
+
+      // Store unsubscribe functions for cleanup
+      return () => {
+        unsubscribeProducts();
+        unsubscribeUsers();
+        unsubscribeOrders();
+      };
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error setting up real-time listeners:", error);
     } finally {
       setLoading(false);
     }
@@ -592,15 +617,7 @@ const AdminPage = () => {
 
       await updateDoc(doc(db, "users", editingCustomer.id), updateData);
 
-      setCustomers(customers.map(customer => 
-        customer.id === editingCustomer.id 
-          ? { 
-              ...customer, 
-              ...updateData
-            }
-          : customer
-      ));
-
+      // 실시간 업데이트가 자동으로 처리되므로 수동 업데이트 제거
       setEditingCustomer(null);
       alert("고객 정보가 업데이트되었습니다.");
     } catch (error) {
@@ -614,7 +631,7 @@ const AdminPage = () => {
     
     try {
       await deleteDoc(doc(db, "users", customerId));
-      setCustomers(customers.filter(c => c.id !== customerId));
+      // 실시간 업데이트가 자동으로 처리되므로 수동 업데이트 제거
       alert("고객 정보가 삭제되었습니다.\n\n참고: Firebase Authentication 계정이 별도로 존재할 수 있습니다.");
     } catch (error) {
       console.error("Error deleting customer:", error);
@@ -645,6 +662,7 @@ const AdminPage = () => {
         address: editForm.address.trim() || "",
         carNumber: editForm.carNumber.trim() || "",
         size: editForm.size.trim() || "",
+        createdAt: new Date(),
         updatedAt: new Date()
       };
 
@@ -685,7 +703,7 @@ const AdminPage = () => {
 
       console.log("새 고객 객체:", newCustomer);
       
-      setCustomers([newCustomer, ...customers]);
+      // 실시간 업데이트가 자동으로 처리되므로 수동 업데이트 제거
       setShowAddCustomer(false);
       resetForm();
       alert("고객이 성공적으로 추가되었습니다.");
@@ -1007,7 +1025,7 @@ const AdminPage = () => {
                           <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 max-w-24 truncate">{customer.organization || "-"}</td>
                           <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{customer.carNumber || "-"}</td>
                           <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {customer.updatedAt?.toDate?.()?.toLocaleDateString() || "N/A"}
+                            {customer.createdAt?.toDate?.()?.toLocaleDateString() || "N/A"}
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-1">
                             <button
