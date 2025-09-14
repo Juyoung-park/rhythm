@@ -11,11 +11,17 @@ export default function ProductDetail() {
   const [product, setProduct] = useState<any>(null)
   const [userInfo, setUserInfo] = useState<any>(null)
   const [orderQuantities, setOrderQuantities] = useState<{[color: string]: {[size: string]: number}}>({})
+  const [selectedColor, setSelectedColor] = useState<string>("")
   
   // 디버깅용: 상태 변화 추적
   useEffect(() => {
     console.log(`🎯 Order quantities changed:`, orderQuantities)
   }, [orderQuantities])
+  
+  useEffect(() => {
+    console.log(`🎨 Selected color changed:`, selectedColor)
+  }, [selectedColor])
+  
   const [isOrdering, setIsOrdering] = useState(false)
   const { user } = useUser()
 
@@ -256,60 +262,122 @@ export default function ProductDetail() {
                       <p className="text-gray-600 text-sm">각 색상마다 다른 사이즈와 수량을 선택할 수 있습니다</p>
                     </div>
                     
-                    {product.colors.map((color: string, colorIndex: number) => {
-                      // 각 색상별로 독립적인 수량 상태 생성
-                      const colorQuantities = orderQuantities[color] || {}
-                      const hasQuantity = Object.values(colorQuantities).some(qty => qty > 0)
-                      const totalQuantity = Object.values(colorQuantities).reduce((sum, qty) => sum + qty, 0)
-                      
-                      return (
-                        <div key={colorIndex} className="border border-gray-200 rounded-xl p-4">
-                          <div className="flex items-center justify-between mb-4">
-                            <h4 className="text-lg font-semibold text-gray-900 flex items-center">
+                    {/* 색상 선택 버튼들 */}
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <svg className="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
+                        </svg>
+                        색상 선택
+                      </h3>
+                      <div className="flex flex-wrap gap-3">
+                        {product.colors.map((color: string, colorIndex: number) => {
+                          const colorQuantities = orderQuantities[color] || {}
+                          const hasQuantity = Object.values(colorQuantities).some(qty => qty > 0)
+                          const totalQuantity = Object.values(colorQuantities).reduce((sum, qty) => sum + qty, 0)
+                          
+                          return (
+                            <button
+                              key={colorIndex}
+                              onClick={() => setSelectedColor(color)}
+                              className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all transform hover:scale-105 ${
+                                selectedColor === color
+                                  ? "bg-purple-600 text-white shadow-lg ring-2 ring-purple-300"
+                                  : "bg-gray-100 text-gray-700 hover:bg-purple-100 hover:text-purple-800 border-2 border-transparent"
+                              }`}
+                            >
                               <div className={`w-4 h-4 rounded-full mr-3 ${color === '빨강' ? 'bg-red-500' : color === '파랑' ? 'bg-blue-500' : color === '검정' ? 'bg-black' : color === '흰색' ? 'bg-white border border-gray-300' : 'bg-gray-400'}`}></div>
                               {color}
                               {hasQuantity && (
-                                <span className="ml-2 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
-                                  {totalQuantity}개 선택됨
+                                <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
+                                  selectedColor === color 
+                                    ? "bg-white text-purple-600" 
+                                    : "bg-green-100 text-green-800"
+                                }`}>
+                                  {totalQuantity}개
                                 </span>
                               )}
-                            </h4>
-                          </div>
-                          
-                          {product.sizes && product.sizes.length > 0 && (
-                            <div className="space-y-2">
-                              {product.sizes.map((size: string, sizeIndex: number) => {
-                                const currentQuantity = colorQuantities[size] || 0
-                                
-                                return (
-                                  <div key={sizeIndex} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                    <span className="text-sm font-medium text-gray-700">{size}</span>
-                                    <div className="flex items-center gap-3">
-                                      <button
-                                        onClick={() => updateQuantity(color, size, Math.max(0, currentQuantity - 1))}
-                                        className="w-8 h-8 rounded-full bg-gray-300 hover:bg-gray-400 flex items-center justify-center text-gray-700 font-bold transition-colors"
-                                        disabled={currentQuantity <= 0}
-                                      >
-                                        −
-                                      </button>
-                                      <span className="w-8 text-center font-bold text-gray-900">
-                                        {currentQuantity}
-                                      </span>
-                                      <button
-                                        onClick={() => updateQuantity(color, size, currentQuantity + 1)}
-                                        className="w-8 h-8 rounded-full bg-purple-600 hover:bg-purple-700 flex items-center justify-center text-white font-bold transition-colors"
-                                      >
-                                        +
-                                      </button>
-                                    </div>
-                                  </div>
-                                )
-                              })}
-                            </div>
-                          )}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    {/* 선택된 색상의 사이즈/수량 조절 */}
+                    {selectedColor && (
+                      <div className="border border-gray-200 rounded-xl p-4 bg-purple-50">
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-lg font-semibold text-gray-900 flex items-center">
+                            <div className={`w-4 h-4 rounded-full mr-3 ${selectedColor === '빨강' ? 'bg-red-500' : selectedColor === '파랑' ? 'bg-blue-500' : selectedColor === '검정' ? 'bg-black' : selectedColor === '흰색' ? 'bg-white border border-gray-300' : 'bg-gray-400'}`}></div>
+                            {selectedColor} 선택됨
+                            <span className="ml-2 text-sm text-purple-600">이 색상의 사이즈와 수량을 조절하세요</span>
+                          </h4>
                         </div>
-                      )
-                    })}
+                        
+                        {product.sizes && product.sizes.length > 0 && (
+                          <div className="space-y-2">
+                            {product.sizes.map((size: string, sizeIndex: number) => {
+                              const currentQuantity = orderQuantities[selectedColor]?.[size] || 0
+                              
+                              return (
+                                <div key={sizeIndex} className="flex items-center justify-between p-3 bg-white rounded-lg border border-purple-200">
+                                  <span className="text-sm font-medium text-gray-700">{size}</span>
+                                  <div className="flex items-center gap-3">
+                                    <button
+                                      onClick={() => updateQuantity(selectedColor, size, Math.max(0, currentQuantity - 1))}
+                                      className="w-8 h-8 rounded-full bg-gray-300 hover:bg-gray-400 flex items-center justify-center text-gray-700 font-bold transition-colors"
+                                      disabled={currentQuantity <= 0}
+                                    >
+                                      −
+                                    </button>
+                                    <span className="w-8 text-center font-bold text-gray-900">
+                                      {currentQuantity}
+                                    </span>
+                                    <button
+                                      onClick={() => updateQuantity(selectedColor, size, currentQuantity + 1)}
+                                      className="w-8 h-8 rounded-full bg-purple-600 hover:bg-purple-700 flex items-center justify-center text-white font-bold transition-colors"
+                                    >
+                                      +
+                                    </button>
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* 색상별 주문 현황 표시 */}
+                    <div className="mt-6">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                        <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        주문 현황
+                      </h4>
+                      <div className="space-y-2">
+                        {product.colors.map((color: string, colorIndex: number) => {
+                          const colorQuantities = orderQuantities[color] || {}
+                          const hasQuantity = Object.values(colorQuantities).some(qty => qty > 0)
+                          const totalQuantity = Object.values(colorQuantities).reduce((sum, qty) => sum + qty, 0)
+                          
+                          if (!hasQuantity) return null
+                          
+                          return (
+                            <div key={colorIndex} className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                              <div className="flex items-center">
+                                <div className={`w-3 h-3 rounded-full mr-2 ${color === '빨강' ? 'bg-red-500' : color === '파랑' ? 'bg-blue-500' : color === '검정' ? 'bg-black' : color === '흰색' ? 'bg-white border border-gray-300' : 'bg-gray-400'}`}></div>
+                                <span className="font-medium text-green-900">{color}</span>
+                              </div>
+                              <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                                {totalQuantity}개 선택됨
+                              </span>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   /* 색상이 없는 경우 사이즈별 수량 선택 */
