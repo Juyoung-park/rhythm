@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useUser } from "../../context/UserContext";
 import { db } from "../../lib/firebase";
-import { collection, getDocs, doc, updateDoc, query, orderBy } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "firebase/firestore";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -10,6 +10,7 @@ interface Order {
   productName: string;
   selectedSize: string;
   selectedColor: string;
+  quantity: number;
   status: string;
   createdAt: any;
   deliveryAddress: string;
@@ -92,6 +93,63 @@ export default function AdminOrdersPage() {
     } catch (error: any) {
       console.error("Error updating order status:", error);
       alert("주문 상태 업데이트 중 오류가 발생했습니다.");
+    } finally {
+      setUpdatingOrder(null);
+    }
+  };
+
+  const cancelOrder = async (orderId: string) => {
+    if (!confirm("이 주문을 취소하시겠습니까?")) {
+      return;
+    }
+    
+    try {
+      setUpdatingOrder(orderId);
+      const orderRef = doc(db, "orders", orderId);
+      await updateDoc(orderRef, {
+        status: "cancelled",
+        updatedAt: new Date()
+      });
+      
+      // 로컬 상태 업데이트
+      setOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId 
+            ? { ...order, status: "cancelled" }
+            : order
+        )
+      );
+      
+      alert("주문이 취소되었습니다.");
+      console.log(`Order ${orderId} cancelled`);
+    } catch (error: any) {
+      console.error("Error cancelling order:", error);
+      alert("주문 취소 중 오류가 발생했습니다.");
+    } finally {
+      setUpdatingOrder(null);
+    }
+  };
+
+  const deleteOrder = async (orderId: string) => {
+    if (!confirm("이 주문을 완전히 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
+      return;
+    }
+    
+    try {
+      setUpdatingOrder(orderId);
+      const orderRef = doc(db, "orders", orderId);
+      await deleteDoc(orderRef);
+      
+      // 로컬 상태에서 제거
+      setOrders(prevOrders => 
+        prevOrders.filter(order => order.id !== orderId)
+      );
+      
+      alert("주문이 삭제되었습니다.");
+      console.log(`Order ${orderId} deleted`);
+    } catch (error: any) {
+      console.error("Error deleting order:", error);
+      alert("주문 삭제 중 오류가 발생했습니다.");
     } finally {
       setUpdatingOrder(null);
     }
@@ -238,7 +296,7 @@ export default function AdminOrdersPage() {
                     <h3 className="font-semibold text-gray-900 text-lg mb-2">{order.productName}</h3>
                     <div className="text-sm text-gray-600 space-y-1">
                       <div>고객: {order.customerEmail}</div>
-                      <div>사이즈: {order.selectedSize} | 색상: {order.selectedColor}</div>
+                      <div>사이즈: {order.selectedSize} | 색상: {order.selectedColor} | 수량: {order.quantity || 1}개</div>
                       <div>주문일: {order.createdAt?.toDate?.()?.toLocaleDateString() || "N/A"}</div>
                       <div>배송지: {order.deliveryAddress}</div>
                       <div>연락처: {order.phoneNumber}</div>
@@ -271,6 +329,26 @@ export default function AdminOrdersPage() {
                       {updatingOrder === order.id && (
                         <div className="text-xs text-gray-500">업데이트 중...</div>
                       )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-col space-y-2">
+                      {order.status !== "cancelled" && (
+                        <button
+                          onClick={() => cancelOrder(order.id)}
+                          disabled={updatingOrder === order.id}
+                          className="px-3 py-1 text-xs bg-yellow-500 text-white rounded hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                          취소
+                        </button>
+                      )}
+                      <button
+                        onClick={() => deleteOrder(order.id)}
+                        disabled={updatingOrder === order.id}
+                        className="px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        삭제
+                      </button>
                     </div>
                   </div>
                 </div>
