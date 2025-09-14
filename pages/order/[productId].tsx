@@ -37,25 +37,30 @@ export default function ProductDetail() {
 
   // 색상별 사이즈별 수량 변경 함수
   const updateQuantity = (color: string, size: string, quantity: number) => {
-    console.log(`Updating quantity: ${color} - ${size} = ${quantity}`)
     setOrderQuantities(prev => {
+      // 기존 상태를 완전히 복사하여 새로운 상태 생성
       const newState = {
-        ...prev,
-        [color]: {
-          ...prev[color],
-          [size]: quantity
-        }
+        ...prev
       }
-      console.log('New state:', newState)
+      
+      // 해당 색상이 없으면 빈 객체로 초기화
+      if (!newState[color]) {
+        newState[color] = {}
+      }
+      
+      // 해당 색상의 사이즈별 수량 업데이트
+      newState[color] = {
+        ...newState[color],
+        [size]: quantity
+      }
+      
       return newState
     })
   }
 
   // 특정 색상의 특정 사이즈 수량 가져오기
   const getQuantityForColor = (color: string, size: string) => {
-    const quantity = orderQuantities[color]?.[size] || 0
-    console.log(`Getting quantity for ${color} - ${size}: ${quantity}`)
-    return quantity
+    return orderQuantities[color]?.[size] || 0
   }
 
   // 모든 색상의 총 주문 수량 확인
