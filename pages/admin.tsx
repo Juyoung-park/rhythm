@@ -125,6 +125,20 @@ const AdminPage = () => {
     fetchData();
   }, [user, router]);
 
+  const fetchOrders = async () => {
+    try {
+      const ordersQuery = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+      const ordersSnapshot = await getDocs(ordersQuery);
+      const ordersData = ordersSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Order[];
+      setOrders(ordersData);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    }
+  };
+
   const fetchData = async () => {
     try {
       // Fetch products
@@ -146,17 +160,9 @@ const AdminPage = () => {
       console.log("Firestore에서 가져온 사용자 수:", customersData.length);
       console.log("사용자 목록:", customersData.map(u => ({ email: u.email, name: u.name })));
 
-      // Fetch orders
-      const ordersQuery = query(collection(db, "orders"), orderBy("createdAt", "desc"));
-      const ordersSnapshot = await getDocs(ordersQuery);
-      const ordersData = ordersSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Order[];
-
       setProducts(productsData);
       setCustomers(customersData);
-      setOrders(ordersData);
+      await fetchOrders();
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
