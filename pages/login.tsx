@@ -97,12 +97,14 @@ export default function LoginPage() {
     return name.substring(0, middleIndex) + "*" + name.substring(middleIndex + 1);
   };
 
-  // 전화번호 뒤 4자리를 *로 치환하는 함수
-  const maskPhoneLast4 = (phone: string) => {
+  // 전화번호 뒤 4자리를 제외하고 나머지를 *로 치환하는 함수
+  const maskPhoneExceptLast4 = (phone: string) => {
     if (phone.length < 4) return phone;
     const phoneDigits = phone.replace(/-/g, "");
-    const maskedPart = phoneDigits.substring(0, phoneDigits.length - 4);
-    return maskedPart + "****";
+    if (phoneDigits.length <= 4) return phone;
+    const last4 = phoneDigits.substring(phoneDigits.length - 4);
+    const maskedPart = "*".repeat(phoneDigits.length - 4);
+    return maskedPart + last4;
   };
 
   // 선택된 회원 정보 확인
@@ -162,13 +164,19 @@ export default function LoginPage() {
         // Firestore에 사용자 정보 생성 또는 기존 사용자 정보 업데이트
         try {
           if (selectedUser) {
-            // 기존 사용자와 연결 - 기존 정보에 이메일 추가
-            await setDoc(doc(db, "users", selectedUser.id), {
+            // 기존 사용자와 연결 - 기존 정보에 회원가입 폼 정보 업데이트
+            const updatedUserData = {
               ...selectedUser,
               email: email,
+              // 회원가입 폼의 정보로 업데이트 (기존 정보 유지하면서 새 정보 추가)
+              carNumber: registrationForm.carNumber.trim() || selectedUser.carNumber || "",
+              address: registrationForm.address.trim() || selectedUser.address || "",
+              organization: registrationForm.organization.trim() || selectedUser.organization || "",
               updatedAt: new Date()
-            });
-            console.log("기존 사용자 정보와 연결 완료");
+            };
+            
+            await setDoc(doc(db, "users", selectedUser.id), updatedUserData);
+            console.log("기존 사용자 정보와 연결 완료 - 회원가입 정보 업데이트됨");
           } else {
             // 새로운 사용자 생성
             await setDoc(doc(db, "users", newUser.uid), {
@@ -349,8 +357,11 @@ export default function LoginPage() {
                 {showMatchingUsers && matchingUsers.length > 0 && (
                   <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <h4 className="text-md font-medium text-blue-800 mb-3">
-                      일치하는 회원 정보를 찾았습니다. 본인의 정보인지 확인해주세요:
+                      🎉 기존 고객 정보를 찾았습니다!
                     </h4>
+                    <p className="text-sm text-blue-700 mb-4">
+                      관리자에게 이미 등록된 정보와 일치합니다. 본인의 정보라면 연결하여 가입하시면 됩니다.
+                    </p>
                     <div className="space-y-2">
                       {matchingUsers.map((user, index) => (
                         <div key={user.id} className="p-3 bg-white border border-blue-200 rounded-lg">
@@ -360,7 +371,7 @@ export default function LoginPage() {
                                 <span className="font-medium">이름:</span> {maskMiddleName(user.name)}
                               </div>
                               <div className="text-sm text-gray-700">
-                                <span className="font-medium">전화번호:</span> {maskPhoneLast4(user.phone)}
+                                <span className="font-medium">전화번호:</span> {maskPhoneExceptLast4(user.phone)}
                               </div>
                               {user.address && (
                                 <div className="text-sm text-gray-700">
@@ -377,7 +388,7 @@ export default function LoginPage() {
                               onClick={() => confirmUserSelection(user)}
                               className="ml-3 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
                             >
-                              맞습니다
+                              내 정보입니다
                             </button>
                           </div>
                         </div>
@@ -398,8 +409,11 @@ export default function LoginPage() {
                 {selectedUser && (
                   <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                     <h4 className="text-md font-medium text-green-800 mb-2">
-                      선택된 회원 정보:
+                      ✅ 연결할 회원 정보가 선택되었습니다
                     </h4>
+                    <p className="text-sm text-green-700 mb-3">
+                      기존 고객 정보와 연결하여 가입됩니다. 아래 정보가 본인 정보인지 확인해주세요.
+                    </p>
                     <div className="text-sm text-green-700">
                       <div>이름: {selectedUser.name}</div>
                       <div>전화번호: {selectedUser.phone}</div>
@@ -500,7 +514,7 @@ export default function LoginPage() {
               >
                 {loading ? "처리 중..." : 
                  isVerifyingUser ? "회원 정보 확인 중..." :
-                 isNew ? (selectedUser ? "기존 회원과 연결하여 가입" : "회원가입") : "로그인"}
+                 isNew ? (selectedUser ? "기존 고객과 연결하여 가입" : "새 회원으로 가입") : "로그인"}
               </button>
             </div>
           </form>
