@@ -115,6 +115,9 @@ const AdminPage = () => {
         id: doc.id,
         ...doc.data()
       })) as Customer[];
+      
+      console.log("Firestore에서 가져온 사용자 수:", customersData.length);
+      console.log("사용자 목록:", customersData.map(u => ({ email: u.email, name: u.name })));
 
       // Fetch orders
       const ordersQuery = query(collection(db, "orders"), orderBy("createdAt", "desc"));
@@ -550,6 +553,7 @@ const AdminPage = () => {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이메일</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">연락처</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">소속</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">주소</th>
@@ -562,18 +566,16 @@ const AdminPage = () => {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {filteredCustomers.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                        <td colSpan={9} className="px-6 py-12 text-center text-gray-500">
                           {searchTerm ? `"${searchTerm}"에 대한 검색 결과가 없습니다.` : "등록된 고객이 없습니다."}
                         </td>
                       </tr>
                     ) : (
                       filteredCustomers.map((customer) => (
                         <tr key={customer.id}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{customer.name}</div>
-                            <div className="text-sm text-gray-500">{customer.email}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.phone}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{customer.name || "-"}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.email || "-"}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.phone || "-"}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.organization || "-"}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 max-w-xs truncate">{customer.address || "-"}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.carNumber || "-"}</td>

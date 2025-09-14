@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { auth } from "../lib/firebase";
+import { auth, db } from "../lib/firebase";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
@@ -23,7 +24,29 @@ export default function LoginPage() {
 
     try {
       if (isNew) {
-        await createUserWithEmailAndPassword(auth, email, pw);
+        // Firebase Authentication에 계정 생성
+        const userCredential = await createUserWithEmailAndPassword(auth, email, pw);
+        const newUser = userCredential.user;
+        
+        // Firestore에 사용자 정보 생성 (관리자 페이지에서 보이도록)
+        try {
+          await setDoc(doc(db, "users", newUser.uid), {
+            email: email,
+            name: email.split('@')[0], // 이메일 앞부분을 기본 이름으로 사용
+            phone: "",
+            height: "",
+            bust: "",
+            waist: "",
+            hip: "",
+            createdAt: new Date(),
+            updatedAt: new Date()
+          });
+          console.log("Firestore에 사용자 정보 생성 완료");
+        } catch (firestoreError) {
+          console.error("Firestore 사용자 정보 생성 실패:", firestoreError);
+          // Firestore 실패해도 회원가입은 성공으로 처리
+        }
+        
         alert("회원가입 완료!");
         
         // 인증 상태 변경을 기다린 후 라우팅
@@ -72,7 +95,7 @@ export default function LoginPage() {
       let errorMessage = "에러 발생!";
       
       if (err.code === "auth/email-already-in-use") {
-        errorMessage = "이미 사용 중인 이메일입니다.";
+        errorMessage = "이미 사용 중인 이메일입니다. 다른 이메일을 사용하거나 로그인을 시도해보세요.";
       } else if (err.code === "auth/user-not-found") {
         errorMessage = "등록되지 않은 이메일입니다.";
       } else if (err.code === "auth/wrong-password") {
@@ -83,6 +106,8 @@ export default function LoginPage() {
         errorMessage = "네트워크 연결을 확인해주세요.";
       } else if (err.code === "auth/too-many-requests") {
         errorMessage = "너무 많은 시도가 있었습니다. 잠시 후 다시 시도해주세요.";
+      } else if (err.code === "auth/invalid-email") {
+        errorMessage = "올바른 이메일 형식이 아닙니다.";
       } else if (err.message && err.message.includes("permission")) {
         errorMessage = "Firebase 권한 오류입니다. Firebase Console 설정을 확인해주세요.";
       } else if (err.message) {
