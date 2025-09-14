@@ -37,6 +37,9 @@ export default function ProductDetail() {
 
   // 색상별 사이즈별 수량 변경 함수
   const updateQuantity = (color: string, size: string, quantity: number) => {
+    console.log(`🔄 Updating: ${color} - ${size} = ${quantity}`)
+    console.log(`📊 Before update:`, orderQuantities)
+    
     setOrderQuantities(prev => {
       // 기존 상태를 완전히 복사하여 새로운 상태 생성
       const newState = {
@@ -46,6 +49,7 @@ export default function ProductDetail() {
       // 해당 색상이 없으면 빈 객체로 초기화
       if (!newState[color]) {
         newState[color] = {}
+        console.log(`🆕 Created new color object for: ${color}`)
       }
       
       // 해당 색상의 사이즈별 수량 업데이트
@@ -54,13 +58,17 @@ export default function ProductDetail() {
         [size]: quantity
       }
       
+      console.log(`📈 After update:`, newState)
       return newState
     })
   }
 
   // 특정 색상의 특정 사이즈 수량 가져오기
   const getQuantityForColor = (color: string, size: string) => {
-    return orderQuantities[color]?.[size] || 0
+    const quantity = orderQuantities[color]?.[size] || 0
+    console.log(`📖 Getting quantity for ${color} - ${size}: ${quantity}`)
+    console.log(`🗂️ Current state:`, orderQuantities)
+    return quantity
   }
 
   // 모든 색상의 총 주문 수량 확인
