@@ -58,7 +58,7 @@ export default function ProductDetail() {
       return
     }
 
-    if (!selectedColor) {
+    if (product.colors && product.colors.length > 0 && !selectedColor) {
       alert("색상을 선택해주세요.")
       return
     }
@@ -254,14 +254,14 @@ export default function ProductDetail() {
                 )}
 
                 {/* 주문 요약 */}
-                {Object.values(orderQuantities).some(qty => qty > 0) && selectedColor && (
+                {Object.values(orderQuantities).some(qty => qty > 0) && (!product.colors || product.colors.length === 0 || selectedColor) && (
                   <div className="mb-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
                     <h4 className="font-medium text-purple-900 mb-2">주문 요약</h4>
                     <div className="space-y-1 text-sm text-purple-800">
                       {Object.entries(orderQuantities).map(([size, quantity]) => (
                         quantity > 0 && (
                           <div key={size} className="flex justify-between">
-                            <span>{size} 사이즈 - {selectedColor}</span>
+                            <span>{size} 사이즈{selectedColor ? ` - ${selectedColor}` : ''}</span>
                             <span>{quantity}개</span>
                           </div>
                         )
@@ -276,7 +276,7 @@ export default function ProductDetail() {
                 {/* 주문하기 버튼 */}
                 <button
                   onClick={handleOrder}
-                  disabled={isOrdering || !Object.values(orderQuantities).some(qty => qty > 0) || !selectedColor}
+                  disabled={isOrdering || !Object.values(orderQuantities).some(qty => qty > 0) || (product.colors && product.colors.length > 0 && !selectedColor)}
                   className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all transform hover:scale-105 shadow-lg"
                 >
                   {isOrdering ? "주문 처리 중..." : "주문하기"}

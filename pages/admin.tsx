@@ -586,53 +586,47 @@ const AdminPage = () => {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이메일</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">연락처</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">소속</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">주소</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">차량번호</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">사이즈</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">등록일</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이메일</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">연락처</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">소속</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">등록일</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {filteredCustomers.length === 0 ? (
                       <tr>
-                        <td colSpan={9} className="px-6 py-12 text-center text-gray-500">
+                        <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                           {searchTerm ? `"${searchTerm}"에 대한 검색 결과가 없습니다.` : "등록된 고객이 없습니다."}
                         </td>
                       </tr>
                     ) : (
                       filteredCustomers.map((customer) => (
                         <tr key={customer.id}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{customer.name || "-"}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.email || "-"}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.phone || "-"}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.organization || "-"}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 max-w-xs truncate">{customer.address || "-"}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.carNumber || "-"}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.size || "-"}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{customer.name || "-"}</td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 max-w-32 truncate">{customer.email || "-"}</td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{customer.phone || "-"}</td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 max-w-24 truncate">{customer.organization || "-"}</td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                             {customer.updatedAt?.toDate?.()?.toLocaleDateString() || "N/A"}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                          <td className="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-1">
                             <button
                               onClick={() => handleEditCustomer(customer)}
-                              className="text-blue-600 hover:text-blue-900"
+                              className="text-blue-600 hover:text-blue-900 text-xs"
                             >
                               수정
                             </button>
                             <button
                               onClick={() => handleViewCustomerOrders(customer)}
-                              className="text-green-600 hover:text-green-900"
+                              className="text-green-600 hover:text-green-900 text-xs"
                             >
                               주문내역
                             </button>
                             <button
                               onClick={() => handleDeleteCustomer(customer.id)}
-                              className="text-red-600 hover:text-red-900"
+                              className="text-red-600 hover:text-red-900 text-xs"
                             >
                               삭제
                             </button>
