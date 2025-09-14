@@ -565,37 +565,29 @@ const AdminPage = () => {
         updatedAt: new Date()
       };
 
-      // 숫자 필드들은 값이 있을 때만 추가
-      if (editForm.shoulderWidth && editForm.shoulderWidth.trim()) {
-        updateData.shoulderWidth = Number(editForm.shoulderWidth);
-      }
-      if (editForm.waistCircumference && editForm.waistCircumference.trim()) {
-        updateData.waistCircumference = Number(editForm.waistCircumference);
-      }
-      if (editForm.bustCircumference && editForm.bustCircumference.trim()) {
-        updateData.bustCircumference = Number(editForm.bustCircumference);
-      }
-      if (editForm.hipCircumference && editForm.hipCircumference.trim()) {
-        updateData.hipCircumference = Number(editForm.hipCircumference);
-      }
-      if (editForm.sleeveLength && editForm.sleeveLength.trim()) {
-        updateData.sleeveLength = Number(editForm.sleeveLength);
-      }
-      if (editForm.thighCircumference && editForm.thighCircumference.trim()) {
-        updateData.thighCircumference = Number(editForm.thighCircumference);
-      }
-      if (editForm.topLength && editForm.topLength.trim()) {
-        updateData.topLength = Number(editForm.topLength);
-      }
-      if (editForm.crotchLength && editForm.crotchLength.trim()) {
-        updateData.crotchLength = Number(editForm.crotchLength);
-      }
-      if (editForm.skirtLength && editForm.skirtLength.trim()) {
-        updateData.skirtLength = Number(editForm.skirtLength);
-      }
-      if (editForm.pantsLength && editForm.pantsLength.trim()) {
-        updateData.pantsLength = Number(editForm.pantsLength);
-      }
+      // 숫자 필드들은 값이 있을 때만 추가 (안전한 처리)
+      const numericFields = [
+        'shoulderWidth',
+        'waistCircumference', 
+        'bustCircumference',
+        'hipCircumference',
+        'sleeveLength',
+        'thighCircumference',
+        'topLength',
+        'crotchLength',
+        'skirtLength',
+        'pantsLength'
+      ];
+
+      numericFields.forEach(field => {
+        const value = editForm[field as keyof typeof editForm];
+        if (value && typeof value === 'string' && value.trim()) {
+          const numValue = Number(value.trim());
+          if (!isNaN(numValue)) {
+            updateData[field] = numValue;
+          }
+        }
+      });
 
       await updateDoc(doc(db, "users", editingCustomer.id), updateData);
 
@@ -655,37 +647,29 @@ const AdminPage = () => {
         updatedAt: new Date()
       };
 
-      // 숫자 필드들은 값이 있을 때만 추가
-      if (editForm.shoulderWidth && editForm.shoulderWidth.trim()) {
-        newCustomerData.shoulderWidth = Number(editForm.shoulderWidth);
-      }
-      if (editForm.waistCircumference && editForm.waistCircumference.trim()) {
-        newCustomerData.waistCircumference = Number(editForm.waistCircumference);
-      }
-      if (editForm.bustCircumference && editForm.bustCircumference.trim()) {
-        newCustomerData.bustCircumference = Number(editForm.bustCircumference);
-      }
-      if (editForm.hipCircumference && editForm.hipCircumference.trim()) {
-        newCustomerData.hipCircumference = Number(editForm.hipCircumference);
-      }
-      if (editForm.sleeveLength && editForm.sleeveLength.trim()) {
-        newCustomerData.sleeveLength = Number(editForm.sleeveLength);
-      }
-      if (editForm.thighCircumference && editForm.thighCircumference.trim()) {
-        newCustomerData.thighCircumference = Number(editForm.thighCircumference);
-      }
-      if (editForm.topLength && editForm.topLength.trim()) {
-        newCustomerData.topLength = Number(editForm.topLength);
-      }
-      if (editForm.crotchLength && editForm.crotchLength.trim()) {
-        newCustomerData.crotchLength = Number(editForm.crotchLength);
-      }
-      if (editForm.skirtLength && editForm.skirtLength.trim()) {
-        newCustomerData.skirtLength = Number(editForm.skirtLength);
-      }
-      if (editForm.pantsLength && editForm.pantsLength.trim()) {
-        newCustomerData.pantsLength = Number(editForm.pantsLength);
-      }
+      // 숫자 필드들은 값이 있을 때만 추가 (안전한 처리)
+      const numericFields = [
+        'shoulderWidth',
+        'waistCircumference', 
+        'bustCircumference',
+        'hipCircumference',
+        'sleeveLength',
+        'thighCircumference',
+        'topLength',
+        'crotchLength',
+        'skirtLength',
+        'pantsLength'
+      ];
+
+      numericFields.forEach(field => {
+        const value = editForm[field as keyof typeof editForm];
+        if (value && typeof value === 'string' && value.trim()) {
+          const numValue = Number(value.trim());
+          if (!isNaN(numValue)) {
+            newCustomerData[field] = numValue;
+          }
+        }
+      });
 
       console.log("처리된 고객 데이터:", newCustomerData);
       console.log("Firestore DB 객체:", db);
