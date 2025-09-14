@@ -554,49 +554,56 @@ const AdminPage = () => {
     if (!editingCustomer) return;
 
     try {
-      await updateDoc(doc(db, "users", editingCustomer.id), {
+      const updateData: any = {
         name: editForm.name,
         phone: editForm.phone,
         organization: editForm.organization,
         address: editForm.address,
         carNumber: editForm.carNumber,
         size: editForm.size,
-        shoulderWidth: editForm.shoulderWidth ? Number(editForm.shoulderWidth) : undefined,
-        waistCircumference: editForm.waistCircumference ? Number(editForm.waistCircumference) : undefined,
-        bustCircumference: editForm.bustCircumference ? Number(editForm.bustCircumference) : undefined,
-        hipCircumference: editForm.hipCircumference ? Number(editForm.hipCircumference) : undefined,
-        sleeveLength: editForm.sleeveLength ? Number(editForm.sleeveLength) : undefined,
-        thighCircumference: editForm.thighCircumference ? Number(editForm.thighCircumference) : undefined,
-        topLength: editForm.topLength ? Number(editForm.topLength) : undefined,
-        crotchLength: editForm.crotchLength ? Number(editForm.crotchLength) : undefined,
-        skirtLength: editForm.skirtLength ? Number(editForm.skirtLength) : undefined,
-        pantsLength: editForm.pantsLength ? Number(editForm.pantsLength) : undefined,
         email: editForm.email,
         updatedAt: new Date()
-      });
+      };
+
+      // 숫자 필드들은 값이 있을 때만 추가
+      if (editForm.shoulderWidth && editForm.shoulderWidth.trim()) {
+        updateData.shoulderWidth = Number(editForm.shoulderWidth);
+      }
+      if (editForm.waistCircumference && editForm.waistCircumference.trim()) {
+        updateData.waistCircumference = Number(editForm.waistCircumference);
+      }
+      if (editForm.bustCircumference && editForm.bustCircumference.trim()) {
+        updateData.bustCircumference = Number(editForm.bustCircumference);
+      }
+      if (editForm.hipCircumference && editForm.hipCircumference.trim()) {
+        updateData.hipCircumference = Number(editForm.hipCircumference);
+      }
+      if (editForm.sleeveLength && editForm.sleeveLength.trim()) {
+        updateData.sleeveLength = Number(editForm.sleeveLength);
+      }
+      if (editForm.thighCircumference && editForm.thighCircumference.trim()) {
+        updateData.thighCircumference = Number(editForm.thighCircumference);
+      }
+      if (editForm.topLength && editForm.topLength.trim()) {
+        updateData.topLength = Number(editForm.topLength);
+      }
+      if (editForm.crotchLength && editForm.crotchLength.trim()) {
+        updateData.crotchLength = Number(editForm.crotchLength);
+      }
+      if (editForm.skirtLength && editForm.skirtLength.trim()) {
+        updateData.skirtLength = Number(editForm.skirtLength);
+      }
+      if (editForm.pantsLength && editForm.pantsLength.trim()) {
+        updateData.pantsLength = Number(editForm.pantsLength);
+      }
+
+      await updateDoc(doc(db, "users", editingCustomer.id), updateData);
 
       setCustomers(customers.map(customer => 
         customer.id === editingCustomer.id 
           ? { 
               ...customer, 
-              name: editForm.name,
-              phone: editForm.phone,
-              organization: editForm.organization,
-              address: editForm.address,
-              carNumber: editForm.carNumber,
-              size: editForm.size,
-              shoulderWidth: editForm.shoulderWidth ? Number(editForm.shoulderWidth) : undefined,
-              waistCircumference: editForm.waistCircumference ? Number(editForm.waistCircumference) : undefined,
-              bustCircumference: editForm.bustCircumference ? Number(editForm.bustCircumference) : undefined,
-              hipCircumference: editForm.hipCircumference ? Number(editForm.hipCircumference) : undefined,
-              sleeveLength: editForm.sleeveLength ? Number(editForm.sleeveLength) : undefined,
-              thighCircumference: editForm.thighCircumference ? Number(editForm.thighCircumference) : undefined,
-              topLength: editForm.topLength ? Number(editForm.topLength) : undefined,
-              crotchLength: editForm.crotchLength ? Number(editForm.crotchLength) : undefined,
-              skirtLength: editForm.skirtLength ? Number(editForm.skirtLength) : undefined,
-              pantsLength: editForm.pantsLength ? Number(editForm.pantsLength) : undefined,
-              email: editForm.email,
-              updatedAt: new Date()
+              ...updateData
             }
           : customer
       ));
@@ -637,7 +644,7 @@ const AdminPage = () => {
       console.log("=== 고객 추가 시작 ===");
       console.log("입력된 폼 데이터:", editForm);
       
-      const newCustomerData = {
+      const newCustomerData: any = {
         name: editForm.name.trim(),
         phone: editForm.phone.trim(),
         email: editForm.email.trim() || "",
@@ -645,18 +652,40 @@ const AdminPage = () => {
         address: editForm.address.trim() || "",
         carNumber: editForm.carNumber.trim() || "",
         size: editForm.size.trim() || "",
-        shoulderWidth: editForm.shoulderWidth ? Number(editForm.shoulderWidth) : undefined,
-        waistCircumference: editForm.waistCircumference ? Number(editForm.waistCircumference) : undefined,
-        bustCircumference: editForm.bustCircumference ? Number(editForm.bustCircumference) : undefined,
-        hipCircumference: editForm.hipCircumference ? Number(editForm.hipCircumference) : undefined,
-        sleeveLength: editForm.sleeveLength ? Number(editForm.sleeveLength) : undefined,
-        thighCircumference: editForm.thighCircumference ? Number(editForm.thighCircumference) : undefined,
-        topLength: editForm.topLength ? Number(editForm.topLength) : undefined,
-        crotchLength: editForm.crotchLength ? Number(editForm.crotchLength) : undefined,
-        skirtLength: editForm.skirtLength ? Number(editForm.skirtLength) : undefined,
-        pantsLength: editForm.pantsLength ? Number(editForm.pantsLength) : undefined,
         updatedAt: new Date()
       };
+
+      // 숫자 필드들은 값이 있을 때만 추가
+      if (editForm.shoulderWidth && editForm.shoulderWidth.trim()) {
+        newCustomerData.shoulderWidth = Number(editForm.shoulderWidth);
+      }
+      if (editForm.waistCircumference && editForm.waistCircumference.trim()) {
+        newCustomerData.waistCircumference = Number(editForm.waistCircumference);
+      }
+      if (editForm.bustCircumference && editForm.bustCircumference.trim()) {
+        newCustomerData.bustCircumference = Number(editForm.bustCircumference);
+      }
+      if (editForm.hipCircumference && editForm.hipCircumference.trim()) {
+        newCustomerData.hipCircumference = Number(editForm.hipCircumference);
+      }
+      if (editForm.sleeveLength && editForm.sleeveLength.trim()) {
+        newCustomerData.sleeveLength = Number(editForm.sleeveLength);
+      }
+      if (editForm.thighCircumference && editForm.thighCircumference.trim()) {
+        newCustomerData.thighCircumference = Number(editForm.thighCircumference);
+      }
+      if (editForm.topLength && editForm.topLength.trim()) {
+        newCustomerData.topLength = Number(editForm.topLength);
+      }
+      if (editForm.crotchLength && editForm.crotchLength.trim()) {
+        newCustomerData.crotchLength = Number(editForm.crotchLength);
+      }
+      if (editForm.skirtLength && editForm.skirtLength.trim()) {
+        newCustomerData.skirtLength = Number(editForm.skirtLength);
+      }
+      if (editForm.pantsLength && editForm.pantsLength.trim()) {
+        newCustomerData.pantsLength = Number(editForm.pantsLength);
+      }
 
       console.log("처리된 고객 데이터:", newCustomerData);
       console.log("Firestore DB 객체:", db);
@@ -1302,7 +1331,7 @@ const AdminPage = () => {
           <div className="bg-white rounded-lg w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
             <div className="p-6 border-b flex-shrink-0">
               <h3 className="text-lg font-semibold">새 고객 추가</h3>
-              <p className="text-sm text-gray-600 mt-1">* 표시된 필드는 필수 입력 항목입니다.</p>
+              <p className="text-sm text-gray-600 mt-1">* 표시된 필드는 필수 입력 항목입니다. 이름과 연락처만 필수입니다.</p>
             </div>
             
             <div className="p-6 overflow-y-auto flex-1">
@@ -1334,7 +1363,7 @@ const AdminPage = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">이메일 <span className="text-gray-400 text-xs">(선택사항)</span></label>
                     <input
                       type="email"
                       value={editForm.email}
@@ -1344,7 +1373,7 @@ const AdminPage = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">소속</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">소속 <span className="text-gray-400 text-xs">(선택사항)</span></label>
                     <input
                       type="text"
                       value={editForm.organization}
@@ -1354,7 +1383,7 @@ const AdminPage = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">주소</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">주소 <span className="text-gray-400 text-xs">(선택사항)</span></label>
                     <textarea
                       value={editForm.address}
                       onChange={(e) => setEditForm({...editForm, address: e.target.value})}
@@ -1364,7 +1393,7 @@ const AdminPage = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">차량번호</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">차량번호 <span className="text-gray-400 text-xs">(선택사항)</span></label>
                     <input
                       type="text"
                       value={editForm.carNumber}

@@ -125,7 +125,15 @@ export default function LoginPage() {
     }
 
     if (isNew) {
-      // 회원가입 시 필수 필드 검증
+      // 회원가입 시 필수 필드 검증 (이메일, 비밀번호는 이미 상단에서 검증됨)
+      if (!email.trim()) {
+        setError("이메일을 입력해주세요.");
+        return;
+      }
+      if (!pw.trim()) {
+        setError("비밀번호를 입력해주세요.");
+        return;
+      }
       if (!registrationForm.name.trim()) {
         setError("이름을 입력해주세요.");
         return;
@@ -334,6 +342,7 @@ export default function LoginPage() {
               <>
                 <div className="border-t pt-6 mt-6">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">추가 정보</h3>
+                  <p className="text-sm text-gray-600 mb-4">이메일과 비밀번호는 필수 항목입니다. 아래 정보도 함께 입력해주세요.</p>
                 </div>
 
                 {/* 기존 회원 검색 결과 표시 */}
@@ -441,13 +450,13 @@ export default function LoginPage() {
 
                 <div>
                   <label htmlFor="carNumber" className="block text-sm font-medium text-gray-700 mb-2">
-                    차량번호
+                    차량번호 <span className="text-gray-400 text-xs">(선택사항)</span>
                   </label>
                   <input
                     id="carNumber"
                     type="text"
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="차량번호를 입력하세요 (선택사항)"
+                    placeholder="차량번호를 입력하세요"
                     value={registrationForm.carNumber}
                     onChange={e => handleRegistrationFormChange("carNumber", e.target.value)}
                   />
@@ -455,13 +464,13 @@ export default function LoginPage() {
 
                 <div>
                   <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-                    주소
+                    주소 <span className="text-gray-400 text-xs">(선택사항)</span>
                   </label>
                   <input
                     id="address"
                     type="text"
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="주소를 입력하세요 (선택사항)"
+                    placeholder="주소를 입력하세요"
                     value={registrationForm.address}
                     onChange={e => handleRegistrationFormChange("address", e.target.value)}
                   />
@@ -469,13 +478,13 @@ export default function LoginPage() {
 
                 <div>
                   <label htmlFor="organization" className="block text-sm font-medium text-gray-700 mb-2">
-                    소속
+                    소속 <span className="text-gray-400 text-xs">(선택사항)</span>
                   </label>
                   <input
                     id="organization"
                     type="text"
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="소속을 입력하세요 (선택사항)"
+                    placeholder="소속을 입력하세요"
                     value={registrationForm.organization}
                     onChange={e => handleRegistrationFormChange("organization", e.target.value)}
                   />
