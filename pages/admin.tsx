@@ -48,6 +48,7 @@ interface Order {
   customerName: string;
   customerEmail?: string;
   productName: string;
+  productPrice?: number;
   productImageUrl?: string;
   selectedSize?: string;
   selectedColor?: string;
@@ -225,7 +226,10 @@ const AdminPage = () => {
         return {
           id: doc.id,
           ...data,
-          productImageUrl: productInfo?.imageUrl || ""
+          productImageUrl: productInfo?.imageUrl || "",
+          // 제품 정보가 업데이트된 경우 최신 정보 사용, 없으면 주문에 저장된 정보 사용
+          productName: productInfo?.name || data.productName,
+          productPrice: productInfo?.price || data.productPrice
         };
       }) as Order[];
       
@@ -302,6 +306,50 @@ const AdminPage = () => {
     });
   };
 
+  // 제품 정보가 변경될 때 관련 주문들의 제품 정보도 업데이트
+  const updateOrdersWithProductInfo = async (productId: string, productInfo: { productName: string, productImageUrl?: string }) => {
+    try {
+      console.log(`Updating orders for product ${productId} with info:`, productInfo);
+      
+      // 해당 제품과 관련된 모든 주문 찾기
+      const ordersQuery = query(
+        collection(db, "orders"),
+        where("productId", "==", productId)
+      );
+      const ordersSnapshot = await getDocs(ordersQuery);
+      
+      // 각 주문의 제품 정보 업데이트
+      const updatePromises = ordersSnapshot.docs.map(async (orderDoc) => {
+        const orderData = orderDoc.data();
+        const updateData: any = {
+          productName: productInfo.productName,
+          updatedAt: serverTimestamp()
+        };
+        
+        // 이미지 URL이 변경된 경우에만 업데이트
+        if (productInfo.productImageUrl !== undefined) {
+          updateData.productImageUrl = productInfo.productImageUrl;
+        }
+        
+        console.log(`Updating order ${orderDoc.id} with:`, updateData);
+        return updateDoc(doc(db, "orders", orderDoc.id), updateData);
+      });
+      
+      await Promise.all(updatePromises);
+      console.log(`Updated ${ordersSnapshot.docs.length} orders for product ${productId}`);
+      
+      // 로컬 주문 상태도 업데이트
+      setOrders(orders.map(order => 
+        order.productId === productId 
+          ? { ...order, ...productInfo }
+          : order
+      ));
+      
+    } catch (error) {
+      console.error("Error updating orders with product info:", error);
+    }
+  };
+
   const handleUpdateProduct = async () => {
     if (!editingProduct) return;
     
@@ -364,6 +412,12 @@ const AdminPage = () => {
       
       console.log("Final update data:", finalUpdateData);
       await updateDoc(productRef, finalUpdateData);
+      
+      // 해당 제품과 관련된 모든 주문의 제품 정보 업데이트
+      await updateOrdersWithProductInfo(editingProduct.id, {
+        productName: finalUpdateData.name,
+        productImageUrl: finalUpdateData.imageUrl
+      });
       
       // 로컬 상태 업데이트
       setProducts(products.map(p => 
