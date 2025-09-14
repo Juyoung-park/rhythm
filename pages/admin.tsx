@@ -295,7 +295,7 @@ const AdminPage = () => {
       name: product.name,
       description: product.description,
       price: product.price.toString(),
-      category: product.category,
+      category: product.category || "",
       sizes: product.sizes || [],
       colors: product.colors || []
     });
@@ -306,15 +306,30 @@ const AdminPage = () => {
     
     try {
       const productRef = doc(db, "products", editingProduct.id);
-      await updateDoc(productRef, {
+      
+      // undefined 값을 제거하고 업데이트할 데이터 준비
+      const updateData: any = {
         name: editProductForm.name,
         description: editProductForm.description,
         price: parseFloat(editProductForm.price),
-        category: editProductForm.category,
-        sizes: editProductForm.sizes,
-        colors: editProductForm.colors,
         updatedAt: new Date()
-      });
+      };
+      
+      // undefined가 아닌 값만 추가
+      if (editProductForm.category !== undefined && editProductForm.category !== "") {
+        updateData.category = editProductForm.category;
+      }
+      
+      if (editProductForm.sizes && editProductForm.sizes.length > 0) {
+        updateData.sizes = editProductForm.sizes;
+      }
+      
+      if (editProductForm.colors && editProductForm.colors.length > 0) {
+        updateData.colors = editProductForm.colors;
+      }
+      
+      console.log("Updating product with data:", updateData);
+      await updateDoc(productRef, updateData);
       
       // 로컬 상태 업데이트
       setProducts(products.map(p => 
