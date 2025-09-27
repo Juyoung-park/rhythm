@@ -394,11 +394,11 @@ export default function LoginPage() {
               <span>Dance Wear Studio</span>
             </div>
             <div className="mt-12 space-y-6">
-              <p className="text-sm font-semibold uppercase tracking-[0.35em] text-secondary-200">Premium Custom</p>
-              <h1 className="text-4xl font-semibold leading-tight">
+              <p className="text-sm font-semibold uppercase tracking-[0.35em] text-white/80">Premium Custom</p>
+              <h1 className="text-4xl font-semibold leading-tight text-white">
                 팀의 무드를 완성하는
                 <br />
-                <span className="text-secondary-200">맞춤형 댄스웨어 플랫폼</span>
+                <span className="text-yellow-300">맞춤형 댄스웨어 플랫폼</span>
               </h1>
               <p className="text-sm leading-relaxed text-white/70">
                 Rhythm과 함께라면 상담 예약, 주문, 제작 관리까지 한 번에 진행할 수 있어요. 로그인하고 팀 전용 대시보드를 확인해보세요.
