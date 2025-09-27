@@ -195,7 +195,7 @@ export default function AdminOrdersPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">접근 권한이 없습니다</h1>
           <p className="text-gray-600 mb-4">관리자만 접근할 수 있는 페이지입니다.</p>
-          <Link href="/" className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700">
+          <Link href="/products" className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700">
             홈으로 돌아가기
           </Link>
         </div>
@@ -223,7 +223,7 @@ export default function AdminOrdersPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Rhythm</Link>
+              <Link href="/products" className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Rhythm</Link>
               <span className="ml-2 text-gray-500">Admin</span>
             </div>
             <div className="flex items-center space-x-4">
