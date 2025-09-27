@@ -126,10 +126,10 @@ export default function Home() {
                   제품 살펴보기
                 </Link>
                 <Link
-                  href={user ? "/my-info" : "/login"}
+                  href={user ? "/consultation" : "/login"}
                   className="rounded-full border border-neutral-200/80 bg-white/70 px-8 py-3 text-base font-semibold text-neutral-700 backdrop-blur transition duration-500 ease-soft hover:-translate-y-1 hover:border-primary-200 hover:text-primary-700"
                 >
-                  {user ? "내 정보 보기" : "맞춤 제작 문의"}
+                  맞춤 제작 문의
                 </Link>
                 <div className="flex items-center gap-3">
                   <div className="flex -space-x-3">
@@ -240,10 +240,10 @@ export default function Home() {
                 포트폴리오 보기
               </Link>
               <Link
-                href={user ? "/my-info" : "/login"}
+                href={user ? "/consultation" : "/login"}
                 className="rounded-full border border-neutral-200/80 bg-white px-8 py-3 text-sm font-semibold text-neutral-700 transition hover:-translate-y-0.5 hover:border-secondary-200 hover:text-secondary-600"
               >
-                {user ? "내 정보 보기" : "상담 예약하기"}
+                상담 예약하기
               </Link>
             </div>
           </section>
@@ -254,8 +254,8 @@ export default function Home() {
             <p>© {new Date().getFullYear()} Rhythm Dance Wear. All rights reserved.</p>
             <div className="flex gap-6">
               <Link href="/products" className="hover:text-primary-600 transition-colors">제품</Link>
-              <Link href={user ? "/my-info" : "/login"} className="hover:text-primary-600 transition-colors">
-                {user ? "내 정보" : "상담 문의"}
+              <Link href={user ? "/consultation" : "/login"} className="hover:text-primary-600 transition-colors">
+                상담 문의
               </Link>
               <Link href="/admin" className="hover:text-primary-600 transition-colors">관리자</Link>
             </div>

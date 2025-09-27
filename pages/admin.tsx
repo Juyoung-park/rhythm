@@ -43,6 +43,25 @@ interface Customer {
   updatedAt: any;
 }
 
+interface Consultation {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  teamName?: string;
+  consultationType: string;
+  preferredDate?: string;
+  preferredTime?: string;
+  message: string;
+  budget?: string;
+  performanceDate?: string;
+  userId?: string;
+  userEmail?: string;
+  status: string;
+  createdAt: any;
+  updatedAt: any;
+}
+
 interface Order {
   id: string;
   customerId: string;
@@ -71,6 +90,7 @@ const AdminPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -196,11 +216,23 @@ const AdminPage = () => {
         console.log("주문 데이터 실시간 업데이트:", ordersData.length + "개");
       });
 
+      // Set up real-time listeners for consultations
+      const consultationsQuery = query(collection(db, "consultations"), orderBy("createdAt", "desc"));
+      const unsubscribeConsultations = onSnapshot(consultationsQuery, (snapshot) => {
+        const consultationsData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Consultation[];
+        setConsultations(consultationsData);
+        console.log("상담 문의 데이터 실시간 업데이트:", consultationsData.length + "개");
+      });
+
       // Store unsubscribe functions for cleanup
       return () => {
         unsubscribeProducts();
         unsubscribeUsers();
         unsubscribeOrders();
+        unsubscribeConsultations();
       };
     } catch (error) {
       console.error("Error setting up real-time listeners:", error);
@@ -328,6 +360,21 @@ const AdminPage = () => {
       sizes: product.sizes || [],
       colors: product.colors || []
     });
+  };
+
+  // 상담 문의 상태 업데이트
+  const updateConsultationStatus = async (consultationId: string, status: string) => {
+    try {
+      const consultationRef = doc(db, "consultations", consultationId);
+      await updateDoc(consultationRef, {
+        status,
+        updatedAt: serverTimestamp()
+      });
+      alert(`상담 문의 상태가 '${status}'로 변경되었습니다.`);
+    } catch (error) {
+      console.error("Error updating consultation status:", error);
+      alert("상담 문의 상태 변경 중 오류가 발생했습니다.");
+    }
   };
 
   // 제품 정보가 변경될 때 관련 주문들의 제품 정보도 업데이트
@@ -864,7 +911,8 @@ const AdminPage = () => {
             {[
               { id: "products", name: "제품 관리", count: products.length },
               { id: "customers", name: "고객 관리", count: customers.length },
-              { id: "orders", name: "주문 관리", count: orders.length }
+              { id: "orders", name: "주문 관리", count: orders.length },
+              { id: "consultations", name: "상담 문의", count: consultations.length }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -1110,6 +1158,95 @@ const AdminPage = () => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "consultations" && (
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold">상담 문의 관리</h2>
+                <div className="text-sm text-gray-500">
+                  총 {consultations.length}건의 문의
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">연락처</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상담유형</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">문의일</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {consultations.map((consultation) => (
+                      <tr key={consultation.id}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {consultation.name}
+                          {consultation.teamName && (
+                            <div className="text-xs text-gray-500">({consultation.teamName})</div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <div>{consultation.phone}</div>
+                          <div className="text-xs text-gray-500">{consultation.email}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {consultation.consultationType}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            consultation.status === "pending" ? "bg-yellow-100 text-yellow-800" :
+                            consultation.status === "contacted" ? "bg-blue-100 text-blue-800" :
+                            consultation.status === "in_progress" ? "bg-purple-100 text-purple-800" :
+                            consultation.status === "completed" ? "bg-green-100 text-green-800" :
+                            consultation.status === "cancelled" ? "bg-red-100 text-red-800" :
+                            "bg-gray-100 text-gray-800"
+                          }`}>
+                            {consultation.status === "pending" ? "대기중" :
+                             consultation.status === "contacted" ? "연락완료" :
+                             consultation.status === "in_progress" ? "상담중" :
+                             consultation.status === "completed" ? "완료" :
+                             consultation.status === "cancelled" ? "취소" : consultation.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {consultation.createdAt?.toDate?.()?.toLocaleDateString() || "N/A"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                          <select
+                            value={consultation.status}
+                            onChange={(e) => updateConsultationStatus(consultation.id, e.target.value)}
+                            className="border border-gray-300 rounded px-2 py-1 text-sm"
+                          >
+                            <option value="pending">대기중</option>
+                            <option value="contacted">연락완료</option>
+                            <option value="in_progress">상담중</option>
+                            <option value="completed">완료</option>
+                            <option value="cancelled">취소</option>
+                          </select>
+                          <button
+                            onClick={() => {
+                              alert(`문의 내용:\n\n${consultation.message}\n\n예산: ${consultation.budget || "미지정"}\n공연일: ${consultation.performanceDate || "미지정"}\n선호 날짜: ${consultation.preferredDate || "미지정"}`);
+                            }}
+                            className="text-blue-600 hover:text-blue-800 text-sm"
+                          >
+                            내용보기
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {consultations.length === 0 && (
+                  <div className="text-center py-12 text-gray-500">
+                    아직 상담 문의가 없습니다.
+                  </div>
+                )}
               </div>
             </div>
           )}
