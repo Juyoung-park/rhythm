@@ -214,7 +214,9 @@ export default function ProductsPage() {
             Signature collection
           </span>
           <h1 className="mt-6 text-4xl font-semibold text-neutral-900 sm:text-5xl">
-            무대 위 감각을 살리는 Rhythm 카탈로그
+            무대 위 감각을 살리는
+            <br />
+            Rhythm 카탈로그
           </h1>
           <p className="mt-4 text-base text-neutral-600 sm:text-lg">
             팀의 에너지와 콘셉트에 맞춘 맞춤형 디자인부터, 빠르게 선택할 수 있는 스테디셀러 제품까지 모두 만나보세요.
