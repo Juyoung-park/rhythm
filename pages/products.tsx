@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import { db } from "../lib/firebase";
 import { collection, getDocs, query, orderBy, doc, getDoc } from "firebase/firestore";
+import type { Timestamp } from "firebase/firestore";
 import { handleLogout } from "../lib/auth";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -16,8 +17,26 @@ interface Product {
   sizes?: string[];
   colors?: string[];
   active?: boolean;
-  createdAt?: any;
+  createdAt?: Timestamp;
 }
+
+interface UserProfile {
+  name?: string;
+  email?: string;
+  [key: string]: unknown;
+}
+
+interface FirestoreError {
+  code: string;
+}
+
+const categoryLabels: Record<string, string> = {
+  all: "전체",
+  dress: "드레스",
+  top: "상의",
+  bottom: "하의",
+  accessory: "액세서리",
+};
 
 export default function ProductsPage() {
   const { user } = useUser();
@@ -28,35 +47,36 @@ export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("newest");
-  const [userInfo, setUserInfo] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<UserProfile | null>(null);
+
+  const isFirestoreError = (maybeError: unknown): maybeError is FirestoreError => {
+    return (
+      typeof maybeError === "object" &&
+      maybeError !== null &&
+      "code" in maybeError &&
+      typeof (maybeError as { code?: unknown }).code === "string"
+    );
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setError(null);
-        console.log("Fetching products from Firebase...");
-        
         const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
         const querySnapshot = await getDocs(q);
-        
-        console.log(`Found ${querySnapshot.size} products`);
-        
-        const productsData = querySnapshot.docs.map(doc => ({
+        const productsData = querySnapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         })) as Product[];
-        
         setProducts(productsData);
-        console.log("Products loaded successfully:", productsData);
-      } catch (error: unknown) {
-        console.error("Error fetching products:", error);
+      } catch (fetchError: unknown) {
+        console.error("Error fetching products:", fetchError);
         setError("제품을 불러오는 중 오류가 발생했습니다.");
-        
-        // Show specific error messages
-        if (error && typeof error === 'object' && 'code' in error) {
-          if ((error as any).code === "permission-denied") {
+
+        if (isFirestoreError(fetchError)) {
+          if (fetchError.code === "permission-denied") {
             setError("Firebase Firestore 권한 오류입니다. Firebase Console에서 보안 규칙을 확인해주세요.");
-          } else if ((error as any).code === "unavailable") {
+          } else if (fetchError.code === "unavailable") {
             setError("Firebase 서비스에 연결할 수 없습니다. 인터넷 연결을 확인해주세요.");
           }
         }
@@ -69,29 +89,31 @@ export default function ProductsPage() {
   }, []);
 
   useEffect(() => {
-    if (user) {
-      const fetchUserInfo = async () => {
-        try {
-          const userDoc = await getDoc(doc(db, "users", user.uid));
-          if (userDoc.exists()) {
-            setUserInfo(userDoc.data());
-          }
-        } catch (error) {
-          console.error("Error fetching user info:", error);
+    if (!user) return;
+
+    const fetchUserInfo = async () => {
+      try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          setUserInfo({ ...userDoc.data() } as UserProfile);
         }
-      };
-      fetchUserInfo();
-    }
+      } catch (userError) {
+        console.error("Error fetching user info:", userError);
+      }
+    };
+
+    fetchUserInfo();
   }, [user]);
 
   const categories = ["all", "dress", "top", "bottom", "accessory"];
-  
-  // Filter and sort products
+
   const filteredProducts = products
-    .filter(product => {
-      const matchesCategory = selectedCategory === "all" || (product.category || "기타") === selectedCategory;
-      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           (product.description || "").toLowerCase().includes(searchTerm.toLowerCase());
+    .filter((product) => {
+      const matchesCategory =
+        selectedCategory === "all" || (product.category || "기타") === selectedCategory;
+      const matchesSearch =
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (product.description || "").toLowerCase().includes(searchTerm.toLowerCase());
       return matchesCategory && matchesSearch;
     })
     .sort((a, b) => {
@@ -104,310 +126,318 @@ export default function ProductsPage() {
           return a.name.localeCompare(b.name);
         case "newest":
         default:
-          return 0; // Already sorted by createdAt in query
+          return 0;
       }
     });
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">제품을 불러오는 중...</p>
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 -z-10 bg-hero-radial" />
+        <div className="absolute inset-x-0 top-0 -z-10 h-1/2 bg-gradient-to-b from-primary-200/30 via-transparent to-transparent" />
+        <div className="glass-panel rounded-3xl px-12 py-10 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary-100/60">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-b-transparent" />
           </div>
+          <p className="mt-6 text-base font-medium text-neutral-600">
+            제품을 불러오는 중입니다. 잠시만 기다려 주세요.
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 backdrop-blur-sm bg-white/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Rhythm</Link>
-              <span className="ml-2 text-gray-500">Dance Wear</span>
+    <div className="relative min-h-screen overflow-hidden">
+      <div className="absolute inset-0 -z-10 bg-hero-radial" />
+      <div className="absolute inset-x-0 top-0 -z-10 h-[520px] bg-gradient-to-b from-primary-200/35 via-transparent to-transparent" />
+
+      <nav className="sticky top-0 z-50 border-b border-white/40 bg-white/70 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+          <Link href="/" className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-900 text-white shadow-lg">
+              💃
+            </span>
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-neutral-500">Rhythm</p>
+              <p className="text-sm font-semibold text-neutral-900">Dance Wear Studio</p>
             </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                홈
-              </Link>
-              {user && (
-                <>
-                  <div className="flex items-center space-x-2">
-                    <div className="text-sm text-gray-600">
-                      안녕하세요, <span className="font-medium text-purple-600">{userInfo?.name || user.email}</span>님
-                    </div>
-                  </div>
-                  <Link href="/my-info" className="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                    내 정보
-                  </Link>
-                  <button
-                    onClick={() => handleLogout(router)}
-                    className="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                  >
-                    로그아웃
-                  </button>
-                </>
-              )}
-              {!user && (
-                <Link href="/login" className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg text-sm hover:from-purple-700 hover:to-pink-700 transition-all">
-                  로그인
+          </Link>
+          <div className="flex items-center gap-4 text-sm font-medium text-neutral-600">
+            <Link
+              href="/"
+              className="hidden rounded-full px-4 py-2 transition hover:bg-neutral-900 hover:text-white md:block"
+            >
+              홈
+            </Link>
+            <Link
+              href="/products"
+              className="hidden rounded-full px-4 py-2 transition hover:bg-neutral-900 hover:text-white md:block"
+            >
+              제품
+            </Link>
+            {user ? (
+              <div className="flex items-center gap-3">
+                <span className="hidden text-sm text-neutral-600 md:inline">
+                  안녕하세요, {" "}
+                  <span className="font-semibold text-primary-600">{userInfo?.name || user.email}</span>
+                  님
+                </span>
+                <Link
+                  href="/my-info"
+                  className="rounded-full border border-neutral-200/80 bg-white px-4 py-2 transition hover:border-primary-200 hover:text-primary-600"
+                >
+                  내 정보
                 </Link>
-              )}
-            </div>
+                <button
+                  onClick={() => handleLogout(router)}
+                  className="rounded-full bg-neutral-900 px-4 py-2 text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-neutral-800"
+                >
+                  로그아웃
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="rounded-full bg-gradient-to-r from-primary-600 via-secondary-500 to-primary-500 px-5 py-2 text-white shadow-glow transition hover:-translate-y-0.5"
+              >
+                로그인 / 가입
+              </Link>
+            )}
           </div>
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center px-4 py-2 rounded-full bg-purple-100 text-purple-800 text-sm font-medium mb-6">
-            <span className="w-2 h-2 bg-purple-600 rounded-full mr-2"></span>
-            수제작 라인댄스 의상
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">제품 카탈로그</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">개인 맞춤형 수제작 라인댄스 의상을 만나보세요</p>
+      <div className="relative mx-auto max-w-7xl px-6 pb-20 pt-16">
+        <div className="mx-auto max-w-3xl text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-primary-600 backdrop-blur">
+            Signature collection
+          </span>
+          <h1 className="mt-6 text-4xl font-semibold text-neutral-900 sm:text-5xl">
+            무대 위 감각을 살리는 Rhythm 카탈로그
+          </h1>
+          <p className="mt-4 text-base text-neutral-600 sm:text-lg">
+            팀의 에너지와 콘셉트에 맞춘 맞춤형 디자인부터, 빠르게 선택할 수 있는 스테디셀러 제품까지 모두 만나보세요.
+          </p>
         </div>
 
-        {/* Error Display */}
         {error && (
-          <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          <div className="mt-12 rounded-3xl border border-red-200/70 bg-red-50/80 p-6 text-left shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-500">
+                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">오류 발생</h3>
-                  <div className="mt-2 text-sm text-red-700">
-                    <p>{error}</p>
-                    {error?.includes("권한") && (
-                      <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <div className="font-semibold text-yellow-800 mb-2">Firebase Firestore 보안 규칙 수정 방법:</div>
-                        <div className="text-yellow-700 text-xs">
-                          1. Firebase 콘솔 → Firestore Database → Rules<br/>
-                          2. 다음 규칙으로 변경:<br/>
-                          <code className="bg-yellow-100 px-1 rounded text-xs">
-                            allow read, write: if true;
-                          </code>
-                        </div>
-                      </div>
-                    )}
-                    <div className="mt-2">
-                      <Link href="/firebase-test" className="text-red-800 underline">
-                        Firebase 연결 테스트하기
-                      </Link>
-                    </div>
+              <div className="space-y-2 text-sm">
+                <h3 className="text-base font-semibold text-red-700">제품을 불러오는 중 문제가 발생했어요</h3>
+                <p className="text-red-600">{error}</p>
+                {error.includes("권한") && (
+                  <div className="rounded-2xl border border-yellow-200 bg-yellow-50/80 p-4 text-xs leading-relaxed text-yellow-700">
+                    <p className="font-semibold text-yellow-800">Firebase Firestore 보안 규칙 수정 방법</p>
+                    <p className="mt-1">1. Firebase Console → Firestore Database → Rules</p>
+                    <p className="mt-1">2. 아래 규칙으로 업데이트</p>
+                    <code className="mt-2 block rounded-lg bg-yellow-100 px-3 py-2 text-[11px] font-semibold text-yellow-900">
+                      allow read, write: if true;
+                    </code>
                   </div>
+                )}
+                <Link href="/firebase-test" className="inline-flex items-center gap-2 text-sm font-semibold text-red-600">
+                  연결 상태 다시 확인하기
+                  <span aria-hidden>→</span>
+                </Link>
               </div>
             </div>
           </div>
         )}
 
-        {/* Results Count */}
-        <div className="text-center mb-8">
-          <p className="text-gray-600 text-lg">
-            총 <span className="font-bold text-purple-600">{filteredProducts.length}</span>개의 제품을 찾았습니다
-          </p>
-        </div>
-
-        {/* Search and Filter Section */}
-        <div className="mb-12 space-y-6">
-          {/* Search Bar */}
-          <div className="max-w-lg mx-auto">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="제품명이나 설명으로 검색..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm"
-              />
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+        <div className="mt-14">
+          <div className="glass-panel flex flex-col gap-8 rounded-3xl p-8">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-3 text-sm text-neutral-500">
+                <span className="rounded-full bg-secondary-500/10 px-3 py-1 font-semibold text-secondary-600">
+                  {filteredProducts.length}개 제품
+                </span>
+                <p>검색과 필터로 원하는 제품을 빠르게 찾아보세요.</p>
+              </div>
+              <div className="relative w-full md:w-72">
+                <div className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-neutral-400">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-4.35-4.35M10 17a7 7 0 100-14 7 7 0 000 14z" />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  placeholder="제품명이나 설명으로 검색하세요"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  className="h-12 w-full rounded-full border border-white/40 bg-white/70 pl-12 pr-4 text-sm text-neutral-700 shadow-inner shadow-white/40 focus:border-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                />
               </div>
             </div>
-          </div>
 
-          {/* Category and Sort Filters */}
-          <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
-            {/* Category Filter */}
-            <div className="flex space-x-1 bg-gray-100 rounded-xl p-1">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    selectedCategory === category
-                      ? "bg-white text-purple-600 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+              <div className="flex flex-wrap gap-2">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => setSelectedCategory(category)}
+                    className={`rounded-full px-4 py-2 text-sm font-medium transition duration-300 ease-soft ${
+                      selectedCategory === category
+                        ? "bg-neutral-900 text-white shadow-lg shadow-neutral-900/15"
+                        : "border border-neutral-200/70 bg-white/70 text-neutral-600 hover:border-primary-200 hover:text-primary-600"
+                    }`}
+                  >
+                    {categoryLabels[category]}
+                  </button>
+                ))}
+              </div>
+              <div className="relative w-full md:w-56">
+                <select
+                  value={sortBy}
+                  onChange={(event) => setSortBy(event.target.value)}
+                  className="h-12 w-full appearance-none rounded-full border border-white/40 bg-white/80 px-4 pr-12 text-sm text-neutral-600 shadow-inner shadow-white/40 focus:border-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100"
                 >
-                  {category === "all" ? "전체" : 
-                   category === "dress" ? "드레스" :
-                   category === "top" ? "상의" :
-                   category === "bottom" ? "하의" : "액세서리"}
-                </button>
-              ))}
-            </div>
-
-            {/* Sort Dropdown */}
-            <div className="relative">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="appearance-none bg-white border border-gray-200 rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm shadow-sm"
-              >
-                <option value="newest">최신순</option>
-                <option value="price-low">가격 낮은순</option>
-                <option value="price-high">가격 높은순</option>
-                <option value="name">이름순</option>
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+                  <option value="newest">최신순</option>
+                  <option value="price-low">가격 낮은순</option>
+                  <option value="price-high">가격 높은순</option>
+                  <option value="name">이름순</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-neutral-400">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Products Grid */}
         {filteredProducts.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-gray-400 mb-4">
-              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          <div className="mt-20 text-center">
+            <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border border-dashed border-neutral-200 text-neutral-400">
+              <svg className="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {error ? "오류로 인해 제품을 불러올 수 없습니다" : "제품이 없습니다"}
+            <h3 className="mt-8 text-xl font-semibold text-neutral-900">
+              {error ? "오류로 인해 제품을 불러오지 못했습니다" : "현재 준비 중인 제품이 없습니다"}
             </h3>
-            <p className="text-gray-600 mb-4">
-              {error ? "Firebase 설정을 확인해주세요" : "곧 새로운 제품이 추가될 예정입니다."}
+            <p className="mt-3 text-sm text-neutral-500">
+              {error ? "Firebase 설정을 확인한 후 다시 시도해 주세요." : "새로운 컬렉션이 곧 업데이트될 예정이에요."}
             </p>
             {user && user.email === "admin@rhythm.com" && (
-              <Link href="/admin/add-product" className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700">
+              <Link
+                href="/admin/add-product"
+                className="mt-8 inline-flex items-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-neutral-800"
+              >
                 첫 번째 제품 추가하기
+                <span aria-hidden>→</span>
               </Link>
             )}
           </div>
         ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                {/* Clickable Product Card */}
-                <Link href={`/order/${product.id}`} className="block">
-                  {/* Product Image */}
-                  <div className="relative">
-                    {product.imageUrl ? (
-                      <img
-                        src={product.imageUrl.startsWith('data:') ? product.imageUrl : product.imageUrl}
-                        alt={product.name}
-                        className="w-full h-24 object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-24 bg-gray-100 flex items-center justify-center">
-                        <div className="text-center">
-                          <svg className="w-5 h-5 text-gray-300 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          <p className="text-xs text-gray-400">이미지 없음</p>
-                        </div>
-                      </div>
-                    )}
-                    {/* Category Badge */}
-                    {(product.category || product.active !== false) && (
-                      <div className="absolute top-2 left-2">
-                        <span className="px-2 py-1 bg-purple-600 text-white text-xs rounded-full font-medium">
-                          {product.category === "dress" ? "드레스" :
-                           product.category === "top" ? "상의" :
-                           product.category === "bottom" ? "하의" : 
-                           product.category === "accessory" ? "액세서리" : "기타"}
-                        </span>
-                      </div>
-                    )}
-                    {/* Click Indicator */}
-                    <div className="absolute top-2 right-2">
-                      <div className="w-6 h-6 bg-white/80 rounded-full flex items-center justify-center">
-                        <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                      </div>
+          <div className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredProducts.map((product, index) => (
+              <Link
+                key={product.id}
+                href={`/order/${product.id}`}
+                className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/50 bg-white/80 p-6 shadow-lifted transition duration-500 ease-soft hover:-translate-y-2 hover:border-primary-200/80 hover:shadow-glow"
+              >
+                <div className="relative overflow-hidden rounded-2xl">
+                  <div className="absolute inset-0 z-0 bg-gradient-to-br from-primary-200/30 via-secondary-200/20 to-white" />
+                  {product.imageUrl ? (
+                    <img
+                      src={product.imageUrl}
+                      alt={product.name}
+                      className="relative z-10 h-44 w-full rounded-2xl object-cover transition duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="relative z-10 flex h-44 items-center justify-center rounded-2xl bg-gradient-to-br from-neutral-100 via-white to-neutral-50 text-neutral-300">
+                      <svg className="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
                     </div>
+                  )}
+                  <div className="absolute left-4 top-4 z-20 rounded-full bg-white/85 px-3 py-1 text-xs font-semibold text-primary-600 shadow">
+                    {categoryLabels[product.category || "all"] ?? "기타"}
+                  </div>
+                  <div className="absolute right-4 top-4 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-neutral-400 shadow-inner shadow-white/60">
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex flex-1 flex-col">
+                  <div className="space-y-2">
+                    <p className="text-xs uppercase tracking-[0.3em] text-neutral-400">#{String(index + 1).padStart(2, "0")}</p>
+                    <h3 className="line-clamp-2 text-lg font-semibold text-neutral-900 transition group-hover:text-primary-600">
+                      {product.name}
+                    </h3>
+                    <p className="line-clamp-2 text-sm text-neutral-500">{product.description}</p>
                   </div>
 
-                  {/* Product Info */}
-                  <div className="p-3">
-                    <h3 className="text-base font-semibold text-gray-900 mb-2 line-clamp-2">{product.name}</h3>
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
-                    
-                    {/* Price */}
-                    <div className="mb-3">
-                      <span className="text-lg font-bold text-purple-600">
-                        ₩{product.price.toLocaleString()}
-                      </span>
-                    </div>
-
-                    {/* Colors */}
-                    {product.colors && product.colors.length > 0 && (
-                      <div className="mb-2">
-                        <p className="text-xs text-gray-500 mb-1">색상</p>
-                        <div className="flex flex-wrap gap-1">
-                          {product.colors.slice(0, 2).map((color, index) => (
-                            <span key={index} className="px-1.5 py-0.5 bg-purple-100 text-purple-800 text-xs rounded-full">
-                              {color}
-                            </span>
-                          ))}
-                          {product.colors.length > 2 && (
-                            <span className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
-                              +{product.colors.length - 2}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Sizes */}
-                    {product.sizes && product.sizes.length > 0 && (
-                      <div className="mb-3">
-                        <p className="text-xs text-gray-500 mb-1">사이즈</p>
-                        <div className="flex flex-wrap gap-1">
-                          {product.sizes.slice(0, 3).map((size, index) => (
-                            <span key={index} className="px-1.5 py-0.5 bg-gray-100 text-gray-800 text-xs rounded-full">
-                              {size}
-                            </span>
-                          ))}
-                          {product.sizes.length > 3 && (
-                            <span className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
-                              +{product.sizes.length - 3}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* View Details Hint */}
-                    <div className="mt-3 text-center">
-                      <span className="text-xs text-gray-500 bg-gray-50 px-3 py-1 rounded-full">
-                        클릭하여 상세보기
-                      </span>
-                    </div>
+                  <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+                    <span className="text-lg font-semibold text-neutral-900">₩{product.price.toLocaleString()}</span>
+                    <span className="rounded-full bg-neutral-900 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white transition group-hover:bg-neutral-800">
+                      자세히 보기
+                    </span>
                   </div>
-                </Link>
-              </div>
+
+                  {(product.colors?.length ?? 0) > 0 && (
+                    <div className="mt-4 space-y-2">
+                      <p className="text-xs font-semibold text-neutral-500">추천 색상</p>
+                      <div className="flex flex-wrap gap-2">
+                        {product.colors!.slice(0, 3).map((color) => (
+                          <span
+                            key={color}
+                            className="rounded-full border border-white/50 bg-primary-100/40 px-3 py-1 text-xs font-medium text-primary-700"
+                          >
+                            {color}
+                          </span>
+                        ))}
+                        {product.colors!.length > 3 && (
+                          <span className="rounded-full border border-dashed border-neutral-200 px-3 py-1 text-xs text-neutral-400">
+                            +{product.colors!.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {(product.sizes?.length ?? 0) > 0 && (
+                    <div className="mt-4 space-y-2">
+                      <p className="text-xs font-semibold text-neutral-500">사이즈 옵션</p>
+                      <div className="flex flex-wrap gap-2">
+                        {product.sizes!.slice(0, 4).map((size) => (
+                          <span
+                            key={size}
+                            className="rounded-full border border-neutral-200 px-3 py-1 text-xs font-medium text-neutral-600"
+                          >
+                            {size}
+                          </span>
+                        ))}
+                        {product.sizes!.length > 4 && (
+                          <span className="rounded-full border border-dashed border-neutral-200 px-3 py-1 text-xs text-neutral-400">
+                            +{product.sizes!.length - 4}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Link>
             ))}
           </div>
         )}
       </div>
     </div>
   );
-} 
+}

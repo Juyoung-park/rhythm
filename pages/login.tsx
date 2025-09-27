@@ -345,202 +345,295 @@ export default function LoginPage() {
     }
   };
 
+  const highlights = [
+    {
+      title: "맞춤형 컨설팅",
+      description: "스타일리스트와 함께 공연 컨셉에 맞춘 룩을 제안받으세요.",
+      icon: "🪩",
+    },
+    {
+      title: "실시간 주문 현황",
+      description: "주문과 제작 상태를 한눈에 확인하고 팀과 공유할 수 있어요.",
+      icon: "📊",
+    },
+    {
+      title: "전문 피팅 케어",
+      description: "피팅 일정부터 수정 요청까지 앱에서 손쉽게 관리하세요.",
+      icon: "🧵",
+    },
+  ];
+
+  const modeCopy = isNew
+    ? {
+        title: "Welcome to Rhythm",
+        subtitle: "공연을 빛내는 댄스웨어 커뮤니티에 합류하세요.",
+        cta: "회원가입",
+        switchLabel: "이미 계정이 있으신가요?",
+        switchCta: "로그인",
+      }
+    : {
+        title: "안녕하세요!",
+        subtitle: "리듬의 다양한 맞춤 서비스를 이용해보세요.",
+        cta: "로그인",
+        switchLabel: "계정이 없으신가요?",
+        switchCta: "회원가입",
+      };
+
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <Link href="/" className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Rhythm</Link>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            {isNew ? "회원가입" : "로그인"}
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            {isNew ? "새로운 계정을 만들어주세요" : "계정에 로그인해주세요"}
-          </p>
-        </div>
-        
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-          {/* Error Display */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
+    <div className="relative min-h-screen overflow-hidden">
+      <div className="absolute inset-0 -z-10 bg-hero-radial" />
+      <div className="absolute inset-x-0 top-0 -z-10 h-[520px] bg-gradient-to-b from-primary-200/30 via-transparent to-transparent" />
+
+      <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl items-center justify-center px-6 py-16">
+        <div className="grid w-full gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="hidden flex-col justify-between rounded-3xl bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 p-10 text-white shadow-2xl lg:flex">
+            <div className="flex items-center justify-between text-sm uppercase tracking-[0.35em] text-white/60">
+              <Link href="/" className="text-white/80 transition hover:text-white">
+                Rhythm
+              </Link>
+              <span>Dance Wear Studio</span>
+            </div>
+            <div className="mt-12 space-y-6">
+              <p className="text-sm font-semibold uppercase tracking-[0.35em] text-secondary-200">Premium Custom</p>
+              <h1 className="text-4xl font-semibold leading-tight">
+                팀의 무드를 완성하는
+                <br />
+                <span className="text-secondary-200">맞춤형 댄스웨어 플랫폼</span>
+              </h1>
+              <p className="text-sm leading-relaxed text-white/70">
+                Rhythm과 함께라면 상담 예약, 주문, 제작 관리까지 한 번에 진행할 수 있어요. 로그인하고 팀 전용 대시보드를 확인해보세요.
+              </p>
+            </div>
+            <div className="mt-10 space-y-4">
+              {highlights.map((item) => (
+                <div key={item.title} className="group flex items-start gap-4 rounded-2xl bg-white/5 p-4 transition hover:bg-white/10">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-xl">
+                    {item.icon}
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-base font-semibold text-white">{item.title}</p>
+                    <p className="text-sm text-white/70">{item.description}</p>
+                  </div>
                 </div>
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">오류 발생</h3>
-                  <div className="mt-2 text-sm text-red-700">
+              ))}
+            </div>
+            <div className="mt-8 flex items-center justify-between text-xs text-white/50">
+              <p>© {new Date().getFullYear()} Rhythm Dance Wear</p>
+              <Link href="/products" className="underline-offset-4 transition hover:text-white hover:underline">
+                제품 둘러보기
+              </Link>
+            </div>
+          </div>
+
+          <div className="glass-panel rounded-3xl p-8 md:p-10">
+            <div className="mb-10 space-y-3 text-left">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/70 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-primary-600">
+                Rhythm Access
+              </div>
+              <h2 className="text-3xl font-semibold text-neutral-900">{modeCopy.title}</h2>
+              <p className="text-sm text-neutral-600">{modeCopy.subtitle}</p>
+            </div>
+
+            {error && (
+              <div className="mb-8 rounded-2xl border border-red-200/70 bg-red-50/80 p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-500">
+                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div className="space-y-2 text-sm text-red-600">
+                    <p className="font-semibold">로그인에 실패했습니다.</p>
                     <p>{error}</p>
                     {error.includes("Firebase") && (
-                      <div className="mt-2">
-                        <Link href="/firebase-test" className="text-red-800 underline">
-                          Firebase 연결 테스트하기
-                        </Link>
-                      </div>
+                      <Link href="/firebase-test" className="inline-flex items-center gap-2 text-xs font-semibold text-red-500">
+                        Firebase 연결 테스트하기
+                        <span aria-hidden>→</span>
+                      </Link>
                     )}
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-
-          <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleAuth(); }}>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                이메일 <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="email"
-                type="email"
-                required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="이메일을 입력하세요"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                비밀번호 <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="password"
-                type="password"
-                required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="비밀번호를 입력하세요"
-                value={pw}
-                onChange={e => setPw(e.target.value)}
-              />
-            </div>
-
-            {/* 회원가입 시에만 표시되는 추가 필드들 */}
-            {isNew && (
-              <>
-                <div className="border-t pt-6 mt-6">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">추가 정보</h3>
-                  <p className="text-sm text-gray-600 mb-4">이메일과 비밀번호는 필수 항목입니다. 아래 정보도 함께 입력해주세요.</p>
-                </div>
-
-
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                    이름 <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    required
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="이름을 입력하세요"
-                    value={registrationForm.name}
-                    onChange={e => handleRegistrationFormChange("name", e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                    연락처 <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    id="phone"
-                    type="tel"
-                    required
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="연락처를 입력하세요 (예: 010-1234-5678)"
-                    value={registrationForm.phone}
-                    onChange={e => handleRegistrationFormChange("phone", e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="carNumber" className="block text-sm font-medium text-gray-700 mb-2">
-                    차량번호 <span className="text-gray-400 text-xs">(선택사항)</span>
-                  </label>
-                  <input
-                    id="carNumber"
-                    type="text"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="차량번호를 입력하세요"
-                    value={registrationForm.carNumber}
-                    onChange={e => handleRegistrationFormChange("carNumber", e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-                    주소 <span className="text-gray-400 text-xs">(선택사항)</span>
-                  </label>
-                  <input
-                    id="address"
-                    type="text"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="주소를 입력하세요"
-                    value={registrationForm.address}
-                    onChange={e => handleRegistrationFormChange("address", e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="organization" className="block text-sm font-medium text-gray-700 mb-2">
-                    소속 <span className="text-gray-400 text-xs">(선택사항)</span>
-                  </label>
-                  <input
-                    id="organization"
-                    type="text"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="소속을 입력하세요"
-                    value={registrationForm.organization}
-                    onChange={e => handleRegistrationFormChange("organization", e.target.value)}
-                  />
-                </div>
-              </>
             )}
 
-            <div>
+            <form
+              className="space-y-6"
+              onSubmit={(event) => {
+                event.preventDefault();
+                handleAuth();
+              }}
+            >
+              <div className="space-y-2">
+                <label htmlFor="email" className="text-sm font-medium text-neutral-700">
+                  이메일 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  placeholder="이메일을 입력하세요"
+                  className="w-full rounded-2xl border border-white/60 bg-white/80 px-4 py-3 text-sm text-neutral-800 shadow-inner shadow-white/40 focus:border-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="password" className="text-sm font-medium text-neutral-700">
+                  비밀번호 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  placeholder="비밀번호를 입력하세요"
+                  className="w-full rounded-2xl border border-white/60 bg-white/80 px-4 py-3 text-sm text-neutral-800 shadow-inner shadow-white/40 focus:border-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                  value={pw}
+                  onChange={(event) => setPw(event.target.value)}
+                />
+              </div>
+
+              {isNew && (
+                <div className="space-y-5 rounded-3xl border border-white/50 bg-white/70 p-5">
+                  <div>
+                    <h3 className="text-base font-semibold text-neutral-900">추가 정보</h3>
+                    <p className="mt-1 text-xs text-neutral-500">
+                      이메일과 비밀번호는 필수 항목입니다. 아래 정보도 함께 입력해주세요.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-4">
+                    <div className="space-y-2">
+                      <label htmlFor="name" className="text-sm font-medium text-neutral-700">
+                        이름 <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        id="name"
+                        type="text"
+                        required
+                        placeholder="이름을 입력하세요"
+                        className="w-full rounded-2xl border border-white/60 bg-white/80 px-4 py-3 text-sm text-neutral-800 shadow-inner shadow-white/40 focus:border-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                        value={registrationForm.name}
+                        onChange={(event) => handleRegistrationFormChange("name", event.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="phone" className="text-sm font-medium text-neutral-700">
+                        연락처 <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        id="phone"
+                        type="tel"
+                        required
+                        placeholder="연락처를 입력하세요 (예: 010-1234-5678)"
+                        className="w-full rounded-2xl border border-white/60 bg-white/80 px-4 py-3 text-sm text-neutral-800 shadow-inner shadow-white/40 focus:border-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                        value={registrationForm.phone}
+                        onChange={(event) => handleRegistrationFormChange("phone", event.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="carNumber" className="text-sm font-medium text-neutral-700">
+                        차량번호 <span className="text-neutral-400 text-xs">(선택)</span>
+                      </label>
+                      <input
+                        id="carNumber"
+                        type="text"
+                        placeholder="차량번호를 입력하세요"
+                        className="w-full rounded-2xl border border-white/60 bg-white/80 px-4 py-3 text-sm text-neutral-800 shadow-inner shadow-white/40 focus:border-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                        value={registrationForm.carNumber}
+                        onChange={(event) => handleRegistrationFormChange("carNumber", event.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="address" className="text-sm font-medium text-neutral-700">
+                        주소 <span className="text-neutral-400 text-xs">(선택)</span>
+                      </label>
+                      <input
+                        id="address"
+                        type="text"
+                        placeholder="주소를 입력하세요"
+                        className="w-full rounded-2xl border border-white/60 bg-white/80 px-4 py-3 text-sm text-neutral-800 shadow-inner shadow-white/40 focus:border-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                        value={registrationForm.address}
+                        onChange={(event) => handleRegistrationFormChange("address", event.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="organization" className="text-sm font-medium text-neutral-700">
+                        소속 <span className="text-neutral-400 text-xs">(선택)</span>
+                      </label>
+                      <input
+                        id="organization"
+                        type="text"
+                        placeholder="소속을 입력하세요"
+                        className="w-full rounded-2xl border border-white/60 bg-white/80 px-4 py-3 text-sm text-neutral-800 shadow-inner shadow-white/40 focus:border-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                        value={registrationForm.organization}
+                        onChange={(event) => handleRegistrationFormChange("organization", event.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 font-medium transition-all transform hover:scale-105 shadow-lg"
+                className="w-full rounded-full bg-gradient-to-r from-primary-600 via-secondary-500 to-primary-500 px-6 py-3 text-sm font-semibold text-white shadow-glow transition duration-500 ease-soft hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading ? "처리 중..." : isNew ? "회원가입" : "로그인"}
+                {loading ? "처리 중..." : modeCopy.cta}
               </button>
+            </form>
+
+            <div className="mt-10 flex flex-col gap-4 text-center text-sm text-neutral-500">
+              <div>
+                <span>{modeCopy.switchLabel} </span>
+                <button
+                  onClick={() => {
+                    setIsNew(!isNew);
+                    resetForms();
+                  }}
+                  className="font-semibold text-primary-600 underline-offset-4 transition hover:text-primary-700 hover:underline"
+                >
+                  {modeCopy.switchCta}
+                </button>
+              </div>
+              <div className="flex items-center justify-center gap-3 text-xs">
+                <Link href="/products" className="text-neutral-500 transition hover:text-primary-600">
+                  제품 둘러보기
+                </Link>
+                <span className="text-neutral-300">•</span>
+                <Link href="/firebase-status" className="text-neutral-500 transition hover:text-primary-600">
+                  시스템 상태
+                </Link>
+              </div>
             </div>
-          </form>
 
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => {
-                setIsNew(!isNew);
-                resetForms();
-              }}
-              className="text-purple-600 hover:text-purple-700 text-sm font-medium"
-            >
-              {isNew ? "이미 계정이 있으신가요? 로그인하기" : "계정이 없으신가요? 회원가입하기"}
-            </button>
-          </div>
+            {!isNew && (
+              <div className="mt-8 rounded-2xl border border-primary-100 bg-primary-50/70 p-5 text-left text-sm text-primary-700">
+                <p className="font-semibold text-primary-800">관리자 체험 계정</p>
+                <p className="mt-2 leading-relaxed">
+                  이메일: <span className="font-medium">admin@rhythm.com</span>
+                  <br />비밀번호: <span className="font-medium">admin123</span>
+                </p>
+              </div>
+            )}
 
-          {!isNew && (
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-800">
-                <strong>관리자 계정:</strong><br />
-                이메일: admin@rhythm.com<br />
-                비밀번호: admin123
-              </p>
-            </div>
-          )}
-
-          {/* Firebase Setup Help */}
-          <div className="mt-6 p-4 bg-yellow-50 rounded-lg">
-            <h3 className="text-sm font-medium text-yellow-800 mb-2">Firebase 설정이 안 되었나요?</h3>
-            <div className="text-sm text-yellow-700 space-y-1">
-              <div>1. <a href="https://console.firebase.google.com/" target="_blank" className="underline">Firebase Console</a> 방문</div>
-              <div>2. 프로젝트 `rhythmdancewear-a88d4` 선택</div>
-              <div>3. Firestore Database 생성 (테스트 모드)</div>
-              <div>4. Authentication → Email/Password 활성화</div>
-              <div>5. <Link href="/firebase-test" className="underline">Firebase 테스트</Link> 실행</div>
+            <div className="mt-8 rounded-2xl border border-yellow-200/70 bg-yellow-50/80 p-5 text-left text-sm text-yellow-800">
+              <h3 className="text-sm font-semibold text-yellow-900">Firebase 설정이 필요하신가요?</h3>
+              <ul className="mt-3 space-y-1 text-xs text-yellow-700">
+                <li>1. <a href="https://console.firebase.google.com/" target="_blank" rel="noreferrer" className="underline">Firebase Console</a> 방문</li>
+                <li>2. 프로젝트 `rhythmdancewear-a88d4` 선택</li>
+                <li>3. Firestore Database 생성 (테스트 모드)</li>
+                <li>4. Authentication → Email/Password 활성화</li>
+                <li>5. <Link href="/firebase-test" className="underline">Firebase 테스트</Link> 실행</li>
+              </ul>
             </div>
           </div>
         </div>

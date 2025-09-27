@@ -276,7 +276,7 @@ export default function MyInfoPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">로딩 중입니다...</p>
+            <p className="mt-4 text-neutral-600">로딩 중입니다...</p>
           </div>
         </div>
       </div>
@@ -289,8 +289,8 @@ export default function MyInfoPage() {
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">로그인이 필요합니다</h1>
-            <Link href="/login" className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700">
+            <h1 className="text-2xl font-bold text-neutral-900 mb-4">로그인이 필요합니다</h1>
+            <Link href="/login" className="rounded-full bg-neutral-900 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-neutral-800">
               로그인하기
             </Link>
           </div>
@@ -311,11 +311,16 @@ export default function MyInfoPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "pending": return "bg-yellow-100 text-yellow-800";
-      case "processing": return "bg-blue-100 text-blue-800";
-      case "completed": return "bg-green-100 text-green-800";
-      case "cancelled": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "pending":
+        return "border border-yellow-200/70 bg-yellow-50/80 text-yellow-700";
+      case "processing":
+        return "border border-blue-200/70 bg-blue-50/80 text-blue-700";
+      case "completed":
+        return "border border-green-200/70 bg-green-50/80 text-green-700";
+      case "cancelled":
+        return "border border-red-200/70 bg-red-50/80 text-red-600";
+      default:
+        return "border border-neutral-200/70 bg-white/70 text-neutral-600";
     }
   };
 
@@ -369,67 +374,71 @@ export default function MyInfoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 backdrop-blur-sm bg-white/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Rhythm</Link>
-              <span className="ml-2 text-gray-500">내 정보</span>
+    <div className="relative min-h-screen overflow-hidden">
+      <div className="absolute inset-0 -z-10 bg-hero-radial" />
+      <div className="absolute inset-x-0 top-0 -z-10 h-[520px] bg-gradient-to-b from-primary-200/35 via-transparent to-transparent" />
+
+      <nav className="sticky top-0 z-50 border-b border-white/40 bg-white/70 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+          <Link href="/" className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-900 text-white shadow-lg">💃</span>
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-neutral-500">Rhythm</p>
+              <p className="text-sm font-semibold text-neutral-900">내 정보 센터</p>
             </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                홈
-              </Link>
-              <Link href="/products" className="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                제품보기
-              </Link>
-              {user && (
-                <>
-                  <div className="flex items-center space-x-2">
-                    <div className="text-sm text-gray-600">
-                      안녕하세요, <span className="font-medium text-purple-600">{info?.name || user.email}</span>님
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => handleLogout(router)}
-                    className="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                  >
-                    로그아웃
-                  </button>
-                </>
-              )}
-            </div>
+          </Link>
+          <div className="flex items-center gap-4 text-sm font-medium text-neutral-600">
+            <Link href="/" className="hidden rounded-full px-4 py-2 transition hover:bg-neutral-900 hover:text-white md:block">
+              홈
+            </Link>
+            <Link href="/products" className="hidden rounded-full px-4 py-2 transition hover:bg-neutral-900 hover:text-white md:block">
+              제품 보기
+            </Link>
+            {user && (
+              <>
+                <span className="hidden text-sm text-neutral-500 md:inline">
+                  반가워요, <span className="font-semibold text-primary-600">{info?.name || user.email}</span>님
+                </span>
+                <button
+                  onClick={() => handleLogout(router)}
+                  className="rounded-full bg-neutral-900 px-4 py-2 text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-neutral-800"
+                >
+                  로그아웃
+                </button>
+              </>
+            )}
           </div>
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">내 정보</h1>
-          <p className="text-gray-600">개인 정보와 주문 내역을 관리하세요</p>
+      <div className="relative mx-auto max-w-5xl px-6 py-12">
+        <div className="mb-12 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/70 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-primary-600">
+            Profile hub
+          </div>
+          <h1 className="mt-6 text-4xl font-semibold text-neutral-900">Rhythm Profile Studio</h1>
+          <p className="mt-3 text-base text-neutral-600">팀 맞춤 제작을 위한 내 정보와 주문 내역을 한 곳에서 관리하세요.</p>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex justify-center mb-8">
-          <div className="flex space-x-1 bg-gray-100 rounded-xl p-1">
+        <div className="mb-10 flex justify-center">
+          <div className="flex gap-2 rounded-full border border-white/40 bg-white/70 p-2 backdrop-blur">
             <button
               onClick={() => setActiveTab("info")}
-              className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
+              className={`rounded-full px-6 py-3 text-sm font-semibold transition duration-300 ease-soft ${
                 activeTab === "info"
-                  ? "bg-white text-purple-600 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "bg-neutral-900 text-white shadow-lg shadow-neutral-900/15"
+                  : "text-neutral-500 hover:text-primary-600"
               }`}
             >
               개인 정보
             </button>
             <button
               onClick={() => setActiveTab("orders")}
-              className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
+              className={`rounded-full px-6 py-3 text-sm font-semibold transition duration-300 ease-soft ${
                 activeTab === "orders"
-                  ? "bg-white text-purple-600 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "bg-neutral-900 text-white shadow-lg shadow-neutral-900/15"
+                  : "text-neutral-500 hover:text-primary-600"
               }`}
             >
               주문 내역 ({orders.length})
@@ -437,7 +446,7 @@ export default function MyInfoPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+        <div className="glass-panel rounded-3xl p-8 md:p-10">
           {activeTab === "info" && info && (
             <div>
               <div className="flex justify-between items-center mb-6">
@@ -445,7 +454,7 @@ export default function MyInfoPage() {
                 {!isEditing && (
                   <button
                     onClick={handleEditClick}
-                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                    className="rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-neutral-800"
                   >
                     수정
                   </button>
@@ -458,38 +467,38 @@ export default function MyInfoPage() {
                   {/* 기본 정보 */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">이름</label>
-                      <div className="p-3 bg-gray-50 rounded-lg">{info.name || "-"}</div>
+                      <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 mb-2">이름</label>
+                      <div className="rounded-2xl border border-white/50 bg-white/70 px-4 py-3 text-sm text-neutral-700 shadow-inner shadow-white/40">{info.name || "-"}</div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">연락처</label>
-                      <div className="p-3 bg-gray-50 rounded-lg">{info.phone || "-"}</div>
+                      <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 mb-2">연락처</label>
+                      <div className="rounded-2xl border border-white/50 bg-white/70 px-4 py-3 text-sm text-neutral-700 shadow-inner shadow-white/40">{info.phone || "-"}</div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">이메일</label>
-                      <div className="p-3 bg-gray-50 rounded-lg">{info.email || "-"}</div>
+                      <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 mb-2">이메일</label>
+                      <div className="rounded-2xl border border-white/50 bg-white/70 px-4 py-3 text-sm text-neutral-700 shadow-inner shadow-white/40">{info.email || "-"}</div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">소속</label>
-                      <div className="p-3 bg-gray-50 rounded-lg">{info.organization || "-"}</div>
+                      <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 mb-2">소속</label>
+                      <div className="rounded-2xl border border-white/50 bg-white/70 px-4 py-3 text-sm text-neutral-700 shadow-inner shadow-white/40">{info.organization || "-"}</div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">주소</label>
-                      <div className="p-3 bg-gray-50 rounded-lg">{info.address || "-"}</div>
+                      <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 mb-2">주소</label>
+                      <div className="rounded-2xl border border-white/50 bg-white/70 px-4 py-3 text-sm text-neutral-700 shadow-inner shadow-white/40">{info.address || "-"}</div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">차량번호</label>
-                      <div className="p-3 bg-gray-50 rounded-lg">{info.carNumber || "-"}</div>
+                      <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 mb-2">차량번호</label>
+                      <div className="rounded-2xl border border-white/50 bg-white/70 px-4 py-3 text-sm text-neutral-700 shadow-inner shadow-white/40">{info.carNumber || "-"}</div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">사이즈</label>
-                      <div className="p-3 bg-gray-50 rounded-lg">{info.size || "-"}</div>
+                      <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 mb-2">사이즈</label>
+                      <div className="rounded-2xl border border-white/50 bg-white/70 px-4 py-3 text-sm text-neutral-700 shadow-inner shadow-white/40">{info.size || "-"}</div>
                     </div>
                   </div>
 
                   {/* 신체 치수 정보 */}
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">신체 치수</h3>
+                    <h3 className="text-lg font-medium text-neutral-900 mb-4">신체 치수</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {[
                         { key: 'height', label: '키 (cm)' },
@@ -508,8 +517,8 @@ export default function MyInfoPage() {
                         { key: 'pantsLength', label: '바지 길이 (cm)' }
                       ].map(({ key, label }) => (
                         <div key={key}>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
-                          <div className="p-3 bg-gray-50 rounded-lg">
+                          <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 mb-2">{label}</label>
+                          <div className="rounded-2xl border border-white/50 bg-white/70 px-4 py-3 text-sm text-neutral-700 shadow-inner shadow-white/40">
                             {info[key as keyof CustomerInfo] || "-"}
                           </div>
                         </div>
@@ -523,66 +532,66 @@ export default function MyInfoPage() {
                   {/* 기본 정보 */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">이름 *</label>
+                      <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 mb-2">이름 *</label>
                       <input
                         type="text"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full rounded-2xl border border-white/60 bg-white/80 px-4 py-3 text-sm text-neutral-700 shadow-inner shadow-white/40 focus:border-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100"
                         value={editForm.name}
                         onChange={(e) => setEditForm({...editForm, name: e.target.value})}
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">연락처 *</label>
+                      <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 mb-2">연락처 *</label>
                       <input
                         type="text"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full rounded-2xl border border-white/60 bg-white/80 px-4 py-3 text-sm text-neutral-700 shadow-inner shadow-white/40 focus:border-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100"
                         value={editForm.phone}
                         onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+                      <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 mb-2">이메일</label>
                       <input
                         type="email"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full rounded-2xl border border-white/60 bg-white/80 px-4 py-3 text-sm text-neutral-700 shadow-inner shadow-white/40 focus:border-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100"
                         value={editForm.email}
                         onChange={(e) => setEditForm({...editForm, email: e.target.value})}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">소속</label>
+                      <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 mb-2">소속</label>
                       <input
                         type="text"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full rounded-2xl border border-white/60 bg-white/80 px-4 py-3 text-sm text-neutral-700 shadow-inner shadow-white/40 focus:border-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100"
                         value={editForm.organization}
                         onChange={(e) => setEditForm({...editForm, organization: e.target.value})}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">주소</label>
+                      <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 mb-2">주소</label>
                       <input
                         type="text"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full rounded-2xl border border-white/60 bg-white/80 px-4 py-3 text-sm text-neutral-700 shadow-inner shadow-white/40 focus:border-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100"
                         value={editForm.address}
                         onChange={(e) => setEditForm({...editForm, address: e.target.value})}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">차량번호</label>
+                      <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 mb-2">차량번호</label>
                       <input
                         type="text"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full rounded-2xl border border-white/60 bg-white/80 px-4 py-3 text-sm text-neutral-700 shadow-inner shadow-white/40 focus:border-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100"
                         value={editForm.carNumber}
                         onChange={(e) => setEditForm({...editForm, carNumber: e.target.value})}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">사이즈</label>
+                      <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 mb-2">사이즈</label>
                       <input
                         type="text"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full rounded-2xl border border-white/60 bg-white/80 px-4 py-3 text-sm text-neutral-700 shadow-inner shadow-white/40 focus:border-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100"
                         value={editForm.size}
                         onChange={(e) => setEditForm({...editForm, size: e.target.value})}
                       />
@@ -591,7 +600,7 @@ export default function MyInfoPage() {
 
                   {/* 신체 치수 정보 */}
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">신체 치수 (선택사항)</h3>
+                    <h3 className="text-lg font-medium text-neutral-900 mb-4">신체 치수 (선택사항)</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {[
                         { key: 'height', label: '키 (cm)' },
@@ -610,10 +619,10 @@ export default function MyInfoPage() {
                         { key: 'pantsLength', label: '바지 길이 (cm)' }
                       ].map(({ key, label }) => (
                         <div key={key}>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+                          <label className="block text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 mb-2">{label}</label>
                           <input
                             type="number"
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            className="w-full rounded-2xl border border-white/60 bg-white/80 px-4 py-3 text-sm text-neutral-700 shadow-inner shadow-white/40 focus:border-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100"
                             value={editForm[key as keyof typeof editForm]}
                             onChange={(e) => setEditForm({...editForm, [key]: e.target.value})}
                             placeholder="0"
@@ -628,13 +637,13 @@ export default function MyInfoPage() {
                     <button
                       onClick={handleSaveEdit}
                       disabled={loading || !editForm.name.trim() || !editForm.phone.trim()}
-                      className="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors"
+                      className="flex-1 rounded-full bg-neutral-900 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {loading ? "저장 중..." : "저장"}
                     </button>
-                    <button
+                  <button
                       onClick={handleCancelEdit}
-                      className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-colors"
+                      className="flex-1 rounded-full border border-neutral-200/80 bg-white/70 py-3 text-sm font-semibold text-neutral-600 transition hover:-translate-y-0.5 hover:border-primary-200 hover:text-primary-600"
                     >
                       취소
                     </button>
@@ -648,22 +657,22 @@ export default function MyInfoPage() {
             <div>
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">주문 내역</h2>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-neutral-400">
                   총 {orders.length}건의 주문
                 </div>
               </div>
 
               {/* 주문 상태 필터 */}
-              <div className="mb-6">
-                <div className="flex space-x-1 bg-gray-100 rounded-xl p-1 w-fit">
+              <div className="mb-8">
+                <div className="flex w-fit gap-2 rounded-full border border-white/40 bg-white/70 p-2 backdrop-blur">
                   {["all", "pending", "processing", "completed"].map((status) => (
                     <button
                       key={status}
                       onClick={() => setOrderStatusFilter(status)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition duration-300 ease-soft ${
                         orderStatusFilter === status
-                          ? "bg-white text-purple-600 shadow-sm"
-                          : "text-gray-600 hover:text-gray-900"
+                          ? "bg-neutral-900 text-white shadow-lg shadow-neutral-900/15"
+                          : "text-neutral-500 hover:text-primary-600"
                       }`}
                     >
                       {status === "all" ? "전체" : getStatusText(status)}
@@ -673,21 +682,25 @@ export default function MyInfoPage() {
               </div>
 
               {ordersLoading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
-                  <p className="mt-4 text-gray-600">주문 내역을 불러오는 중...</p>
+                <div className="flex flex-col items-center justify-center py-12">
+                  <div className="h-12 w-12 animate-spin rounded-full border-2 border-neutral-900 border-b-transparent"></div>
+                  <p className="mt-4 text-sm text-neutral-500">주문 내역을 불러오는 중이에요...</p>
                 </div>
               ) : orders.length === 0 ? (
-                <div className="text-center py-8">
-                  <div className="text-gray-400 mb-4">
-                    <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                <div className="text-center py-12">
+                  <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-dashed border-neutral-300 text-neutral-300">
+                    <svg className="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">주문 내역이 없습니다</h3>
-                  <p className="text-gray-600 mb-4">첫 번째 주문을 해보세요!</p>
-                  <Link href="/products" className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all">
+                  <h3 className="text-xl font-semibold text-neutral-900">주문 내역이 없습니다</h3>
+                  <p className="mt-2 text-sm text-neutral-500">첫 번째 주문을 진행하고 제작 여정을 시작해보세요.</p>
+                  <Link
+                    href="/products"
+                    className="mt-6 inline-flex items-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-neutral-800"
+                  >
                     제품 보기
+                    <span aria-hidden>→</span>
                   </Link>
                 </div>
               ) : (
@@ -695,60 +708,60 @@ export default function MyInfoPage() {
                   {orders
                     .filter(order => orderStatusFilter === "all" || order.status === orderStatusFilter)
                     .map((order) => (
-                    <div key={order.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 bg-gradient-to-r from-white to-gray-50">
+                    <div key={order.id} className="group rounded-3xl border border-white/50 bg-white/80 p-6 shadow-lifted transition duration-500 ease-soft hover:-translate-y-2 hover:border-primary-200/80 hover:shadow-glow">
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 text-lg mb-2">{order.productName}</h3>
-                          <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                          <h3 className="font-semibold text-neutral-900 text-lg mb-2">{order.productName}</h3>
+                          <div className="rounded-2xl border border-white/50 bg-white/70 px-4 py-3 text-sm text-neutral-700 shadow-inner shadow-white/40 mb-3">
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
                               <div className="flex items-center">
-                                <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4 mr-2 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                                 </svg>
                                 <div>
-                                  <span className="text-gray-500 text-xs">사이즈</span>
-                                  <div className="font-medium text-gray-900">{order.selectedSize}</div>
+                                  <span className="text-neutral-400 text-xs">사이즈</span>
+                                  <div className="font-medium text-neutral-900">{order.selectedSize}</div>
                                 </div>
                               </div>
                               <div className="flex items-center">
-                                <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4 mr-2 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
                                 </svg>
                                 <div>
-                                  <span className="text-gray-500 text-xs">색상</span>
-                                  <div className="font-medium text-gray-900">{order.selectedColor}</div>
+                                  <span className="text-neutral-400 text-xs">색상</span>
+                                  <div className="font-medium text-neutral-900">{order.selectedColor}</div>
                                 </div>
                               </div>
                               <div className="flex items-center">
-                                <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4 mr-2 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                                 </svg>
                                 <div>
-                                  <span className="text-gray-500 text-xs">수량</span>
-                                  <div className="font-medium text-purple-600">{order.quantity || 1}개</div>
+                                  <span className="text-neutral-400 text-xs">수량</span>
+                                  <div className="font-medium text-primary-600">{order.quantity || 1}개</div>
                                 </div>
                               </div>
                             </div>
                           </div>
                         </div>
                         <div className="text-right">
-                          <span className={`px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(order.status)}`}>
+                          <span className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.25em] ${getStatusColor(order.status)}`}>
                             {getStatusText(order.status)}
                           </span>
-                          <div className="text-xs text-gray-500 mt-1">
+                          <div className="text-xs text-neutral-400 mt-1">
                             주문번호: {order.id.slice(-8)}
                           </div>
                           {(order.status === "pending" || order.status === "processing") && (
                             <div className="flex flex-col space-y-1 mt-2">
                               <button
                                 onClick={() => cancelOrder(order.id)}
-                                className="px-2 py-1 text-xs bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
+                                className="rounded-full border border-yellow-200 bg-yellow-50 px-3 py-1 text-xs font-semibold text-yellow-700 transition hover:-translate-y-0.5 hover:bg-yellow-100"
                               >
                                 취소
                               </button>
                               <button
                                 onClick={() => deleteOrder(order.id)}
-                                className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                                className="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold text-red-600 transition hover:-translate-y-0.5 hover:bg-red-100"
                               >
                                 삭제
                               </button>
@@ -759,14 +772,14 @@ export default function MyInfoPage() {
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div className="space-y-2">
-                          <div className="flex items-center text-gray-600">
-                            <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="flex items-center text-neutral-600">
+                            <svg className="w-4 h-4 mr-2 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                             <span>주문일: {order.createdAt?.toDate?.()?.toLocaleDateString() || "N/A"}</span>
                           </div>
-                          <div className="flex items-center text-gray-600">
-                            <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="flex items-center text-neutral-600">
+                            <svg className="w-4 h-4 mr-2 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
@@ -774,15 +787,15 @@ export default function MyInfoPage() {
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <div className="flex items-center text-gray-600">
-                            <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="flex items-center text-neutral-600">
+                            <svg className="w-4 h-4 mr-2 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                             </svg>
                             <span>연락처: {order.phoneNumber}</span>
                           </div>
                           {order.specialRequests && (
-                            <div className="flex items-start text-gray-600">
-                              <svg className="w-4 h-4 mr-2 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="flex items-start text-neutral-600">
+                              <svg className="w-4 h-4 mr-2 text-neutral-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                               </svg>
                               <span>특별 요청: {order.specialRequests}</span>
@@ -793,8 +806,8 @@ export default function MyInfoPage() {
 
                       {/* 주문 상태별 추가 정보 */}
                       {order.status === "processing" && (
-                        <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                          <div className="flex items-center text-blue-800">
+                        <div className="mt-4 rounded-2xl border border-blue-200/70 bg-blue-50/80 p-4">
+                          <div className="flex items-center text-blue-700">
                             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
@@ -804,8 +817,8 @@ export default function MyInfoPage() {
                       )}
                       
                       {order.status === "completed" && (
-                        <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
-                          <div className="flex items-center text-green-800">
+                        <div className="mt-4 rounded-2xl border border-green-200/70 bg-green-50/80 p-4">
+                          <div className="flex items-center text-green-700">
                             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
