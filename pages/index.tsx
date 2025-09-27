@@ -1,4 +1,7 @@
 import Link from "next/link"
+import { useRouter } from "next/router"
+import { useEffect, useState } from "react"
+import { useAuth } from "../context/UserContext"
 
 const highlights = [
   {
@@ -38,6 +41,34 @@ const steps = [
 ]
 
 export default function Home() {
+  const router = useRouter()
+  const { user, loading } = useAuth()
+  const [isRedirecting, setIsRedirecting] = useState(false)
+
+  useEffect(() => {
+    // 로딩 중이 아니고 사용자가 로그인되어 있으면 제품 보기 페이지로 리다이렉트
+    if (!loading && user) {
+      setIsRedirecting(true)
+      router.push('/products')
+    }
+  }, [user, loading, router])
+
+  // 로그인된 사용자는 리다이렉트 중이므로 로딩 표시
+  if (loading || isRedirecting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50">
+        <div className="text-center">
+          <div className="flex items-center justify-center mb-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+          </div>
+          <p className="text-gray-600">
+            {loading ? "로그인 상태를 확인하는 중..." : "제품 페이지로 이동하는 중..."}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="relative min-h-screen overflow-hidden">
       <div className="absolute inset-0 -z-10 bg-hero-radial" />
@@ -55,13 +86,19 @@ export default function Home() {
           </Link>
           <div className="hidden items-center gap-6 text-sm font-medium text-neutral-600 md:flex">
             <Link href="/products" className="hover:text-primary-600 transition-colors">제품 보기</Link>
-            <Link href="/login" className="hover:text-primary-600 transition-colors">내 정보</Link>
-            <Link
-              href="/login"
-              className="rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-neutral-900/10 transition hover:-translate-y-0.5 hover:bg-neutral-800"
-            >
-              로그인
-            </Link>
+            {user ? (
+              <>
+                <Link href="/my-info" className="hover:text-primary-600 transition-colors">내 정보</Link>
+                <span className="text-sm text-gray-500">안녕하세요, {user.email}님</span>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-neutral-900/10 transition hover:-translate-y-0.5 hover:bg-neutral-800"
+              >
+                로그인
+              </Link>
+            )}
           </div>
         </header>
 
@@ -89,10 +126,10 @@ export default function Home() {
                   제품 살펴보기
                 </Link>
                 <Link
-                  href="/login"
+                  href={user ? "/my-info" : "/login"}
                   className="rounded-full border border-neutral-200/80 bg-white/70 px-8 py-3 text-base font-semibold text-neutral-700 backdrop-blur transition duration-500 ease-soft hover:-translate-y-1 hover:border-primary-200 hover:text-primary-700"
                 >
-                  맞춤 제작 문의
+                  {user ? "내 정보 보기" : "맞춤 제작 문의"}
                 </Link>
                 <div className="flex items-center gap-3">
                   <div className="flex -space-x-3">
@@ -203,10 +240,10 @@ export default function Home() {
                 포트폴리오 보기
               </Link>
               <Link
-                href="/login"
+                href={user ? "/my-info" : "/login"}
                 className="rounded-full border border-neutral-200/80 bg-white px-8 py-3 text-sm font-semibold text-neutral-700 transition hover:-translate-y-0.5 hover:border-secondary-200 hover:text-secondary-600"
               >
-                상담 예약하기
+                {user ? "내 정보 보기" : "상담 예약하기"}
               </Link>
             </div>
           </section>
@@ -217,7 +254,9 @@ export default function Home() {
             <p>© {new Date().getFullYear()} Rhythm Dance Wear. All rights reserved.</p>
             <div className="flex gap-6">
               <Link href="/products" className="hover:text-primary-600 transition-colors">제품</Link>
-              <Link href="/login" className="hover:text-primary-600 transition-colors">상담 문의</Link>
+              <Link href={user ? "/my-info" : "/login"} className="hover:text-primary-600 transition-colors">
+                {user ? "내 정보" : "상담 문의"}
+              </Link>
               <Link href="/admin" className="hover:text-primary-600 transition-colors">관리자</Link>
             </div>
           </div>
