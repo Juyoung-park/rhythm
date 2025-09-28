@@ -105,68 +105,13 @@ export default function BodyMeasurements() {
               {/* 상체 이미지 */}
               <div className="relative mb-8">
                 <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 text-center">
-                  <div className="relative mx-auto w-80 h-96">
-                    {/* SVG 상체 도식도 - 실제 인체 비율 반영 */}
-                    <svg viewBox="0 0 300 400" className="w-full h-full">
-                      {/* 머리 */}
-                      <circle cx="150" cy="40" r="25" fill="#fef3c7" stroke="#d97706" strokeWidth="2"/>
-                      
-                      {/* 목 */}
-                      <ellipse cx="150" cy="70" rx="12" ry="15" fill="#fef3c7" stroke="#d97706" strokeWidth="1"/>
-                      
-                      {/* 어깨선 */}
-                      <path d="M120 85 L180 85 L175 95 L125 95 Z" fill="#fef3c7" stroke="#d97706" strokeWidth="2"/>
-                      
-                      {/* 상체 (가슴 부분) */}
-                      <ellipse cx="150" cy="140" rx="45" ry="35" fill="#fef3c7" stroke="#d97706" strokeWidth="2"/>
-                      
-                      {/* 허리 */}
-                      <ellipse cx="150" cy="190" rx="35" ry="25" fill="#fef3c7" stroke="#d97706" strokeWidth="2"/>
-                      
-                      {/* 팔 (왼쪽) */}
-                      <ellipse cx="105" cy="120" rx="15" ry="50" fill="#fef3c7" stroke="#d97706" strokeWidth="2" transform="rotate(-20 105 120)"/>
-                      
-                      {/* 팔 (오른쪽) */}
-                      <ellipse cx="195" cy="120" rx="15" ry="50" fill="#fef3c7" stroke="#d97706" strokeWidth="2" transform="rotate(20 195 120)"/>
-                      
-                      {/* 손목 (왼쪽) */}
-                      <circle cx="95" cy="165" r="8" fill="#fef3c7" stroke="#d97706" strokeWidth="1"/>
-                      
-                      {/* 손목 (오른쪽) */}
-                      <circle cx="205" cy="165" r="8" fill="#fef3c7" stroke="#d97706" strokeWidth="1"/>
-                      
-                      {/* 어깨너비 (1) */}
-                      <line x1="125" y1="90" x2="175" y2="90" stroke="#dc2626" strokeWidth="4"/>
-                      <circle cx="150" y="90" r="3" fill="#dc2626"/>
-                      <text x="150" y="85" textAnchor="middle" className="text-sm font-bold fill-red-600">1</text>
-                      
-                      {/* 가슴둘레 (2) */}
-                      <ellipse cx="150" cy="140" rx="42" ry="30" fill="none" stroke="#2563eb" strokeWidth="4" strokeDasharray="8,4"/>
-                      <circle cx="192" cy="140" r="3" fill="#2563eb"/>
-                      <text x="200" y="145" textAnchor="middle" className="text-sm font-bold fill-blue-600">2</text>
-                      
-                      {/* 허리둘레 (3) */}
-                      <ellipse cx="150" cy="190" rx="32" ry="20" fill="none" stroke="#16a34a" strokeWidth="4" strokeDasharray="8,4"/>
-                      <circle cx="182" cy="190" r="3" fill="#16a34a"/>
-                      <text x="190" y="195" textAnchor="middle" className="text-sm font-bold fill-green-600">3</text>
-                      
-                      {/* 소매길이 (4) */}
-                      <line x1="125" y1="95" x2="95" y2="165" stroke="#ea580c" strokeWidth="4"/>
-                      <circle cx="110" cy="130" r="3" fill="#ea580c"/>
-                      <text x="100" y="135" textAnchor="middle" className="text-sm font-bold fill-orange-600">4</text>
-                      
-                      {/* 상의길이 (5) */}
-                      <line x1="150" y1="85" x2="150" y2="220" stroke="#9333ea" strokeWidth="4"/>
-                      <circle cx="150" y="152" r="3" fill="#9333ea"/>
-                      <text x="160" y="157" textAnchor="middle" className="text-sm font-bold fill-purple-600">5</text>
-                      
-                      {/* 측정 가이드 라인 */}
-                      <defs>
-                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                          <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
-                        </marker>
-                      </defs>
-                    </svg>
+                  <div className="relative mx-auto max-w-4xl">
+                    <img 
+                      src="/size-guide.png" 
+                      alt="신체 사이즈 측정 가이드" 
+                      className="w-full h-auto rounded-lg shadow-lg"
+                      style={{ maxHeight: '600px', objectFit: 'contain' }}
+                    />
                   </div>
                 </div>
               </div>
@@ -222,57 +167,13 @@ export default function BodyMeasurements() {
               {/* 하체 이미지 */}
               <div className="relative mb-8">
                 <div className="bg-gradient-to-br from-pink-50 to-orange-50 rounded-2xl p-8 text-center">
-                  <div className="relative mx-auto w-80 h-96">
-                    {/* SVG 하체 도식도 - 실제 인체 비율 반영 */}
-                    <svg viewBox="0 0 300 400" className="w-full h-full">
-                      {/* 상체 부분 (허리까지) */}
-                      <ellipse cx="150" cy="80" rx="35" ry="25" fill="#fef3c7" stroke="#d97706" strokeWidth="2"/>
-                      
-                      {/* 엉덩이 (더 넓고 자연스러운 곡선) */}
-                      <path d="M115 100 Q150 85 185 100 Q190 130 185 160 Q150 175 115 160 Q110 130 115 100" fill="#fef3c7" stroke="#d97706" strokeWidth="2"/>
-                      
-                      {/* 허벌지 (자연스러운 곡선) */}
-                      <path d="M130 160 Q150 140 170 160 Q175 200 170 240 Q150 220 130 240 Q125 200 130 160" fill="#fef3c7" stroke="#d97706" strokeWidth="2"/>
-                      
-                      {/* 왼쪽 다리 */}
-                      <ellipse cx="135" cy="320" rx="18" ry="60" fill="#fef3c7" stroke="#d97706" strokeWidth="2"/>
-                      
-                      {/* 오른쪽 다리 */}
-                      <ellipse cx="165" cy="320" rx="18" ry="60" fill="#fef3c7" stroke="#d97706" strokeWidth="2"/>
-                      
-                      {/* 무릎 */}
-                      <circle cx="135" cy="280" r="12" fill="#fef3c7" stroke="#d97706" strokeWidth="1"/>
-                      <circle cx="165" cy="280" r="12" fill="#fef3c7" stroke="#d97706" strokeWidth="1"/>
-                      
-                      {/* 발목 */}
-                      <ellipse cx="135" cy="375" rx="10" ry="15" fill="#fef3c7" stroke="#d97706" strokeWidth="1"/>
-                      <ellipse cx="165" cy="375" rx="10" ry="15" fill="#fef3c7" stroke="#d97706" strokeWidth="1"/>
-                      
-                      {/* 엉덩이둘레 (6) */}
-                      <path d="M115 100 Q150 85 185 100 Q190 130 185 160 Q150 175 115 160 Q110 130 115 100" fill="none" stroke="#ec4899" strokeWidth="4" strokeDasharray="8,4"/>
-                      <circle cx="190" cy="130" r="3" fill="#ec4899"/>
-                      <text x="200" y="135" textAnchor="middle" className="text-sm font-bold fill-pink-600">6</text>
-                      
-                      {/* 허벌지둘레 (7) */}
-                      <path d="M130 160 Q150 140 170 160 Q175 200 170 240 Q150 220 130 240 Q125 200 130 160" fill="none" stroke="#eab308" strokeWidth="4" strokeDasharray="8,4"/>
-                      <circle cx="175" cy="200" r="3" fill="#eab308"/>
-                      <text x="185" y="205" textAnchor="middle" className="text-sm font-bold fill-yellow-600">7</text>
-                      
-                      {/* 밑위길이 (8) */}
-                      <line x1="150" y1="100" x2="150" y2="170" stroke="#6366f1" strokeWidth="4"/>
-                      <circle cx="150" y="135" r="3" fill="#6366f1"/>
-                      <text x="160" y="140" textAnchor="middle" className="text-sm font-bold fill-indigo-600">8</text>
-                      
-                      {/* 바지길이 (9) */}
-                      <line x1="150" y1="100" x2="150" y2="390" stroke="#14b8a6" strokeWidth="4"/>
-                      <circle cx="150" y="245" r="3" fill="#14b8a6"/>
-                      <text x="160" y="250" textAnchor="middle" className="text-sm font-bold fill-teal-600">9</text>
-                      
-                      {/* 치마길이 (10) */}
-                      <line x1="150" y1="100" x2="150" y2="200" stroke="#f43f5e" strokeWidth="4"/>
-                      <circle cx="150" y="150" r="3" fill="#f43f5e"/>
-                      <text x="160" y="155" textAnchor="middle" className="text-sm font-bold fill-rose-600">10</text>
-                    </svg>
+                  <div className="relative mx-auto max-w-4xl">
+                    <img 
+                      src="/size-guide.png" 
+                      alt="신체 사이즈 측정 가이드" 
+                      className="w-full h-auto rounded-lg shadow-lg"
+                      style={{ maxHeight: '600px', objectFit: 'contain' }}
+                    />
                   </div>
                 </div>
               </div>
