@@ -54,6 +54,7 @@ export default function MyInfoPage() {
   const [activeTab, setActiveTab] = useState("info");
   const [info, setInfo] = useState<CustomerInfo | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingBodyMeasurements, setIsEditingBodyMeasurements] = useState(false);
   const [editForm, setEditForm] = useState({
     name: "",
     phone: "",
@@ -77,6 +78,24 @@ export default function MyInfoPage() {
     waist: "",
     hip: ""
   });
+  
+  const [bodyMeasurementsForm, setBodyMeasurementsForm] = useState({
+    shoulderWidth: "",
+    waistCircumference: "",
+    bustCircumference: "",
+    hipCircumference: "",
+    sleeveLength: "",
+    thighCircumference: "",
+    topLength: "",
+    crotchLength: "",
+    skirtLength: "",
+    pantsLength: "",
+    height: "",
+    bust: "",
+    waist: "",
+    hip: "",
+  });
+  
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [ordersLoading, setOrdersLoading] = useState(true);
@@ -209,6 +228,50 @@ export default function MyInfoPage() {
       waist: "",
       hip: ""
     });
+  };
+
+  const handleSaveBodyMeasurements = async () => {
+    if (!info || !user) return;
+
+    setLoading(true);
+    try {
+      const updateData: any = {};
+
+      // 숫자 필드들은 값이 있을 때만 추가
+      const numericFields = [
+        'shoulderWidth', 'waistCircumference', 'bustCircumference', 'hipCircumference',
+        'sleeveLength', 'thighCircumference', 'topLength', 'crotchLength',
+        'skirtLength', 'pantsLength', 'height', 'bust', 'waist', 'hip'
+      ];
+
+      numericFields.forEach(field => {
+        const value = bodyMeasurementsForm[field as keyof typeof bodyMeasurementsForm];
+        if (value && typeof value === 'string' && value.trim()) {
+          const numValue = Number(value.trim());
+          if (!isNaN(numValue)) {
+            updateData[field] = numValue;
+          }
+        }
+      });
+
+      updateData.updatedAt = new Date();
+
+      await updateDoc(doc(db, "users", info.id), updateData);
+      
+      // 로컬 상태 업데이트
+      setInfo({
+        ...info,
+        ...updateData
+      });
+      
+      setIsEditingBodyMeasurements(false);
+      alert("신체 사이즈가 저장되었습니다.");
+    } catch (error) {
+      console.error("Error updating body measurements:", error);
+      alert("신체 사이즈 저장 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSaveEdit = async () => {
@@ -394,6 +457,9 @@ export default function MyInfoPage() {
             <Link href="/products" className="hidden rounded-full px-4 py-2 transition hover:bg-neutral-900 hover:text-white md:block">
               제품 보기
             </Link>
+            <Link href="/body-measurements" className="hidden rounded-full px-4 py-2 transition hover:bg-neutral-900 hover:text-white md:block">
+              사이즈 가이드
+            </Link>
             {user && (
               <>
                 <span className="hidden text-sm text-neutral-500 md:inline">
@@ -432,6 +498,16 @@ export default function MyInfoPage() {
               }`}
             >
               개인 정보
+            </button>
+            <button
+              onClick={() => setActiveTab("body-measurements")}
+              className={`rounded-full px-6 py-3 text-sm font-semibold transition duration-300 ease-soft ${
+                activeTab === "body-measurements"
+                  ? "bg-neutral-900 text-white shadow-lg shadow-neutral-900/15"
+                  : "text-neutral-500 hover:text-primary-600"
+              }`}
+            >
+              신체 사이즈
             </button>
             <button
               onClick={() => setActiveTab("orders")}
@@ -648,6 +724,326 @@ export default function MyInfoPage() {
                       취소
                     </button>
                   </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === "body-measurements" && info && (
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h2 className="text-xl font-semibold">신체 사이즈</h2>
+                  <p className="text-sm text-neutral-500 mt-1">
+                    정확한 사이즈 측정을 위해 <Link href="/body-measurements" className="text-primary-600 hover:underline">사이즈 가이드</Link>를 참고해주세요.
+                  </p>
+                </div>
+                {!isEditingBodyMeasurements && (
+                  <button
+                    onClick={() => {
+                      setBodyMeasurementsForm({
+                        shoulderWidth: info.shoulderWidth?.toString() || "",
+                        waistCircumference: info.waistCircumference?.toString() || "",
+                        bustCircumference: info.bustCircumference?.toString() || "",
+                        hipCircumference: info.hipCircumference?.toString() || "",
+                        sleeveLength: info.sleeveLength?.toString() || "",
+                        thighCircumference: info.thighCircumference?.toString() || "",
+                        topLength: info.topLength?.toString() || "",
+                        crotchLength: info.crotchLength?.toString() || "",
+                        skirtLength: info.skirtLength?.toString() || "",
+                        pantsLength: info.pantsLength?.toString() || "",
+                        height: info.height?.toString() || "",
+                        bust: info.bust?.toString() || "",
+                        waist: info.waist?.toString() || "",
+                        hip: info.hip?.toString() || "",
+                      });
+                      setIsEditingBodyMeasurements(true);
+                    }}
+                    className="rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-neutral-800"
+                  >
+                    사이즈 입력/수정
+                  </button>
+                )}
+              </div>
+
+              {isEditingBodyMeasurements ? (
+                <div className="space-y-8">
+                  {/* 상체 측정 */}
+                  <div>
+                    <h3 className="text-lg font-medium text-neutral-900 mb-4">상체 측정 (cm)</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">어깨너비</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={bodyMeasurementsForm.shoulderWidth}
+                          onChange={(e) => setBodyMeasurementsForm({...bodyMeasurementsForm, shoulderWidth: e.target.value})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="예: 38.5"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">가슴둘레</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={bodyMeasurementsForm.bustCircumference}
+                          onChange={(e) => setBodyMeasurementsForm({...bodyMeasurementsForm, bustCircumference: e.target.value})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="예: 85.0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">허리둘레</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={bodyMeasurementsForm.waistCircumference}
+                          onChange={(e) => setBodyMeasurementsForm({...bodyMeasurementsForm, waistCircumference: e.target.value})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="예: 70.0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">소매길이</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={bodyMeasurementsForm.sleeveLength}
+                          onChange={(e) => setBodyMeasurementsForm({...bodyMeasurementsForm, sleeveLength: e.target.value})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="예: 58.0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">상의길이</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={bodyMeasurementsForm.topLength}
+                          onChange={(e) => setBodyMeasurementsForm({...bodyMeasurementsForm, topLength: e.target.value})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="예: 62.0"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 하체 측정 */}
+                  <div>
+                    <h3 className="text-lg font-medium text-neutral-900 mb-4">하체 측정 (cm)</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">엉덩이둘레</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={bodyMeasurementsForm.hipCircumference}
+                          onChange={(e) => setBodyMeasurementsForm({...bodyMeasurementsForm, hipCircumference: e.target.value})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="예: 92.0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">허벌지둘레</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={bodyMeasurementsForm.thighCircumference}
+                          onChange={(e) => setBodyMeasurementsForm({...bodyMeasurementsForm, thighCircumference: e.target.value})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="예: 56.0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">밑위길이</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={bodyMeasurementsForm.crotchLength}
+                          onChange={(e) => setBodyMeasurementsForm({...bodyMeasurementsForm, crotchLength: e.target.value})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="예: 28.0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">바지길이</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={bodyMeasurementsForm.pantsLength}
+                          onChange={(e) => setBodyMeasurementsForm({...bodyMeasurementsForm, pantsLength: e.target.value})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="예: 105.0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">치마길이</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={bodyMeasurementsForm.skirtLength}
+                          onChange={(e) => setBodyMeasurementsForm({...bodyMeasurementsForm, skirtLength: e.target.value})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="예: 45.0"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 기본 신체 정보 */}
+                  <div>
+                    <h3 className="text-lg font-medium text-neutral-900 mb-4">기본 신체 정보 (cm)</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">키</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={bodyMeasurementsForm.height}
+                          onChange={(e) => setBodyMeasurementsForm({...bodyMeasurementsForm, height: e.target.value})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="예: 165.0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">가슴</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={bodyMeasurementsForm.bust}
+                          onChange={(e) => setBodyMeasurementsForm({...bodyMeasurementsForm, bust: e.target.value})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="예: 85.0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">허리</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={bodyMeasurementsForm.waist}
+                          onChange={(e) => setBodyMeasurementsForm({...bodyMeasurementsForm, waist: e.target.value})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="예: 70.0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">엉덩이</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={bodyMeasurementsForm.hip}
+                          onChange={(e) => setBodyMeasurementsForm({...bodyMeasurementsForm, hip: e.target.value})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="예: 92.0"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 버튼 */}
+                  <div className="flex justify-end gap-4 pt-6 border-t">
+                    <button
+                      onClick={() => setIsEditingBodyMeasurements(false)}
+                      className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      취소
+                    </button>
+                    <button
+                      onClick={handleSaveBodyMeasurements}
+                      disabled={loading}
+                      className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
+                    >
+                      {loading ? "저장 중..." : "저장"}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {/* 현재 사이즈 표시 */}
+                    {info.shoulderWidth && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600">어깨너비</div>
+                        <div className="text-lg font-semibold">{info.shoulderWidth}cm</div>
+                      </div>
+                    )}
+                    {info.bustCircumference && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600">가슴둘레</div>
+                        <div className="text-lg font-semibold">{info.bustCircumference}cm</div>
+                      </div>
+                    )}
+                    {info.waistCircumference && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600">허리둘레</div>
+                        <div className="text-lg font-semibold">{info.waistCircumference}cm</div>
+                      </div>
+                    )}
+                    {info.hipCircumference && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600">엉덩이둘레</div>
+                        <div className="text-lg font-semibold">{info.hipCircumference}cm</div>
+                      </div>
+                    )}
+                    {info.sleeveLength && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600">소매길이</div>
+                        <div className="text-lg font-semibold">{info.sleeveLength}cm</div>
+                      </div>
+                    )}
+                    {info.topLength && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600">상의길이</div>
+                        <div className="text-lg font-semibold">{info.topLength}cm</div>
+                      </div>
+                    )}
+                    {info.thighCircumference && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600">허벌지둘레</div>
+                        <div className="text-lg font-semibold">{info.thighCircumference}cm</div>
+                      </div>
+                    )}
+                    {info.crotchLength && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600">밑위길이</div>
+                        <div className="text-lg font-semibold">{info.crotchLength}cm</div>
+                      </div>
+                    )}
+                    {info.pantsLength && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600">바지길이</div>
+                        <div className="text-lg font-semibold">{info.pantsLength}cm</div>
+                      </div>
+                    )}
+                    {info.skirtLength && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600">치마길이</div>
+                        <div className="text-lg font-semibold">{info.skirtLength}cm</div>
+                      </div>
+                    )}
+                    {info.height && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-600">키</div>
+                        <div className="text-lg font-semibold">{info.height}cm</div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {(!info.shoulderWidth && !info.bustCircumference && !info.waistCircumference && !info.hipCircumference) && (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500 mb-4">아직 입력된 신체 사이즈가 없습니다.</p>
+                      <Link
+                        href="/body-measurements"
+                        className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium"
+                      >
+                        사이즈 측정 방법 보기
+                        <span>→</span>
+                      </Link>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

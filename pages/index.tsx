@@ -86,6 +86,7 @@ export default function Home() {
           </Link>
           <div className="hidden items-center gap-6 text-sm font-medium text-neutral-600 md:flex">
             <Link href="/products" className="hover:text-primary-600 transition-colors">제품 보기</Link>
+            <Link href="/body-measurements" className="hover:text-primary-600 transition-colors">사이즈 가이드</Link>
             {user ? (
               <>
                 <Link href="/my-info" className="hover:text-primary-600 transition-colors">내 정보</Link>
@@ -124,6 +125,12 @@ export default function Home() {
                   className="rounded-full bg-gradient-to-r from-primary-600 via-secondary-500 to-primary-500 px-8 py-3 text-base font-semibold text-white shadow-glow transition duration-500 ease-soft hover:-translate-y-1 hover:shadow-[0_20px_45px_-18px_rgba(147,51,234,0.6)]"
                 >
                   제품 살펴보기
+                </Link>
+                <Link
+                  href="/body-measurements"
+                  className="rounded-full border border-neutral-200/80 bg-white/70 px-8 py-3 text-base font-semibold text-neutral-700 backdrop-blur transition duration-500 ease-soft hover:-translate-y-1 hover:border-primary-200 hover:text-primary-700"
+                >
+                  사이즈 가이드
                 </Link>
                 <Link
                   href={user ? "/consultation" : "/login"}
