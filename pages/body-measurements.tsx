@@ -1,6 +1,129 @@
 import Link from "next/link";
 import { useAuth } from "../context/UserContext";
 
+type MarkerId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+
+interface MeasurementSilhouetteProps {
+  emphasize?: MarkerId[];
+  className?: string;
+}
+
+const MeasurementSilhouette = ({ emphasize = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], className }: MeasurementSilhouetteProps) => {
+  const isActive = (id: MarkerId) => emphasize.includes(id);
+
+  return (
+    <svg
+      viewBox="0 0 320 560"
+      role="img"
+      aria-labelledby="measurement-figure-title measurement-figure-desc"
+      className={className}
+    >
+      <title id="measurement-figure-title">신체 사이즈 측정용 실루엣</title>
+      <desc id="measurement-figure-desc">
+        어깨, 가슴, 허리, 소매, 상의, 엉덩이, 허벌지, 밑위, 바지, 치마 측정 위치가 표시된 사람 실루엣 그래픽
+      </desc>
+      <defs>
+        <linearGradient id="silhouette-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#1f2937" />
+          <stop offset="50%" stopColor="#111827" />
+          <stop offset="100%" stopColor="#0f172a" />
+        </linearGradient>
+        <linearGradient id="limb-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#111827" />
+          <stop offset="100%" stopColor="#0b1220" />
+        </linearGradient>
+        <radialGradient id="silhouette-highlight" cx="50%" cy="28%" r="65%">
+          <stop offset="0%" stopColor="rgba(255,255,255,0.18)" />
+          <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+        </radialGradient>
+      </defs>
+
+      <ellipse cx="160" cy="300" rx="150" ry="235" fill="url(#silhouette-highlight)" />
+      <circle cx="160" cy="70" r="42" fill="url(#silhouette-gradient)" stroke="#0b1220" strokeWidth="3" />
+      <path
+        d="M160 120c-28 0-42 26-42 56 0 12 4 26 4 38 0 16-16 24-24 40-8 16-10 36-10 52 0 32 14 64 14 88 0 20-10 58-14 96-3 28 6 56 6 82h112c0-26 9-54 6-82-4-38-14-76-14-96 0-24 14-56 14-88 0-16-2-36-10-52-8-16-24-24-24-40 0-12 4-26 4-38 0-30-14-56-42-56z"
+        fill="url(#silhouette-gradient)"
+        stroke="#0b1220"
+        strokeWidth="4"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M112 190c-12-18-26-30-42-34-10-2-20 4-22 14-2 8 2 16 6 24l30 66c4 8 6 18 6 28v18h36l-12-68c-2-12-8-24-12-34z"
+        fill="url(#limb-gradient)"
+        stroke="#0b1220"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M208 190c12-18 26-30 42-34 10-2 20 4 22 14 2 8-2 16-6 24l-30 66c-4 8-6 18-6 28v18h-36l12-68c2-12 8-24 12-34z"
+        fill="url(#limb-gradient)"
+        stroke="#0b1220"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M132 366c-18 4-28 22-26 42l16 124h52l-12-122c-2-16-12-32-30-44z"
+        fill="url(#limb-gradient)"
+        stroke="#0b1220"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M188 366c18 4 28 22 26 42l-16 124h-52l12-122c2-16 12-32 30-44z"
+        fill="url(#limb-gradient)"
+        stroke="#0b1220"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+      <path d="M94 530h62l-6 20H82z" fill="#0f172a" opacity="0.85" />
+      <path d="M164 530h62l-6 20h-68z" fill="#0f172a" opacity="0.85" />
+
+      <g strokeLinecap="round" strokeLinejoin="round" fontFamily="'Noto Sans KR', sans-serif">
+        <g opacity={isActive(1) ? 1 : 0.18}>
+          <line x1="118" y1="170" x2="202" y2="170" stroke="#ef4444" strokeWidth="6" />
+          <text x="160" y="158" textAnchor="middle" fontSize="18" fontWeight="700" fill="#ef4444">1</text>
+        </g>
+        <g opacity={isActive(2) ? 1 : 0.18}>
+          <ellipse cx="160" cy="228" rx="66" ry="46" fill="none" stroke="#2563eb" strokeWidth="4" strokeDasharray="12 8" />
+          <text x="234" y="234" textAnchor="middle" fontSize="18" fontWeight="700" fill="#2563eb">2</text>
+        </g>
+        <g opacity={isActive(3) ? 1 : 0.18}>
+          <ellipse cx="160" cy="314" rx="48" ry="34" fill="none" stroke="#16a34a" strokeWidth="4" strokeDasharray="10 6" />
+          <text x="216" y="320" textAnchor="middle" fontSize="18" fontWeight="700" fill="#16a34a">3</text>
+        </g>
+        <g opacity={isActive(4) ? 1 : 0.18}>
+          <path d="M118 178L88 300" stroke="#f97316" strokeWidth="4" />
+          <text x="96" y="236" textAnchor="middle" fontSize="18" fontWeight="700" fill="#f97316">4</text>
+        </g>
+        <g opacity={isActive(5) ? 1 : 0.18}>
+          <path d="M160 184v216" stroke="#a855f7" strokeWidth="4" strokeDasharray="14 8" />
+          <text x="172" y="292" fontSize="18" fontWeight="700" fill="#a855f7">5</text>
+        </g>
+        <g opacity={isActive(6) ? 1 : 0.18}>
+          <ellipse cx="160" cy="356" rx="58" ry="42" fill="none" stroke="#ec4899" strokeWidth="4" strokeDasharray="14 8" />
+          <text x="230" y="360" textAnchor="middle" fontSize="18" fontWeight="700" fill="#ec4899">6</text>
+        </g>
+        <g opacity={isActive(7) ? 1 : 0.18}>
+          <ellipse cx="160" cy="402" rx="48" ry="34" fill="none" stroke="#eab308" strokeWidth="4" strokeDasharray="12 8" />
+          <text x="214" y="408" textAnchor="middle" fontSize="18" fontWeight="700" fill="#eab308">7</text>
+        </g>
+        <g opacity={isActive(8) ? 1 : 0.18}>
+          <path d="M160 260v108" stroke="#6366f1" strokeWidth="4" />
+          <text x="172" y="320" fontSize="18" fontWeight="700" fill="#6366f1">8</text>
+        </g>
+        <g opacity={isActive(9) ? 1 : 0.18}>
+          <path d="M160 260v250" stroke="#14b8a6" strokeWidth="4" strokeDasharray="16 10" />
+          <text x="172" y="420" fontSize="18" fontWeight="700" fill="#14b8a6">9</text>
+        </g>
+        <g opacity={isActive(10) ? 1 : 0.18}>
+          <path d="M160 260v94" stroke="#f43f5e" strokeWidth="4" />
+          <text x="172" y="306" fontSize="18" fontWeight="700" fill="#f43f5e">10</text>
+        </g>
+      </g>
+    </svg>
+  );
+};
+
 export default function BodyMeasurements() {
   const { user } = useAuth();
 
@@ -105,57 +228,8 @@ export default function BodyMeasurements() {
               {/* 상체 이미지 */}
               <div className="relative mb-8">
                 <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 text-center">
-                  <div className="relative mx-auto w-full max-w-2xl">
-                    <svg viewBox="0 0 400 500" className="w-full h-auto max-h-96">
-                      {/* 배경 */}
-                      <rect width="400" height="500" fill="#f8fafc" rx="20"/>
-                      
-                      {/* 머리 */}
-                      <circle cx="200" cy="60" r="35" fill="#444444" stroke="#222" strokeWidth="2"/>
-                      
-                      {/* 목 */}
-                      <rect x="185" y="85" width="30" height="25" rx="15" fill="#444444" stroke="#222" strokeWidth="1"/>
-                      
-                      {/* 어깨선 */}
-                      <path d="M150 110 L250 110 L245 125 L155 125 Z" fill="#444444" stroke="#222" strokeWidth="2"/>
-                      
-                      {/* 상체 */}
-                      <ellipse cx="200" cy="200" rx="60" ry="50" fill="#444444" stroke="#222" strokeWidth="2"/>
-                      
-                      {/* 허리 */}
-                      <ellipse cx="200" cy="280" rx="45" ry="35" fill="#444444" stroke="#222" strokeWidth="2"/>
-                      
-                      {/* 왼팔 */}
-                      <ellipse cx="140" cy="180" rx="20" ry="70" fill="#444444" stroke="#222" strokeWidth="2" transform="rotate(-15 140 180)"/>
-                      
-                      {/* 오른팔 */}
-                      <ellipse cx="260" cy="180" rx="20" ry="70" fill="#444444" stroke="#222" strokeWidth="2" transform="rotate(15 260 180)"/>
-                      
-                      {/* 손목 */}
-                      <circle cx="125" cy="245" r="12" fill="#444444" stroke="#222" strokeWidth="1"/>
-                      <circle cx="275" cy="245" r="12" fill="#444444" stroke="#222" strokeWidth="1"/>
-                      
-                      {/* 측정선들 */}
-                      {/* 1. 어깨너비 */}
-                      <line x1="155" y1="117" x2="245" y2="117" stroke="#dc2626" strokeWidth="5"/>
-                      <text x="200" y="110" textAnchor="middle" className="text-lg font-bold fill-red-600">1</text>
-                      
-                      {/* 2. 가슴둘레 */}
-                      <ellipse cx="200" cy="200" rx="55" ry="40" fill="none" stroke="#2563eb" strokeWidth="4" strokeDasharray="10,5"/>
-                      <text x="265" y="205" textAnchor="middle" className="text-lg font-bold fill-blue-600">2</text>
-                      
-                      {/* 3. 허리둘레 */}
-                      <ellipse cx="200" cy="280" rx="40" ry="30" fill="none" stroke="#16a34a" strokeWidth="4" strokeDasharray="10,5"/>
-                      <text x="250" y="285" textAnchor="middle" className="text-lg font-bold fill-green-600">3</text>
-                      
-                      {/* 4. 소매길이 */}
-                      <line x1="155" y1="125" x2="125" y2="245" stroke="#ea580c" strokeWidth="4"/>
-                      <text x="130" y="185" textAnchor="middle" className="text-lg font-bold fill-orange-600">4</text>
-                      
-                      {/* 5. 상의길이 */}
-                      <line x1="200" y1="125" x2="200" y2="320" stroke="#9333ea" strokeWidth="4"/>
-                      <text x="210" y="222" textAnchor="middle" className="text-lg font-bold fill-purple-600">5</text>
-                    </svg>
+                  <div className="relative mx-auto w-full max-w-xl">
+                    <MeasurementSilhouette emphasize={[1, 2, 3, 4, 5]} className="h-auto w-full" />
                   </div>
                 </div>
               </div>
@@ -211,55 +285,8 @@ export default function BodyMeasurements() {
               {/* 하체 이미지 */}
               <div className="relative mb-8">
                 <div className="bg-gradient-to-br from-pink-50 to-orange-50 rounded-2xl p-8 text-center">
-                  <div className="relative mx-auto w-full max-w-2xl">
-                    <svg viewBox="0 0 400 500" className="w-full h-auto max-h-96">
-                      {/* 배경 */}
-                      <rect width="400" height="500" fill="#fdf2f8" rx="20"/>
-                      
-                      {/* 상체 부분 (허리까지) */}
-                      <ellipse cx="200" cy="80" rx="50" ry="35" fill="#444444" stroke="#222" strokeWidth="2"/>
-                      
-                      {/* 엉덩이 */}
-                      <path d="M140 100 Q200 85 260 100 Q270 140 260 180 Q200 195 140 180 Q130 140 140 100" fill="#444444" stroke="#222" strokeWidth="2"/>
-                      
-                      {/* 허벌지 */}
-                      <path d="M160 180 Q200 160 240 180 Q250 220 240 260 Q200 240 160 260 Q150 220 160 180" fill="#444444" stroke="#222" strokeWidth="2"/>
-                      
-                      {/* 왼쪽 다리 */}
-                      <ellipse cx="170" cy="380" rx="25" ry="80" fill="#444444" stroke="#222" strokeWidth="2"/>
-                      
-                      {/* 오른쪽 다리 */}
-                      <ellipse cx="230" cy="380" rx="25" ry="80" fill="#444444" stroke="#222" strokeWidth="2"/>
-                      
-                      {/* 무릎 */}
-                      <circle cx="170" cy="320" r="18" fill="#444444" stroke="#222" strokeWidth="1"/>
-                      <circle cx="230" cy="320" r="18" fill="#444444" stroke="#222" strokeWidth="1"/>
-                      
-                      {/* 발목 */}
-                      <ellipse cx="170" cy="450" rx="15" ry="20" fill="#444444" stroke="#222" strokeWidth="1"/>
-                      <ellipse cx="230" cy="450" rx="15" ry="20" fill="#444444" stroke="#222" strokeWidth="1"/>
-                      
-                      {/* 측정선들 */}
-                      {/* 6. 엉덩이둘레 */}
-                      <path d="M140 100 Q200 85 260 100 Q270 140 260 180 Q200 195 140 180 Q130 140 140 100" fill="none" stroke="#ec4899" strokeWidth="5" strokeDasharray="12,6"/>
-                      <text x="280" y="140" textAnchor="middle" className="text-lg font-bold fill-pink-600">6</text>
-                      
-                      {/* 7. 허벌지둘레 */}
-                      <path d="M160 180 Q200 160 240 180 Q250 220 240 260 Q200 240 160 260 Q150 220 160 180" fill="none" stroke="#eab308" strokeWidth="5" strokeDasharray="12,6"/>
-                      <text x="260" y="220" textAnchor="middle" className="text-lg font-bold fill-yellow-600">7</text>
-                      
-                      {/* 8. 밑위길이 */}
-                      <line x1="200" y1="100" x2="200" y2="180" stroke="#6366f1" strokeWidth="5"/>
-                      <text x="210" y="140" textAnchor="middle" className="text-lg font-bold fill-indigo-600">8</text>
-                      
-                      {/* 9. 바지길이 */}
-                      <line x1="200" y1="100" x2="200" y2="470" stroke="#14b8a6" strokeWidth="5"/>
-                      <text x="210" y="285" textAnchor="middle" className="text-lg font-bold fill-teal-600">9</text>
-                      
-                      {/* 10. 치마길이 */}
-                      <line x1="200" y1="100" x2="200" y2="200" stroke="#f43f5e" strokeWidth="5"/>
-                      <text x="210" y="150" textAnchor="middle" className="text-lg font-bold fill-rose-600">10</text>
-                    </svg>
+                  <div className="relative mx-auto w-full max-w-xl">
+                    <MeasurementSilhouette emphasize={[6, 7, 8, 9, 10]} className="h-auto w-full" />
                   </div>
                 </div>
               </div>
