@@ -140,7 +140,9 @@ export default function BodyMeasurements() {
                             <text x="210" y="222" text-anchor="middle" class="text-lg font-bold fill-purple-600">5</text>
                           </svg>
                         `;
-                        e.currentTarget.parentNode.appendChild(fallback.firstChild);
+                        if (e.currentTarget.parentNode) {
+                          e.currentTarget.parentNode.appendChild(fallback.firstChild);
+                        }
                       }}
                     />
                   </div>
@@ -233,7 +235,9 @@ export default function BodyMeasurements() {
                             <text x="210" y="150" text-anchor="middle" class="text-lg font-bold fill-rose-600">10</text>
                           </svg>
                         `;
-                        e.currentTarget.parentNode.appendChild(fallback.firstChild);
+                        if (e.currentTarget.parentNode) {
+                          e.currentTarget.parentNode.appendChild(fallback.firstChild);
+                        }
                       }}
                     />
                   </div>
