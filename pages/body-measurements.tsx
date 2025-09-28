@@ -114,7 +114,8 @@ export default function BodyMeasurements() {
                       onError={(e) => {
                         console.log('이미지 로딩 실패:', e);
                         // 이미지 로딩 실패시 대체 SVG 표시
-                        e.currentTarget.style.display = 'none';
+                        const target = e.currentTarget as HTMLImageElement;
+                        target.style.display = 'none';
                         const fallback = document.createElement('div');
                         fallback.innerHTML = `
                           <svg viewBox="0 0 400 500" class="w-full h-auto max-h-96">
@@ -140,8 +141,9 @@ export default function BodyMeasurements() {
                             <text x="210" y="222" text-anchor="middle" class="text-lg font-bold fill-purple-600">5</text>
                           </svg>
                         `;
-                        if (e.currentTarget.parentNode) {
-                          e.currentTarget.parentNode.appendChild(fallback.firstChild);
+                        const parentNode = target.parentNode;
+                        if (parentNode && fallback.firstChild) {
+                          parentNode.appendChild(fallback.firstChild);
                         }
                       }}
                     />
@@ -209,7 +211,8 @@ export default function BodyMeasurements() {
                       onError={(e) => {
                         console.log('이미지 로딩 실패:', e);
                         // 이미지 로딩 실패시 대체 SVG 표시
-                        e.currentTarget.style.display = 'none';
+                        const target = e.currentTarget as HTMLImageElement;
+                        target.style.display = 'none';
                         const fallback = document.createElement('div');
                         fallback.innerHTML = `
                           <svg viewBox="0 0 400 500" class="w-full h-auto max-h-96">
@@ -235,8 +238,9 @@ export default function BodyMeasurements() {
                             <text x="210" y="150" text-anchor="middle" class="text-lg font-bold fill-rose-600">10</text>
                           </svg>
                         `;
-                        if (e.currentTarget.parentNode) {
-                          e.currentTarget.parentNode.appendChild(fallback.firstChild);
+                        const parentNode = target.parentNode;
+                        if (parentNode && fallback.firstChild) {
+                          parentNode.appendChild(fallback.firstChild);
                         }
                       }}
                     />
