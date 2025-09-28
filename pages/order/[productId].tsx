@@ -178,7 +178,13 @@ export default function ProductDetail() {
       <nav className="sticky top-0 z-50 border-b border-white/40 bg-white/70 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <Link href="/products" className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-900 text-white shadow-lg">💃</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-900 shadow-lg">
+              <img 
+                src="/rhythm-high-resolution-logo-transparent.png" 
+                alt="Rhythm 로고" 
+                className="h-6 w-6 object-contain"
+              />
+            </div>
             <div>
               <p className="text-xs uppercase tracking-[0.35em] text-neutral-500">Rhythm</p>
               <p className="text-sm font-semibold text-neutral-900">제품 상세</p>
