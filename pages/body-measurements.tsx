@@ -105,48 +105,57 @@ export default function BodyMeasurements() {
               {/* 상체 이미지 */}
               <div className="relative mb-8">
                 <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 text-center">
-                  <div className="relative mx-auto w-full max-w-4xl">
-                    <img 
-                      src="/size-guide.png" 
-                      alt="신체 사이즈 측정 가이드" 
-                      className="w-full h-auto rounded-lg shadow-lg"
-                      style={{ maxHeight: '600px', objectFit: 'contain' }}
-                      onError={(e) => {
-                        console.log('이미지 로딩 실패:', e);
-                        // 이미지 로딩 실패시 대체 SVG 표시
-                        const target = e.currentTarget as HTMLImageElement;
-                        target.style.display = 'none';
-                        const fallback = document.createElement('div');
-                        fallback.innerHTML = `
-                          <svg viewBox="0 0 400 500" class="w-full h-auto max-h-96">
-                            <rect width="400" height="500" fill="#f8fafc" rx="20"/>
-                            <circle cx="200" cy="60" r="35" fill="#444444" stroke="#222" stroke-width="2"/>
-                            <rect x="185" y="85" width="30" height="25" rx="15" fill="#444444" stroke="#222" stroke-width="1"/>
-                            <path d="M150 110 L250 110 L245 125 L155 125 Z" fill="#444444" stroke="#222" stroke-width="2"/>
-                            <ellipse cx="200" cy="200" rx="60" ry="50" fill="#444444" stroke="#222" stroke-width="2"/>
-                            <ellipse cx="200" cy="280" rx="45" ry="35" fill="#444444" stroke="#222" stroke-width="2"/>
-                            <ellipse cx="140" cy="180" rx="20" ry="70" fill="#444444" stroke="#222" stroke-width="2" transform="rotate(-15 140 180)"/>
-                            <ellipse cx="260" cy="180" rx="20" ry="70" fill="#444444" stroke="#222" stroke-width="2" transform="rotate(15 260 180)"/>
-                            <circle cx="125" cy="245" r="12" fill="#444444" stroke="#222" stroke-width="1"/>
-                            <circle cx="275" cy="245" r="12" fill="#444444" stroke="#222" stroke-width="1"/>
-                            <line x1="155" y1="117" x2="245" y2="117" stroke="#dc2626" stroke-width="5"/>
-                            <text x="200" y="110" text-anchor="middle" class="text-lg font-bold fill-red-600">1</text>
-                            <ellipse cx="200" cy="200" rx="55" ry="40" fill="none" stroke="#2563eb" stroke-width="4" stroke-dasharray="10,5"/>
-                            <text x="265" y="205" text-anchor="middle" class="text-lg font-bold fill-blue-600">2</text>
-                            <ellipse cx="200" cy="280" rx="40" ry="30" fill="none" stroke="#16a34a" stroke-width="4" stroke-dasharray="10,5"/>
-                            <text x="250" y="285" text-anchor="middle" class="text-lg font-bold fill-green-600">3</text>
-                            <line x1="155" y1="125" x2="125" y2="245" stroke="#ea580c" stroke-width="4"/>
-                            <text x="130" y="185" text-anchor="middle" class="text-lg font-bold fill-orange-600">4</text>
-                            <line x1="200" y1="125" x2="200" y2="320" stroke="#9333ea" stroke-width="4"/>
-                            <text x="210" y="222" text-anchor="middle" class="text-lg font-bold fill-purple-600">5</text>
-                          </svg>
-                        `;
-                        const parentNode = target.parentNode;
-                        if (parentNode && fallback.firstChild) {
-                          parentNode.appendChild(fallback.firstChild);
-                        }
-                      }}
-                    />
+                  <div className="relative mx-auto w-full max-w-2xl">
+                    <svg viewBox="0 0 400 500" className="w-full h-auto max-h-96">
+                      {/* 배경 */}
+                      <rect width="400" height="500" fill="#f8fafc" rx="20"/>
+                      
+                      {/* 머리 */}
+                      <circle cx="200" cy="60" r="35" fill="#444444" stroke="#222" strokeWidth="2"/>
+                      
+                      {/* 목 */}
+                      <rect x="185" y="85" width="30" height="25" rx="15" fill="#444444" stroke="#222" strokeWidth="1"/>
+                      
+                      {/* 어깨선 */}
+                      <path d="M150 110 L250 110 L245 125 L155 125 Z" fill="#444444" stroke="#222" strokeWidth="2"/>
+                      
+                      {/* 상체 */}
+                      <ellipse cx="200" cy="200" rx="60" ry="50" fill="#444444" stroke="#222" strokeWidth="2"/>
+                      
+                      {/* 허리 */}
+                      <ellipse cx="200" cy="280" rx="45" ry="35" fill="#444444" stroke="#222" strokeWidth="2"/>
+                      
+                      {/* 왼팔 */}
+                      <ellipse cx="140" cy="180" rx="20" ry="70" fill="#444444" stroke="#222" strokeWidth="2" transform="rotate(-15 140 180)"/>
+                      
+                      {/* 오른팔 */}
+                      <ellipse cx="260" cy="180" rx="20" ry="70" fill="#444444" stroke="#222" strokeWidth="2" transform="rotate(15 260 180)"/>
+                      
+                      {/* 손목 */}
+                      <circle cx="125" cy="245" r="12" fill="#444444" stroke="#222" strokeWidth="1"/>
+                      <circle cx="275" cy="245" r="12" fill="#444444" stroke="#222" strokeWidth="1"/>
+                      
+                      {/* 측정선들 */}
+                      {/* 1. 어깨너비 */}
+                      <line x1="155" y1="117" x2="245" y2="117" stroke="#dc2626" strokeWidth="5"/>
+                      <text x="200" y="110" textAnchor="middle" className="text-lg font-bold fill-red-600">1</text>
+                      
+                      {/* 2. 가슴둘레 */}
+                      <ellipse cx="200" cy="200" rx="55" ry="40" fill="none" stroke="#2563eb" strokeWidth="4" strokeDasharray="10,5"/>
+                      <text x="265" y="205" textAnchor="middle" className="text-lg font-bold fill-blue-600">2</text>
+                      
+                      {/* 3. 허리둘레 */}
+                      <ellipse cx="200" cy="280" rx="40" ry="30" fill="none" stroke="#16a34a" strokeWidth="4" strokeDasharray="10,5"/>
+                      <text x="250" y="285" textAnchor="middle" className="text-lg font-bold fill-green-600">3</text>
+                      
+                      {/* 4. 소매길이 */}
+                      <line x1="155" y1="125" x2="125" y2="245" stroke="#ea580c" strokeWidth="4"/>
+                      <text x="130" y="185" textAnchor="middle" className="text-lg font-bold fill-orange-600">4</text>
+                      
+                      {/* 5. 상의길이 */}
+                      <line x1="200" y1="125" x2="200" y2="320" stroke="#9333ea" strokeWidth="4"/>
+                      <text x="210" y="222" textAnchor="middle" className="text-lg font-bold fill-purple-600">5</text>
+                    </svg>
                   </div>
                 </div>
               </div>
@@ -202,48 +211,55 @@ export default function BodyMeasurements() {
               {/* 하체 이미지 */}
               <div className="relative mb-8">
                 <div className="bg-gradient-to-br from-pink-50 to-orange-50 rounded-2xl p-8 text-center">
-                  <div className="relative mx-auto w-full max-w-4xl">
-                    <img 
-                      src="/size-guide.png" 
-                      alt="신체 사이즈 측정 가이드" 
-                      className="w-full h-auto rounded-lg shadow-lg"
-                      style={{ maxHeight: '600px', objectFit: 'contain' }}
-                      onError={(e) => {
-                        console.log('이미지 로딩 실패:', e);
-                        // 이미지 로딩 실패시 대체 SVG 표시
-                        const target = e.currentTarget as HTMLImageElement;
-                        target.style.display = 'none';
-                        const fallback = document.createElement('div');
-                        fallback.innerHTML = `
-                          <svg viewBox="0 0 400 500" class="w-full h-auto max-h-96">
-                            <rect width="400" height="500" fill="#fdf2f8" rx="20"/>
-                            <ellipse cx="200" cy="80" rx="50" ry="35" fill="#444444" stroke="#222" stroke-width="2"/>
-                            <path d="M140 100 Q200 85 260 100 Q270 140 260 180 Q200 195 140 180 Q130 140 140 100" fill="#444444" stroke="#222" stroke-width="2"/>
-                            <path d="M160 180 Q200 160 240 180 Q250 220 240 260 Q200 240 160 260 Q150 220 160 180" fill="#444444" stroke="#222" stroke-width="2"/>
-                            <ellipse cx="170" cy="380" rx="25" ry="80" fill="#444444" stroke="#222" stroke-width="2"/>
-                            <ellipse cx="230" cy="380" rx="25" ry="80" fill="#444444" stroke="#222" stroke-width="2"/>
-                            <circle cx="170" cy="320" r="18" fill="#444444" stroke="#222" stroke-width="1"/>
-                            <circle cx="230" cy="320" r="18" fill="#444444" stroke="#222" stroke-width="1"/>
-                            <ellipse cx="170" cy="450" rx="15" ry="20" fill="#444444" stroke="#222" stroke-width="1"/>
-                            <ellipse cx="230" cy="450" rx="15" ry="20" fill="#444444" stroke="#222" stroke-width="1"/>
-                            <path d="M140 100 Q200 85 260 100 Q270 140 260 180 Q200 195 140 180 Q130 140 140 100" fill="none" stroke="#ec4899" stroke-width="5" stroke-dasharray="12,6"/>
-                            <text x="280" y="140" text-anchor="middle" class="text-lg font-bold fill-pink-600">6</text>
-                            <path d="M160 180 Q200 160 240 180 Q250 220 240 260 Q200 240 160 260 Q150 220 160 180" fill="none" stroke="#eab308" stroke-width="5" stroke-dasharray="12,6"/>
-                            <text x="260" y="220" text-anchor="middle" class="text-lg font-bold fill-yellow-600">7</text>
-                            <line x1="200" y1="100" x2="200" y2="180" stroke="#6366f1" stroke-width="5"/>
-                            <text x="210" y="140" text-anchor="middle" class="text-lg font-bold fill-indigo-600">8</text>
-                            <line x1="200" y1="100" x2="200" y2="470" stroke="#14b8a6" stroke-width="5"/>
-                            <text x="210" y="285" text-anchor="middle" class="text-lg font-bold fill-teal-600">9</text>
-                            <line x1="200" y1="100" x2="200" y2="200" stroke="#f43f5e" stroke-width="5"/>
-                            <text x="210" y="150" text-anchor="middle" class="text-lg font-bold fill-rose-600">10</text>
-                          </svg>
-                        `;
-                        const parentNode = target.parentNode;
-                        if (parentNode && fallback.firstChild) {
-                          parentNode.appendChild(fallback.firstChild);
-                        }
-                      }}
-                    />
+                  <div className="relative mx-auto w-full max-w-2xl">
+                    <svg viewBox="0 0 400 500" className="w-full h-auto max-h-96">
+                      {/* 배경 */}
+                      <rect width="400" height="500" fill="#fdf2f8" rx="20"/>
+                      
+                      {/* 상체 부분 (허리까지) */}
+                      <ellipse cx="200" cy="80" rx="50" ry="35" fill="#444444" stroke="#222" strokeWidth="2"/>
+                      
+                      {/* 엉덩이 */}
+                      <path d="M140 100 Q200 85 260 100 Q270 140 260 180 Q200 195 140 180 Q130 140 140 100" fill="#444444" stroke="#222" strokeWidth="2"/>
+                      
+                      {/* 허벌지 */}
+                      <path d="M160 180 Q200 160 240 180 Q250 220 240 260 Q200 240 160 260 Q150 220 160 180" fill="#444444" stroke="#222" strokeWidth="2"/>
+                      
+                      {/* 왼쪽 다리 */}
+                      <ellipse cx="170" cy="380" rx="25" ry="80" fill="#444444" stroke="#222" strokeWidth="2"/>
+                      
+                      {/* 오른쪽 다리 */}
+                      <ellipse cx="230" cy="380" rx="25" ry="80" fill="#444444" stroke="#222" strokeWidth="2"/>
+                      
+                      {/* 무릎 */}
+                      <circle cx="170" cy="320" r="18" fill="#444444" stroke="#222" strokeWidth="1"/>
+                      <circle cx="230" cy="320" r="18" fill="#444444" stroke="#222" strokeWidth="1"/>
+                      
+                      {/* 발목 */}
+                      <ellipse cx="170" cy="450" rx="15" ry="20" fill="#444444" stroke="#222" strokeWidth="1"/>
+                      <ellipse cx="230" cy="450" rx="15" ry="20" fill="#444444" stroke="#222" strokeWidth="1"/>
+                      
+                      {/* 측정선들 */}
+                      {/* 6. 엉덩이둘레 */}
+                      <path d="M140 100 Q200 85 260 100 Q270 140 260 180 Q200 195 140 180 Q130 140 140 100" fill="none" stroke="#ec4899" strokeWidth="5" strokeDasharray="12,6"/>
+                      <text x="280" y="140" textAnchor="middle" className="text-lg font-bold fill-pink-600">6</text>
+                      
+                      {/* 7. 허벌지둘레 */}
+                      <path d="M160 180 Q200 160 240 180 Q250 220 240 260 Q200 240 160 260 Q150 220 160 180" fill="none" stroke="#eab308" strokeWidth="5" strokeDasharray="12,6"/>
+                      <text x="260" y="220" textAnchor="middle" className="text-lg font-bold fill-yellow-600">7</text>
+                      
+                      {/* 8. 밑위길이 */}
+                      <line x1="200" y1="100" x2="200" y2="180" stroke="#6366f1" strokeWidth="5"/>
+                      <text x="210" y="140" textAnchor="middle" className="text-lg font-bold fill-indigo-600">8</text>
+                      
+                      {/* 9. 바지길이 */}
+                      <line x1="200" y1="100" x2="200" y2="470" stroke="#14b8a6" strokeWidth="5"/>
+                      <text x="210" y="285" textAnchor="middle" className="text-lg font-bold fill-teal-600">9</text>
+                      
+                      {/* 10. 치마길이 */}
+                      <line x1="200" y1="100" x2="200" y2="200" stroke="#f43f5e" strokeWidth="5"/>
+                      <text x="210" y="150" textAnchor="middle" className="text-lg font-bold fill-rose-600">10</text>
+                    </svg>
                   </div>
                 </div>
               </div>
