@@ -105,45 +105,39 @@ export default function BodyMeasurements() {
               {/* 상체 이미지 */}
               <div className="relative mb-8">
                 <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 text-center">
-                  {/* 간단한 상체 도식도 */}
-                  <div className="relative mx-auto w-48 h-64 bg-gradient-to-b from-slate-200 to-slate-300 rounded-lg flex items-center justify-center">
-                    {/* 머리 */}
-                    <div className="absolute top-4 w-8 h-8 bg-slate-400 rounded-full"></div>
-                    
-                    {/* 어깨너비 (1) */}
-                    <div className="absolute top-16 left-1/2 transform -translate-x-1/2">
-                      <div className="w-20 h-0.5 bg-red-500 relative">
-                        <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs font-bold text-red-600">1</div>
-                      </div>
-                    </div>
-                    
-                    {/* 가슴둘레 (2) */}
-                    <div className="absolute top-24 left-1/2 transform -translate-x-1/2">
-                      <div className="w-16 h-16 border-2 border-blue-500 rounded-full flex items-center justify-center">
-                        <span className="text-xs font-bold text-blue-600">2</span>
-                      </div>
-                    </div>
-                    
-                    {/* 허리둘레 (3) */}
-                    <div className="absolute top-36 left-1/2 transform -translate-x-1/2">
-                      <div className="w-12 h-12 border-2 border-green-500 rounded-full flex items-center justify-center">
-                        <span className="text-xs font-bold text-green-600">3</span>
-                      </div>
-                    </div>
-                    
-                    {/* 소매길이 (4) */}
-                    <div className="absolute top-20 left-2">
-                      <div className="w-0.5 h-16 bg-orange-500 relative">
-                        <div className="absolute -left-6 top-1/2 transform -translate-y-1/2 text-xs font-bold text-orange-600">4</div>
-                      </div>
-                    </div>
-                    
-                    {/* 상의길이 (5) */}
-                    <div className="absolute top-16 left-1/2 transform -translate-x-1/2">
-                      <div className="w-0.5 h-24 bg-purple-500 relative">
-                        <div className="absolute -right-8 top-1/2 transform -translate-y-1/2 text-xs font-bold text-purple-600">5</div>
-                      </div>
-                    </div>
+                  <div className="relative mx-auto w-64 h-80">
+                    {/* SVG 상체 도식도 */}
+                    <svg viewBox="0 0 200 320" className="w-full h-full">
+                      {/* 몸통 */}
+                      <ellipse cx="100" cy="180" rx="35" ry="60" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="2"/>
+                      
+                      {/* 머리 */}
+                      <circle cx="100" cy="50" r="20" fill="#f1f5f9" stroke="#94a3b8" strokeWidth="2"/>
+                      
+                      {/* 팔 */}
+                      <ellipse cx="65" cy="160" rx="8" ry="40" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="2"/>
+                      <ellipse cx="135" cy="160" rx="8" ry="40" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="2"/>
+                      
+                      {/* 어깨너비 (1) */}
+                      <line x1="65" y1="130" x2="135" y2="130" stroke="#dc2626" strokeWidth="3"/>
+                      <text x="100" y="125" textAnchor="middle" className="text-xs font-bold fill-red-600">1</text>
+                      
+                      {/* 가슴둘레 (2) */}
+                      <ellipse cx="100" cy="150" rx="30" ry="20" fill="none" stroke="#2563eb" strokeWidth="3" strokeDasharray="5,5"/>
+                      <text x="100" y="155" textAnchor="middle" className="text-xs font-bold fill-blue-600">2</text>
+                      
+                      {/* 허리둘레 (3) */}
+                      <ellipse cx="100" cy="180" rx="25" ry="15" fill="none" stroke="#16a34a" strokeWidth="3" strokeDasharray="5,5"/>
+                      <text x="100" y="185" textAnchor="middle" className="text-xs font-bold fill-green-600">3</text>
+                      
+                      {/* 소매길이 (4) */}
+                      <line x1="65" y1="130" x2="65" y2="200" stroke="#ea580c" strokeWidth="3"/>
+                      <text x="55" y="165" textAnchor="middle" className="text-xs font-bold fill-orange-600">4</text>
+                      
+                      {/* 상의길이 (5) */}
+                      <line x1="100" y1="130" x2="100" y2="210" stroke="#9333ea" strokeWidth="3"/>
+                      <text x="115" y="170" textAnchor="middle" className="text-xs font-bold fill-purple-600">5</text>
+                    </svg>
                   </div>
                 </div>
               </div>
@@ -199,41 +193,42 @@ export default function BodyMeasurements() {
               {/* 하체 이미지 */}
               <div className="relative mb-8">
                 <div className="bg-gradient-to-br from-pink-50 to-orange-50 rounded-2xl p-8 text-center">
-                  <div className="relative mx-auto w-48 h-64 bg-gradient-to-b from-slate-200 to-slate-300 rounded-lg flex items-center justify-center">
-                    {/* 엉덩이둘레 (6) */}
-                    <div className="absolute top-8 left-1/2 transform -translate-x-1/2">
-                      <div className="w-20 h-20 border-2 border-pink-500 rounded-full flex items-center justify-center">
-                        <span className="text-xs font-bold text-pink-600">6</span>
-                      </div>
-                    </div>
-                    
-                    {/* 허벌지둘레 (7) */}
-                    <div className="absolute top-24 left-1/2 transform -translate-x-1/2">
-                      <div className="w-16 h-16 border-2 border-yellow-500 rounded-full flex items-center justify-center">
-                        <span className="text-xs font-bold text-yellow-600">7</span>
-                      </div>
-                    </div>
-                    
-                    {/* 밑위길이 (8) */}
-                    <div className="absolute top-16 left-1/2 transform -translate-x-1/2">
-                      <div className="w-0.5 h-20 bg-indigo-500 relative">
-                        <div className="absolute -right-8 top-1/2 transform -translate-y-1/2 text-xs font-bold text-indigo-600">8</div>
-                      </div>
-                    </div>
-                    
-                    {/* 바지길이 (9) */}
-                    <div className="absolute top-12 left-1/2 transform -translate-x-1/2">
-                      <div className="w-0.5 h-32 bg-teal-500 relative">
-                        <div className="absolute -right-8 top-1/2 transform -translate-y-1/2 text-xs font-bold text-teal-600">9</div>
-                      </div>
-                    </div>
-                    
-                    {/* 치마길이 (10) */}
-                    <div className="absolute top-16 left-1/2 transform -translate-x-1/2">
-                      <div className="w-0.5 h-24 bg-rose-500 relative">
-                        <div className="absolute -right-8 top-1/2 transform -translate-y-1/2 text-xs font-bold text-rose-600">10</div>
-                      </div>
-                    </div>
+                  <div className="relative mx-auto w-64 h-80">
+                    {/* SVG 하체 도식도 */}
+                    <svg viewBox="0 0 200 320" className="w-full h-full">
+                      {/* 몸통 (상체 부분) */}
+                      <ellipse cx="100" cy="80" rx="30" ry="40" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="2"/>
+                      
+                      {/* 엉덩이 */}
+                      <ellipse cx="100" cy="140" rx="35" ry="25" fill="#f1f5f9" stroke="#94a3b8" strokeWidth="2"/>
+                      
+                      {/* 허벌지 */}
+                      <ellipse cx="100" cy="200" rx="20" ry="30" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="2"/>
+                      
+                      {/* 다리 */}
+                      <ellipse cx="85" cy="260" rx="12" ry="50" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="2"/>
+                      <ellipse cx="115" cy="260" rx="12" ry="50" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="2"/>
+                      
+                      {/* 엉덩이둘레 (6) */}
+                      <ellipse cx="100" cy="140" rx="30" ry="20" fill="none" stroke="#ec4899" strokeWidth="3" strokeDasharray="5,5"/>
+                      <text x="100" y="145" textAnchor="middle" className="text-xs font-bold fill-pink-600">6</text>
+                      
+                      {/* 허벌지둘레 (7) */}
+                      <ellipse cx="100" cy="200" rx="18" ry="25" fill="none" stroke="#eab308" strokeWidth="3" strokeDasharray="5,5"/>
+                      <text x="100" y="205" textAnchor="middle" className="text-xs font-bold fill-yellow-600">7</text>
+                      
+                      {/* 밑위길이 (8) */}
+                      <line x1="100" y1="120" x2="100" y2="160" stroke="#6366f1" strokeWidth="3"/>
+                      <text x="115" y="140" textAnchor="middle" className="text-xs font-bold fill-indigo-600">8</text>
+                      
+                      {/* 바지길이 (9) */}
+                      <line x1="100" y1="100" x2="100" y2="310" stroke="#14b8a6" strokeWidth="3"/>
+                      <text x="115" y="205" textAnchor="middle" className="text-xs font-bold fill-teal-600">9</text>
+                      
+                      {/* 치마길이 (10) */}
+                      <line x1="100" y1="120" x2="100" y2="200" stroke="#f43f5e" strokeWidth="3"/>
+                      <text x="115" y="160" textAnchor="middle" className="text-xs font-bold fill-rose-600">10</text>
+                    </svg>
                   </div>
                 </div>
               </div>
