@@ -78,12 +78,8 @@ export default function Consultation() {
       <nav className="sticky top-0 z-50 border-b border-white/40 bg-white/70 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <Link href="/products" className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-900 shadow-lg">
-              <img 
-                src="/rhythm-high-resolution-logo-transparent.png" 
-                alt="Rhythm 로고" 
-                className="h-6 w-6 object-contain"
-              />
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary-400 to-primary-600 shadow-lg">
+              <span className="text-lg font-bold text-white">R</span>
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.35em] text-neutral-500">Rhythm</p>
