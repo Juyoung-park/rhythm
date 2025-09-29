@@ -75,15 +75,15 @@ export default function Home() {
       <div className="absolute inset-x-0 top-0 -z-10 h-[420px] bg-gradient-to-b from-primary-200/40 via-transparent to-transparent" />
       <div className="relative z-10 px-6 py-12 md:px-10 lg:px-20">
         <header className="flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 text-neutral-900">
+          <Link href="/" className="flex min-w-0 items-center gap-3 text-neutral-900">
             <div className="flex items-center">
               <img 
                 src="/rhythm-logo.svg" 
                 alt="Rhythm 로고" 
-                className="h-8 w-auto object-contain"
+                className="h-8 sm:h-9 w-auto max-w-[180px] object-contain"
               />
             </div>
-            <div>
+            <div className="hidden sm:block">
               <p className="text-sm uppercase tracking-[0.35em] text-neutral-500">Dance Wear</p>
               <h1 className="text-xl font-semibold text-gradient">Rhythm</h1>
             </div>

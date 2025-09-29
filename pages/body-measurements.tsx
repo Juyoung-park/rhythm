@@ -135,15 +135,15 @@ export default function BodyMeasurements() {
       {/* Navigation */}
       <nav className="sticky top-0 z-50 border-b border-white/40 bg-white/70 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <Link href="/products" className="flex items-center gap-3">
-            <div className="flex items-center">
+          <Link href="/products" className="flex min-w-0 items-center gap-3">
+            <div className="flex items-center min-w-0">
               <img 
                 src="/rhythm-logo.svg" 
                 alt="Rhythm 로고" 
-                className="h-6 w-auto object-contain"
+                className="h-6 sm:h-7 w-auto max-w-[160px] object-contain"
               />
             </div>
-            <div>
+            <div className="hidden sm:block">
               <p className="text-xs uppercase tracking-[0.35em] text-neutral-500">Rhythm</p>
               <p className="text-sm font-semibold text-neutral-900">신체 사이즈 측정법</p>
             </div>
