@@ -76,8 +76,12 @@ export default function Home() {
       <div className="relative z-10 px-6 py-12 md:px-10 lg:px-20">
         <header className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 text-neutral-900">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary-400 to-primary-600 shadow-glow backdrop-blur">
-              <span className="text-2xl font-bold text-white">R</span>
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/80 shadow-glow backdrop-blur">
+              <img 
+                src="/rhythm-logo.svg" 
+                alt="Rhythm 로고" 
+                className="h-8 w-8 object-contain"
+              />
             </div>
             <div>
               <p className="text-sm uppercase tracking-[0.35em] text-neutral-500">Dance Wear</p>
