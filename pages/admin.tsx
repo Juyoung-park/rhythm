@@ -882,10 +882,20 @@ const AdminPage = () => {
               <span className="ml-2 text-gray-600">관리자</span>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/products" className="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium">
+              <Link 
+                href="/products" 
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  router.pathname === "/products" ? "text-purple-600 font-semibold" : "text-gray-700 hover:text-purple-600"
+                }`}
+              >
                 홈으로
               </Link>
-              <Link href="/products" className="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium">
+              <Link 
+                href="/products" 
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  router.pathname === "/products" ? "text-purple-600 font-semibold" : "text-gray-700 hover:text-purple-600"
+                }`}
+              >
                 제품보기
               </Link>
               <button

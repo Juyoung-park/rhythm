@@ -170,13 +170,17 @@ export default function ProductsPage() {
           <div className="flex items-center gap-4 text-sm font-medium text-neutral-600">
             <Link
               href="/products"
-              className="hidden rounded-full px-4 py-2 transition hover:bg-neutral-900 hover:text-white md:block"
+              className={`hidden rounded-full px-4 py-2 transition hover:bg-neutral-900 hover:text-white md:block ${
+                router.pathname === "/products" ? "bg-neutral-900 text-white" : ""
+              }`}
             >
               홈
             </Link>
             <Link
               href="/products"
-              className="hidden rounded-full px-4 py-2 transition hover:bg-neutral-900 hover:text-white md:block"
+              className={`hidden rounded-full px-4 py-2 transition hover:bg-neutral-900 hover:text-white md:block ${
+                router.pathname === "/products" ? "bg-neutral-900 text-white" : ""
+              }`}
             >
               제품
             </Link>

@@ -227,13 +227,28 @@ export default function AdminOrdersPage() {
               <span className="ml-2 text-gray-500">Admin</span>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/admin" className="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+              <Link 
+                href="/admin" 
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  router.pathname === "/admin" ? "text-purple-600 font-semibold" : "text-gray-700 hover:text-purple-600"
+                }`}
+              >
                 관리자 홈
               </Link>
-              <Link href="/admin/add-product" className="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+              <Link 
+                href="/admin/add-product" 
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  router.pathname === "/admin/add-product" ? "text-purple-600 font-semibold" : "text-gray-700 hover:text-purple-600"
+                }`}
+              >
                 제품 추가
               </Link>
-              <Link href="/my-info" className="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+              <Link 
+                href="/my-info" 
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  router.pathname === "/my-info" ? "text-purple-600 font-semibold" : "text-gray-700 hover:text-purple-600"
+                }`}
+              >
                 내 정보
               </Link>
               <button

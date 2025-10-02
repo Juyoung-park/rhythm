@@ -89,8 +89,22 @@ export default function Home() {
             </div>
           </Link>
           <div className="hidden items-center gap-6 text-sm font-medium text-neutral-600 md:flex">
-            <Link href="/products" className="hover:text-primary-600 transition-colors">제품 보기</Link>
-            <Link href="/body-measurements" className="hover:text-primary-600 transition-colors">사이즈 가이드</Link>
+            <Link 
+              href="/products" 
+              className={`transition-colors ${
+                router.pathname === "/products" ? "text-primary-600 font-semibold" : "hover:text-primary-600"
+              }`}
+            >
+              제품 보기
+            </Link>
+            <Link 
+              href="/body-measurements" 
+              className={`transition-colors ${
+                router.pathname === "/body-measurements" ? "text-primary-600 font-semibold" : "hover:text-primary-600"
+              }`}
+            >
+              사이즈 가이드
+            </Link>
             {user ? (
               <>
                 <Link href="/my-info" className="hover:text-primary-600 transition-colors">내 정보</Link>
