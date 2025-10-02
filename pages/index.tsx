@@ -107,6 +107,9 @@ export default function Home() {
             </Link>
             {user ? (
               <>
+                {user.email === "admin@rhythm.com" && (
+                  <Link href="/admin" className="hover:text-purple-600 transition-colors font-semibold">관리자</Link>
+                )}
                 <Link href="/my-info" className="hover:text-primary-600 transition-colors">내 정보</Link>
                 <span className="text-sm text-gray-500">안녕하세요, {user.email}님</span>
               </>

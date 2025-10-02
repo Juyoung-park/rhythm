@@ -458,9 +458,10 @@ export default function MyInfoPage() {
           </Link>
           <div className="flex items-center gap-4 text-sm font-medium text-neutral-600">
             <Link 
-              href="/products" 
+              href={user?.email === "admin@rhythm.com" ? "/admin" : "/products"}
               className={`hidden rounded-full px-4 py-2 transition hover:bg-neutral-900 hover:text-white md:block ${
-                router.pathname === "/products" ? "bg-neutral-900 text-white" : ""
+                (user?.email === "admin@rhythm.com" && router.pathname === "/admin") || 
+                (user?.email !== "admin@rhythm.com" && router.pathname === "/products") ? "bg-neutral-900 text-white" : ""
               }`}
             >
               홈
@@ -481,6 +482,14 @@ export default function MyInfoPage() {
                 <span className="hidden text-sm text-neutral-500 md:inline">
                   반가워요, <span className="font-semibold text-primary-600">{info?.name || user.email}</span>님
                 </span>
+                {user.email === "admin@rhythm.com" && (
+                  <Link
+                    href="/admin"
+                    className="rounded-full bg-purple-600 px-4 py-2 text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-purple-700"
+                  >
+                    관리자
+                  </Link>
+                )}
                 <button
                   onClick={() => handleLogout(router)}
                   className="rounded-full bg-neutral-900 px-4 py-2 text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-neutral-800"
