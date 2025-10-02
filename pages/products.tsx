@@ -68,6 +68,9 @@ export default function ProductsPage() {
           id: doc.id,
           ...doc.data(),
         })) as Product[];
+        console.log("불러온 제품 데이터:", productsData);
+        console.log("첫 번째 제품의 색상:", productsData[0]?.colors);
+        console.log("첫 번째 제품의 사이즈:", productsData[0]?.sizes);
         setProducts(productsData);
       } catch (fetchError: unknown) {
         console.error("Error fetching products:", fetchError);
@@ -401,6 +404,13 @@ export default function ProductsPage() {
                       {product.name}
                     </h3>
                     <p className="line-clamp-2 text-sm text-neutral-500">{product.description}</p>
+                    {/* 디버깅 정보 */}
+                    {process.env.NODE_ENV === 'development' && (
+                      <div className="text-xs text-gray-400">
+                        <div>색상: {JSON.stringify(product.colors)}</div>
+                        <div>사이즈: {JSON.stringify(product.sizes)}</div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
@@ -410,11 +420,11 @@ export default function ProductsPage() {
                     </span>
                   </div>
 
-                  {(product.colors?.length ?? 0) > 0 && (
+                  {product.colors && product.colors.length > 0 && (
                     <div className="mt-4 space-y-2">
                       <p className="text-xs font-semibold text-neutral-500">추천 색상</p>
                       <div className="flex flex-wrap gap-2">
-                        {product.colors!.slice(0, 3).map((color) => (
+                        {product.colors.slice(0, 3).map((color) => (
                           <span
                             key={color}
                             className="rounded-full border border-white/50 bg-primary-100/40 px-3 py-1 text-xs font-medium text-primary-700"
@@ -422,20 +432,20 @@ export default function ProductsPage() {
                             {color}
                           </span>
                         ))}
-                        {product.colors!.length > 3 && (
+                        {product.colors.length > 3 && (
                           <span className="rounded-full border border-dashed border-neutral-200 px-3 py-1 text-xs text-neutral-400">
-                            +{product.colors!.length - 3}
+                            +{product.colors.length - 3}
                           </span>
                         )}
                       </div>
                     </div>
                   )}
 
-                  {(product.sizes?.length ?? 0) > 0 && (
+                  {product.sizes && product.sizes.length > 0 && (
                     <div className="mt-4 space-y-2">
                       <p className="text-xs font-semibold text-neutral-500">사이즈 옵션</p>
                       <div className="flex flex-wrap gap-2">
-                        {product.sizes!.slice(0, 4).map((size) => (
+                        {product.sizes.slice(0, 4).map((size) => (
                           <span
                             key={size}
                             className="rounded-full border border-neutral-200 px-3 py-1 text-xs font-medium text-neutral-600"
@@ -443,9 +453,9 @@ export default function ProductsPage() {
                             {size}
                           </span>
                         ))}
-                        {product.sizes!.length > 4 && (
+                        {product.sizes.length > 4 && (
                           <span className="rounded-full border border-dashed border-neutral-200 px-3 py-1 text-xs text-neutral-400">
-                            +{product.sizes!.length - 4}
+                            +{product.sizes.length - 4}
                           </span>
                         )}
                       </div>

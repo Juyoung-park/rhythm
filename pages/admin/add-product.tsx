@@ -281,6 +281,8 @@ export default function AddProductPage() {
         createdAt: serverTimestamp(),
       }
       console.log("저장할 데이터:", productData)
+      console.log("사이즈 배열:", form.sizes)
+      console.log("색상 배열:", form.colors)
 
       // Firestore 저장에도 타임아웃 추가 (30초로 연장)
       const savePromise = addDoc(collection(db, "products"), productData)
