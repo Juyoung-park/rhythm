@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useAuth } from "../context/UserContext";
 
 type MarkerId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
@@ -126,6 +127,7 @@ const MeasurementSilhouette = ({ emphasize = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], cl
 
 export default function BodyMeasurements() {
   const { user } = useAuth();
+  const router = useRouter();
 
   return (
     <div className="relative min-h-screen overflow-hidden">
