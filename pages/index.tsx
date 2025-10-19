@@ -78,9 +78,9 @@ export default function Home() {
           <Link href="/" className="flex min-w-0 items-center gap-3 text-neutral-900">
             <div className="flex items-center">
               <img 
-                src="/rhythm-logo.svg" 
-                alt="Rhythm 로고" 
-                className="h-8 sm:h-9 w-auto max-w-[180px] object-contain"
+                src="/Elysian_logo.png" 
+                alt="Elysian Flow 로고" 
+                className="h-10 sm:h-12 w-auto max-w-[220px] object-contain"
               />
             </div>
             <div className="hidden sm:block">
