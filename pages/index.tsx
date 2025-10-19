@@ -130,7 +130,7 @@ export default function Home() {
               <div className="inline-flex items-center gap-3 rounded-full border border-white/40 bg-white/70 px-4 py-2 backdrop-blur-xl shadow-glow">
                 <span className="h-2 w-2 rounded-full bg-secondary-500" />
                 <span className="text-sm font-medium text-neutral-600">라인댄스 전문 의상 아틀리에</span>
-              </div>
+            </div>
               <div className="space-y-6">
                 <h2 className="text-4xl font-heading tracking-tight text-neutral-900 sm:text-5xl lg:text-6xl">
                   <span className="text-gradient">무대 위 리듬</span>을 완성하는
@@ -201,27 +201,28 @@ export default function Home() {
                       <span className="text-sm uppercase tracking-[0.25em] text-neutral-500">Next Showcase</span>
                       <span className="rounded-full bg-secondary-50 px-3 py-1 text-xs font-semibold text-secondary-600">New</span>
                     </div>
-                  <div className="space-y-2">
-                    <h3 className="text-2xl font-semibold text-neutral-900">Astra Dance Crew</h3>
-                    <p className="text-sm text-neutral-500">서울 댄스 페스티벌 2025</p>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    {[
-                      { label: "컨셉", value: "Neo Disco" },
-                      { label: "멤버", value: "12명" },
-                      { label: "완성도", value: "92%" },
-                    ].map((item) => (
-                      <div key={item.label} className="floating-card p-4 text-center">
-                        <p className="text-xs uppercase tracking-[0.2em] text-neutral-500">{item.label}</p>
-                        <p className="mt-1 text-lg font-semibold text-neutral-900">{item.value}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="rounded-2xl bg-white/80 p-6 shadow-inner shadow-white/40">
-                    <p className="text-sm text-neutral-600">
-                      &ldquo;움직임 하나하나가 빛나도록 구성된 패턴과 비딩 디테일이 공연 내내 관객의 시선을 사로잡았어요.&rdquo;
-                    </p>
-                    <p className="mt-4 text-sm font-semibold text-neutral-900">- Elysian Flow 디자이너 팀</p>
+                    <div className="space-y-2">
+                      <h3 className="text-2xl font-semibold text-neutral-900">Astra Dance Crew</h3>
+                      <p className="text-sm text-neutral-500">서울 댄스 페스티벌 2025</p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      {[
+                        { label: "컨셉", value: "Neo Disco" },
+                        { label: "멤버", value: "12명" },
+                        { label: "완성도", value: "92%" },
+                      ].map((item) => (
+                        <div key={item.label} className="floating-card p-4 text-center">
+                          <p className="text-xs uppercase tracking-[0.2em] text-neutral-500">{item.label}</p>
+                          <p className="mt-1 text-lg font-semibold text-neutral-900">{item.value}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="rounded-2xl bg-white/80 p-6 shadow-inner shadow-white/40">
+                      <p className="text-sm text-neutral-600">
+                        &ldquo;움직임 하나하나가 빛나도록 구성된 패턴과 비딩 디테일이 공연 내내 관객의 시선을 사로잡았어요.&rdquo;
+                      </p>
+                      <p className="mt-4 text-sm font-semibold text-neutral-900">- Elysian Flow 디자이너 팀</p>
+                    </div>
                   </div>
                 </div>
               </div>
