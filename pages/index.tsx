@@ -125,77 +125,98 @@ export default function Home() {
         </header>
 
         <main className="mt-16 flex flex-col gap-24">
-          <section className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="space-y-10">
-              <div className="inline-flex items-center gap-3 rounded-full border border-white/40 bg-white/70 px-4 py-2 backdrop-blur-xl shadow-glow">
-                <span className="h-2 w-2 rounded-full bg-secondary-500" />
-                <span className="text-sm font-medium text-neutral-600">라인댄스 전문 의상 아틀리에</span>
-            </div>
-              <div className="space-y-6">
-                <h2 className="text-4xl font-heading tracking-tight text-neutral-900 sm:text-5xl lg:text-6xl">
-                  <span className="text-gradient">무대 위 리듬</span>을 완성하는
-                  <br className="hidden md:inline" /> 맞춤형 댄스웨어
-                </h2>
-                <p className="max-w-xl text-lg text-neutral-600">
-                  Elysian Flow의 디자이너와 장인이 함께 만드는 하이앤드 공연 의상. 팀의 개성과 퍼포먼스를 극대화하는 디자인을 경험해 보세요.
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-4">
-                <Link
-                  href="/products"
-                  className="rounded-full bg-gradient-to-r from-primary-600 via-secondary-500 to-primary-500 px-8 py-3 text-base font-semibold text-white shadow-glow transition duration-500 ease-soft hover:-translate-y-1 hover:shadow-[0_20px_45px_-18px_rgba(147,51,234,0.6)]"
-                >
-                  제품 살펴보기
-                </Link>
-                <Link
-                  href="/body-measurements"
-                  className="rounded-full border border-neutral-200/80 bg-white/70 px-8 py-3 text-base font-semibold text-neutral-700 backdrop-blur transition duration-500 ease-soft hover:-translate-y-1 hover:border-primary-200 hover:text-primary-700"
-                >
-                  사이즈 가이드
-                </Link>
-                <Link
-                  href={user ? "/consultation" : "/login"}
-                  className="rounded-full border border-neutral-200/80 bg-white/70 px-8 py-3 text-base font-semibold text-neutral-700 backdrop-blur transition duration-500 ease-soft hover:-translate-y-1 hover:border-primary-200 hover:text-primary-700"
-                >
-                  맞춤 제작 문의
-                </Link>
-                <div className="flex items-center gap-3">
-                  <div className="flex -space-x-3">
-                    {Array.from({ length: 3 }).map((_, idx) => (
-                      <div
-                        key={idx}
-                        className="h-10 w-10 rounded-full bg-gradient-to-r from-primary-200 to-secondary-200 shadow-inner shadow-white/40 ring-2 ring-white"
-                      />
-                    ))}
+          <section className="space-y-12">
+            <div className="relative overflow-hidden rounded-[44px] border border-white/60 bg-white/95 shadow-[0_24px_60px_-32px_rgba(79,70,229,0.45)] backdrop-blur-xl">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary-200/35 via-white/45 to-secondary-200/35" />
+              <div className="relative flex flex-col items-center gap-8 px-8 py-10 md:flex-row md:items-center md:justify-between md:px-12">
+                <div className="flex items-center justify-center">
+                  <div className="relative flex h-36 w-36 items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-primary-500 via-secondary-400 to-primary-400 shadow-[0_26px_56px_-28px_rgba(147,51,234,0.55)] sm:h-44 sm:w-44">
+                    <div className="absolute inset-[6px] rounded-[26px] bg-white/85 backdrop-blur-sm" />
+                    <img
+                      src="/Elysian_logo.png"
+                      alt="Elysian Flow 시그니처 로고"
+                      className="relative z-10 h-[88%] w-[88%] object-contain"
+                    />
                   </div>
-                  <p className="text-sm text-neutral-600">500+ 팀이 Elysian Flow를 선택했어요</p>
+                </div>
+                <div className="max-w-2xl space-y-5 text-center md:text-left">
+                  <p className="text-xs font-semibold uppercase tracking-[0.45em] text-primary-500">Brand Signature</p>
+                  <div className="space-y-3">
+                    <h3 className="text-3xl font-semibold text-neutral-900 md:text-[2.3rem]">Elysian Flow Identity</h3>
+                    <p className="text-sm text-neutral-600 md:text-base">
+                      라인댄스 팀을 위한 맞춤형 무대 의상, 흐르는 실루엣과 섬세한 디테일을 로고 한 장 안에 담았어요.
+                      새틴 드레이프처럼 부드러운 곡선을 살리기 위해 여백을 정돈해 뮤즈의 몸짓을 더 선명하게 드러냅니다.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap justify-center gap-3 text-xs font-medium text-primary-600 md:justify-start md:text-sm">
+                    <span className="inline-flex items-center gap-2 rounded-full border border-primary-200/70 bg-primary-50/80 px-4 py-2">
+                      <span className="h-2 w-2 rounded-full bg-primary-400" />
+                      Fluent Motion
+                    </span>
+                    <span className="inline-flex items-center gap-2 rounded-full border border-secondary-200/60 bg-secondary-50/70 px-4 py-2">
+                      <span className="h-2 w-2 rounded-full bg-secondary-400" />
+                      Tailored Glow
+                    </span>
+                    <span className="inline-flex items-center gap-2 rounded-full border border-neutral-200/60 bg-white/80 px-4 py-2">
+                      <span className="h-2 w-2 rounded-full bg-neutral-400" />
+                      Couture Detailing
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="relative">
-              <div className="absolute inset-0 -z-10 rounded-[40px] bg-gradient-to-br from-primary-200/60 via-secondary-200/40 to-white blur-3xl" />
-              <div className="relative z-10 space-y-6">
-                <div className="rounded-3xl border border-white/60 bg-white/90 p-8 shadow-[0_18px_45px_-20px_rgba(79,70,229,0.35)] backdrop-blur-xl">
-                  <div className="flex flex-col items-center gap-5 text-center">
-                    <div className="relative flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 via-secondary-400 to-primary-400 shadow-[0_18px_40px_-18px_rgba(147,51,234,0.55)] sm:h-40 sm:w-40">
-                      <div className="absolute inset-2 rounded-full bg-white/85 backdrop-blur-sm" />
-                      <img
-                        src="/Elysian_logo.png"
-                        alt="Elysian Flow 시그니처 로고"
-                        className="relative z-10 h-20 w-auto sm:h-24"
-                      />
+            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
+              <div className="space-y-10">
+                <div className="inline-flex items-center gap-3 rounded-full border border-white/40 bg-white/70 px-4 py-2 backdrop-blur-xl shadow-glow">
+                  <span className="h-2 w-2 rounded-full bg-secondary-500" />
+                  <span className="text-sm font-medium text-neutral-600">라인댄스 전문 의상 아틀리에</span>
+                </div>
+                <div className="space-y-6">
+                  <h2 className="text-4xl font-heading tracking-tight text-neutral-900 sm:text-5xl lg:text-6xl">
+                    <span className="text-gradient">무대 위 리듬</span>을 완성하는
+                    <br className="hidden md:inline" /> 맞춤형 댄스웨어
+                  </h2>
+                  <p className="max-w-xl text-lg text-neutral-600">
+                    Elysian Flow의 디자이너와 장인이 함께 만드는 하이앤드 공연 의상. 팀의 개성과 퍼포먼스를 극대화하는 디자인을 경험해 보세요.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-4">
+                  <Link
+                    href="/products"
+                    className="rounded-full bg-gradient-to-r from-primary-600 via-secondary-500 to-primary-500 px-8 py-3 text-base font-semibold text-white shadow-glow transition duration-500 ease-soft hover:-translate-y-1 hover:shadow-[0_20px_45px_-18px_rgba(147,51,234,0.6)]"
+                  >
+                    제품 살펴보기
+                  </Link>
+                  <Link
+                    href="/body-measurements"
+                    className="rounded-full border border-neutral-200/80 bg-white/70 px-8 py-3 text-base font-semibold text-neutral-700 backdrop-blur transition duration-500 ease-soft hover:-translate-y-1 hover:border-primary-200 hover:text-primary-700"
+                  >
+                    사이즈 가이드
+                  </Link>
+                  <Link
+                    href={user ? "/consultation" : "/login"}
+                    className="rounded-full border border-neutral-200/80 bg-white/70 px-8 py-3 text-base font-semibold text-neutral-700 backdrop-blur transition duration-500 ease-soft hover:-translate-y-1 hover:border-primary-200 hover:text-primary-700"
+                  >
+                    맞춤 제작 문의
+                  </Link>
+                  <div className="flex items-center gap-3">
+                    <div className="flex -space-x-3">
+                      {Array.from({ length: 3 }).map((_, idx) => (
+                        <div
+                          key={idx}
+                          className="h-10 w-10 rounded-full bg-gradient-to-r from-primary-200 to-secondary-200 shadow-inner shadow-white/40 ring-2 ring-white"
+                        />
+                      ))}
                     </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.4em] text-primary-500">Brand Signature</p>
-                      <p className="mt-3 text-lg font-semibold text-neutral-900 sm:text-xl">Elysian Flow Identity</p>
-                      <p className="mt-2 text-sm text-neutral-600">
-                        라인댄스 팀을 위한 맞춤형 무대 의상, 로고만으로도 감각을 전달하는 하우스 퍼포먼스 브랜드.
-                      </p>
-                    </div>
+                    <p className="text-sm text-neutral-600">500+ 팀이 Elysian Flow를 선택했어요</p>
                   </div>
                 </div>
-                <div className="glass-panel rounded-3xl p-8">
+              </div>
+
+              <div className="relative">
+                <div className="absolute inset-0 -z-10 rounded-[40px] bg-gradient-to-br from-primary-200/60 via-secondary-200/40 to-white blur-3xl" />
+                <div className="glass-panel relative z-10 rounded-3xl p-8">
                   <div className="space-y-6">
                     <div className="flex items-center justify-between">
                       <span className="text-sm uppercase tracking-[0.25em] text-neutral-500">Next Showcase</span>
