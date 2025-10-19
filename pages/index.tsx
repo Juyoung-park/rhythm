@@ -80,7 +80,7 @@ export default function Home() {
               <img 
                 src="/Elysian_logo.png" 
                 alt="Elysian Flow 로고" 
-                className="h-10 sm:h-12 w-auto max-w-[220px] object-contain"
+                className="h-12 sm:h-16 w-auto max-w-[240px] object-contain drop-shadow-[0_12px_24px_rgba(79,70,229,0.25)]"
               />
             </div>
             <div className="hidden sm:block">
@@ -174,13 +174,33 @@ export default function Home() {
             </div>
 
             <div className="relative">
-              <div className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-br from-primary-200/50 via-secondary-200/30 to-white blur-3xl" />
-              <div className="glass-panel rounded-3xl p-8">
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm uppercase tracking-[0.25em] text-neutral-500">Next Showcase</span>
-                    <span className="rounded-full bg-secondary-50 px-3 py-1 text-xs font-semibold text-secondary-600">New</span>
+              <div className="absolute inset-0 -z-10 rounded-[40px] bg-gradient-to-br from-primary-200/60 via-secondary-200/40 to-white blur-3xl" />
+              <div className="relative z-10 space-y-6">
+                <div className="rounded-3xl border border-white/60 bg-white/90 p-8 shadow-[0_18px_45px_-20px_rgba(79,70,229,0.35)] backdrop-blur-xl">
+                  <div className="flex flex-col items-center gap-5 text-center">
+                    <div className="relative flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 via-secondary-400 to-primary-400 shadow-[0_18px_40px_-18px_rgba(147,51,234,0.55)] sm:h-40 sm:w-40">
+                      <div className="absolute inset-2 rounded-full bg-white/85 backdrop-blur-sm" />
+                      <img
+                        src="/Elysian_logo.png"
+                        alt="Elysian Flow 시그니처 로고"
+                        className="relative z-10 h-20 w-auto sm:h-24"
+                      />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.4em] text-primary-500">Brand Signature</p>
+                      <p className="mt-3 text-lg font-semibold text-neutral-900 sm:text-xl">Elysian Flow Identity</p>
+                      <p className="mt-2 text-sm text-neutral-600">
+                        라인댄스 팀을 위한 맞춤형 무대 의상, 로고만으로도 감각을 전달하는 하우스 퍼포먼스 브랜드.
+                      </p>
+                    </div>
                   </div>
+                </div>
+                <div className="glass-panel rounded-3xl p-8">
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm uppercase tracking-[0.25em] text-neutral-500">Next Showcase</span>
+                      <span className="rounded-full bg-secondary-50 px-3 py-1 text-xs font-semibold text-secondary-600">New</span>
+                    </div>
                   <div className="space-y-2">
                     <h3 className="text-2xl font-semibold text-neutral-900">Astra Dance Crew</h3>
                     <p className="text-sm text-neutral-500">서울 댄스 페스티벌 2025</p>
