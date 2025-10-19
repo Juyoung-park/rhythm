@@ -86,7 +86,7 @@ export default function Consultation() {
               />
             </div>
             <div className="hidden sm:block">
-              <p className="text-xs uppercase tracking-[0.35em] text-neutral-500">Rhythm</p>
+              <p className="text-xs uppercase tracking-[0.35em] text-neutral-500">Elysian Flow</p>
               <p className="text-sm font-semibold text-neutral-900">상담 문의</p>
             </div>
           </Link>

@@ -186,7 +186,7 @@ export default function ProductDetail() {
               />
             </div>
             <div className="hidden sm:block">
-              <p className="text-xs uppercase tracking-[0.35em] text-neutral-500">Rhythm</p>
+              <p className="text-xs uppercase tracking-[0.35em] text-neutral-500">Elysian Flow</p>
               <p className="text-sm font-semibold text-neutral-900">제품 상세</p>
             </div>
           </Link>
@@ -573,7 +573,7 @@ export default function ProductDetail() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-semibold text-neutral-900">로그인이 필요합니다</h3>
-                  <p className="mt-2 text-sm text-neutral-500">맞춤 주문을 진행하려면 먼저 Rhythm 계정으로 로그인해 주세요.</p>
+                  <p className="mt-2 text-sm text-neutral-500">맞춤 주문을 진행하려면 먼저 Elysian Flow 계정으로 로그인해 주세요.</p>
                 </div>
               </div>
               <Link

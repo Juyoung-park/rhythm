@@ -146,7 +146,7 @@ export default function BodyMeasurements() {
               />
             </div>
             <div className="hidden sm:block">
-              <p className="text-xs uppercase tracking-[0.35em] text-neutral-500">Rhythm</p>
+              <p className="text-xs uppercase tracking-[0.35em] text-neutral-500">Elysian Flow</p>
               <p className="text-sm font-semibold text-neutral-900">신체 사이즈 측정법</p>
             </div>
           </Link>

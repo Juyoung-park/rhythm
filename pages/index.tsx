@@ -85,7 +85,7 @@ export default function Home() {
             </div>
             <div className="hidden sm:block">
               <p className="text-sm uppercase tracking-[0.35em] text-neutral-500">Dance Wear</p>
-              <h1 className="text-xl font-semibold text-gradient">Rhythm</h1>
+              <h1 className="text-xl font-semibold text-gradient">Elysian Flow</h1>
             </div>
           </Link>
           <div className="hidden items-center gap-6 text-sm font-medium text-neutral-600 md:flex">
@@ -137,7 +137,7 @@ export default function Home() {
                   <br className="hidden md:inline" /> 맞춤형 댄스웨어
                 </h2>
                 <p className="max-w-xl text-lg text-neutral-600">
-                  Rhythm의 디자이너와 장인이 함께 만드는 하이앤드 공연 의상. 팀의 개성과 퍼포먼스를 극대화하는 디자인을 경험해 보세요.
+                  Elysian Flow의 디자이너와 장인이 함께 만드는 하이앤드 공연 의상. 팀의 개성과 퍼포먼스를 극대화하는 디자인을 경험해 보세요.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-4">
@@ -168,7 +168,7 @@ export default function Home() {
                       />
                     ))}
                   </div>
-                  <p className="text-sm text-neutral-600">500+ 팀이 Rhythm을 선택했어요</p>
+                  <p className="text-sm text-neutral-600">500+ 팀이 Elysian Flow를 선택했어요</p>
                 </div>
               </div>
             </div>
@@ -201,7 +201,7 @@ export default function Home() {
                     <p className="text-sm text-neutral-600">
                       &ldquo;움직임 하나하나가 빛나도록 구성된 패턴과 비딩 디테일이 공연 내내 관객의 시선을 사로잡았어요.&rdquo;
                     </p>
-                    <p className="mt-4 text-sm font-semibold text-neutral-900">- Rhythm 디자이너 팀</p>
+                    <p className="mt-4 text-sm font-semibold text-neutral-900">- Elysian Flow 디자이너 팀</p>
                   </div>
                 </div>
               </div>
@@ -211,7 +211,7 @@ export default function Home() {
           <section className="space-y-12">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.4em] text-secondary-500">WHY RHYTHM</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.4em] text-secondary-500">WHY ELYSIAN FLOW</p>
                 <h3 className="mt-3 text-3xl font-semibold text-neutral-900 md:text-4xl">퍼포먼스를 완성하는 디테일</h3>
               </div>
               <Link href="/products" className="hidden text-sm font-semibold text-primary-600 md:inline-flex md:items-center md:gap-2">
@@ -238,7 +238,7 @@ export default function Home() {
             <div className="grid gap-10 md:grid-cols-[0.8fr_1.2fr] md:items-center">
               <div className="space-y-6">
                 <p className="text-sm font-semibold uppercase tracking-[0.35em] text-primary-600">PROCESS</p>
-                <h3 className="text-3xl font-semibold text-neutral-900 md:text-4xl">Rhythm과 함께하는 제작 여정</h3>
+                <h3 className="text-3xl font-semibold text-neutral-900 md:text-4xl">Elysian Flow와 함께하는 제작 여정</h3>
                 <p className="text-sm leading-relaxed text-neutral-600">
                   상담부터 피팅, 납품까지 전 과정을 전문가가 동행해요. 일정 관리와 스타일 컨설팅까지 한 번에 해결하세요.
                 </p>
@@ -258,7 +258,7 @@ export default function Home() {
             <p className="text-sm font-semibold uppercase tracking-[0.35em] text-neutral-500">Ready to shine</p>
             <h3 className="mt-4 text-3xl font-semibold text-neutral-900 md:text-4xl">팀의 시그니처 무드를 만들어 볼까요?</h3>
             <p className="mt-4 text-base text-neutral-600 md:text-lg">
-              Rhythm 컨설턴트와의 30분 스타일링 세션으로 첫 경험을 시작해 보세요.
+              Elysian Flow 컨설턴트와의 30분 스타일링 세션으로 첫 경험을 시작해 보세요.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <Link
@@ -279,7 +279,7 @@ export default function Home() {
 
         <footer className="mt-24 border-t border-white/40 pt-10 text-sm text-neutral-500">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <p>© {new Date().getFullYear()} Rhythm Dance Wear. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Elysian Flow Dance Wear. All rights reserved.</p>
             <div className="flex gap-6">
               <Link href="/products" className="hover:text-primary-600 transition-colors">제품</Link>
               <Link href={user ? "/consultation" : "/login"} className="hover:text-primary-600 transition-colors">

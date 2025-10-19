@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200">
+  <defs>
+    <style>
+      .bg { fill: #F7F1E6; } /* light ivory */
+      .body { fill: #444444; } /* dark gray silhouette */
+    </style>
+    <linearGradient id="shadow" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#000" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect class="bg" x="0" y="0" width="800" height="1200" rx="24"/>
+
+  <!-- Ground shadow ellipse -->
+  <ellipse cx="400" cy="1100" rx="220" ry="35" fill="url(#shadow)"/>
+
+  <!-- Mannequin silhouette (head, torso/hips, arms, legs) -->
+  <!-- Head -->
+  <circle class="body" cx="400" cy="170" r="60"/>
+  <!-- Neck -->
+  <rect class="body" x="375" y="220" width="50" height="25" rx="12"/>
+  <!-- Torso & hips -->
+  <path class="body" d="M300,245 
+                         C300,220 350,210 400,210 
+                         C450,210 500,220 500,245
+                         L520,440
+                         C530,520 510,600 475,650
+                         L455,680
+                         L345,680
+                         L325,650
+                         C290,600 270,520 280,440
+                         Z"/>
+  <!-- Arms -->
+  <path class="body" d="M280,300 L250,500 C245,530 265,555 295,550 L305,520 L320,470 L310,380 Z"/>
+  <path class="body" d="M520,300 L550,500 C555,530 535,555 505,550 L495,520 L480,470 L490,380 Z"/>
+  <!-- Legs -->
+  <path class="body" d="M345,680 L360,1080 L320,1080 L310,725 Z"/>
+  <path class="body" d="M455,680 L440,1080 L480,1080 L490,725 Z"/>
+
+  <!-- Empty groups you can target later for measurement lines/labels -->
+  <g id="measurement-lines"></g>
+  <g id="measurement-labels"></g>
+</svg>

@@ -365,7 +365,7 @@ export default function LoginPage() {
 
   const modeCopy = isNew
     ? {
-        title: "Welcome to Rhythm",
+        title: "Welcome to Elysian Flow",
         subtitle: "공연을 빛내는 댄스웨어 커뮤니티에 합류하세요.",
         cta: "회원가입",
         switchLabel: "이미 계정이 있으신가요?",
@@ -389,7 +389,7 @@ export default function LoginPage() {
           <div className="hidden flex-col justify-between rounded-3xl bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 p-10 text-white shadow-2xl lg:flex">
             <div className="flex items-center justify-between text-sm uppercase tracking-[0.35em] text-white/60">
               <Link href="/" className="text-white/80 transition hover:text-white">
-                Rhythm
+                Elysian Flow
               </Link>
               <span>Dance Wear Studio</span>
             </div>
@@ -401,7 +401,7 @@ export default function LoginPage() {
                 <span className="text-yellow-300">맞춤형 댄스웨어 플랫폼</span>
               </h1>
               <p className="text-sm leading-relaxed text-white/70">
-                Rhythm과 함께라면 상담 예약, 주문, 제작 관리까지 한 번에 진행할 수 있어요. 로그인하고 팀 전용 대시보드를 확인해보세요.
+                Elysian Flow와 함께라면 상담 예약, 주문, 제작 관리까지 한 번에 진행할 수 있어요. 로그인하고 팀 전용 대시보드를 확인해보세요.
               </p>
             </div>
             <div className="mt-10 space-y-4">
@@ -418,7 +418,7 @@ export default function LoginPage() {
               ))}
             </div>
             <div className="mt-8 flex items-center justify-between text-xs text-white/50">
-              <p>© {new Date().getFullYear()} Rhythm Dance Wear</p>
+              <p>© {new Date().getFullYear()} Elysian Flow Dance Wear</p>
               <Link href="/products" className="underline-offset-4 transition hover:text-white hover:underline">
                 제품 둘러보기
               </Link>
@@ -428,7 +428,7 @@ export default function LoginPage() {
           <div className="glass-panel rounded-3xl p-8 md:p-10">
             <div className="mb-10 space-y-3 text-left">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/70 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-primary-600">
-                Rhythm Access
+                Elysian Flow Access
               </div>
               <h2 className="text-3xl font-semibold text-neutral-900">{modeCopy.title}</h2>
               <p className="text-sm text-neutral-600">{modeCopy.subtitle}</p>

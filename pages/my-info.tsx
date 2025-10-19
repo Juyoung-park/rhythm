@@ -452,7 +452,7 @@ export default function MyInfoPage() {
               />
             </div>
             <div className="hidden sm:block">
-              <p className="text-xs uppercase tracking-[0.35em] text-neutral-500">Rhythm</p>
+              <p className="text-xs uppercase tracking-[0.35em] text-neutral-500">Elysian Flow</p>
               <p className="text-sm font-semibold text-neutral-900">내 정보 센터</p>
             </div>
           </Link>
@@ -507,7 +507,7 @@ export default function MyInfoPage() {
           <div className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/70 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-primary-600">
             Profile hub
           </div>
-          <h1 className="mt-6 text-4xl font-semibold text-neutral-900">Rhythm Profile Studio</h1>
+          <h1 className="mt-6 text-4xl font-semibold text-neutral-900">Elysian Flow Profile Studio</h1>
           <p className="mt-3 text-base text-neutral-600">팀 맞춤 제작을 위한 내 정보와 주문 내역을 한 곳에서 관리하세요.</p>
         </div>
 
