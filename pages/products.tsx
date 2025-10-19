@@ -155,19 +155,19 @@ export default function ProductsPage() {
       <div className="absolute inset-0 -z-10 bg-hero-radial" />
       <div className="absolute inset-x-0 top-0 -z-10 h-[520px] bg-gradient-to-b from-primary-200/35 via-transparent to-transparent" />
 
-      <nav className="sticky top-0 z-50 border-b border-white/40 bg-white/70 backdrop-blur-xl">
+      <nav className="sticky top-0 z-50 border-b border-white/40 bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <Link href="/" className="flex min-w-0 items-center gap-3">
-            <div className="flex items-center min-w-0">
-              <img 
-                src="/rhythm-logo.svg" 
-                alt="Rhythm 로고" 
-                className="h-6 sm:h-7 w-auto max-w-[160px] object-contain"
+            <div className="flex items-center">
+              <img
+                src="/Elysian_logo.png"
+                alt="Elysian Flow 로고"
+                className="h-9 w-auto max-w-[160px] object-contain drop-shadow-[0_8px_16px_rgba(79,70,229,0.25)]"
               />
             </div>
             <div className="hidden sm:block">
               <p className="text-xs uppercase tracking-[0.35em] text-neutral-500">Elysian Flow</p>
-              <p className="text-sm font-semibold text-neutral-900">Dance Wear Studio</p>
+              <p className="text-sm font-semibold text-neutral-900">Atelier &amp; Textiles</p>
             </div>
           </Link>
           <div className="flex items-center gap-4 text-sm font-medium text-neutral-600">
