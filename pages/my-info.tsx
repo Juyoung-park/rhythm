@@ -611,7 +611,7 @@ export default function MyInfoPage() {
                         { key: 'bustCircumference', label: '가슴 둘레 (cm)' },
                         { key: 'hipCircumference', label: '힙 둘레 (cm)' },
                         { key: 'sleeveLength', label: '소매 길이 (cm)' },
-                        { key: 'thighCircumference', label: '허벌지 둘레 (cm)' },
+                        { key: 'thighCircumference', label: '허벅지 둘레 (cm)' },
                         { key: 'topLength', label: '상의 길이 (cm)' },
                         { key: 'crotchLength', label: '밑위 길이 (cm)' },
                         { key: 'skirtLength', label: '치마 길이 (cm)' },
@@ -713,7 +713,7 @@ export default function MyInfoPage() {
                         { key: 'bustCircumference', label: '가슴 둘레 (cm)' },
                         { key: 'hipCircumference', label: '힙 둘레 (cm)' },
                         { key: 'sleeveLength', label: '소매 길이 (cm)' },
-                        { key: 'thighCircumference', label: '허벌지 둘레 (cm)' },
+                        { key: 'thighCircumference', label: '허벅지 둘레 (cm)' },
                         { key: 'topLength', label: '상의 길이 (cm)' },
                         { key: 'crotchLength', label: '밑위 길이 (cm)' },
                         { key: 'skirtLength', label: '치마 길이 (cm)' },
@@ -871,7 +871,7 @@ export default function MyInfoPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">허벌지둘레</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">허벅지둘레</label>
                         <input
                           type="number"
                           step="0.1"
@@ -1027,7 +1027,7 @@ export default function MyInfoPage() {
                     )}
                     {info.thighCircumference && (
                       <div className="bg-gray-50 rounded-lg p-4">
-                        <div className="text-sm text-gray-600">허벌지둘레</div>
+                        <div className="text-sm text-gray-600">허벅지둘레</div>
                         <div className="text-lg font-semibold">{info.thighCircumference}cm</div>
                       </div>
                     )}

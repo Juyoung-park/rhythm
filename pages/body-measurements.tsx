@@ -21,7 +21,7 @@ const MeasurementSilhouette = ({ emphasize = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], cl
     >
       <title id="measurement-figure-title">신체 사이즈 측정용 실루엣</title>
       <desc id="measurement-figure-desc">
-        어깨, 가슴, 허리, 소매, 상의, 엉덩이, 허벌지, 밑위, 바지, 치마 측정 위치가 표시된 사람 실루엣 그래픽
+        어깨, 가슴, 허리, 소매, 상의, 엉덩이, 허벅지, 밑위, 바지, 치마 측정 위치가 표시된 사람 실루엣 그래픽
       </desc>
       <defs>
         <linearGradient id="silhouette-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -329,8 +329,8 @@ export default function BodyMeasurements() {
                   <div className="flex items-start gap-3">
                     <span className="w-6 h-6 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center text-sm font-bold">7</span>
                     <div>
-                      <h4 className="font-medium text-neutral-900">허벌지둘레</h4>
-                      <p className="text-sm text-neutral-600">허벌지의 가장 굵은 부분을 측정</p>
+                      <h4 className="font-medium text-neutral-900">허벅지둘레</h4>
+                      <p className="text-sm text-neutral-600">허벅지의 가장 굵은 부분을 측정</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">

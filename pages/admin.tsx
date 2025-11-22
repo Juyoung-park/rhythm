@@ -32,11 +32,11 @@ interface Customer {
   waistCircumference?: number; // 허리둘레
   bustCircumference?: number; // 가슴둘레
   hipCircumference?: number; // 엉덩이둘레
-  sleeveLength?: number; // 소매길이
-  thighCircumference?: number; // 허벌지둘레
+  sleeveLength?: number | string; // 소매길이
+  thighCircumference?: number; // 허벅지둘레
   topLength?: number; // 상의길이
   crotchLength?: number; // 밑위길이
-  skirtLength?: number; // 치마길이
+  skirtLength?: number | string; // 치마길이
   pantsLength?: number; // 바지길이
   email: string;
   createdAt: any;
@@ -635,17 +635,23 @@ const AdminPage = () => {
         updatedAt: new Date()
       };
 
+      // 소매길이와 치마길이는 문자열로 저장 (특수문자 허용)
+      if (editForm.sleeveLength && typeof editForm.sleeveLength === 'string' && editForm.sleeveLength.trim()) {
+        updateData.sleeveLength = editForm.sleeveLength.trim();
+      }
+      if (editForm.skirtLength && typeof editForm.skirtLength === 'string' && editForm.skirtLength.trim()) {
+        updateData.skirtLength = editForm.skirtLength.trim();
+      }
+
       // 숫자 필드들은 값이 있을 때만 추가 (안전한 처리)
       const numericFields = [
         'shoulderWidth',
         'waistCircumference', 
         'bustCircumference',
         'hipCircumference',
-        'sleeveLength',
         'thighCircumference',
         'topLength',
         'crotchLength',
-        'skirtLength',
         'pantsLength'
       ];
 
@@ -710,17 +716,23 @@ const AdminPage = () => {
         updatedAt: new Date()
       };
 
+      // 소매길이와 치마길이는 문자열로 저장 (특수문자 허용)
+      if (editForm.sleeveLength && typeof editForm.sleeveLength === 'string' && editForm.sleeveLength.trim()) {
+        newCustomerData.sleeveLength = editForm.sleeveLength.trim();
+      }
+      if (editForm.skirtLength && typeof editForm.skirtLength === 'string' && editForm.skirtLength.trim()) {
+        newCustomerData.skirtLength = editForm.skirtLength.trim();
+      }
+
       // 숫자 필드들은 값이 있을 때만 추가 (안전한 처리)
       const numericFields = [
         'shoulderWidth',
         'waistCircumference', 
         'bustCircumference',
         'hipCircumference',
-        'sleeveLength',
         'thighCircumference',
         'topLength',
         'crotchLength',
-        'skirtLength',
         'pantsLength'
       ];
 
@@ -1399,15 +1411,16 @@ const AdminPage = () => {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">소매길이</label>
                       <input
-                        type="number"
+                        type="text"
                         value={editForm.sleeveLength}
                         onChange={(e) => setEditForm({...editForm, sleeveLength: e.target.value})}
                         className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="예: 58.0, 58~60 등"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">허벌지둘레</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">허벅지둘레</label>
                       <input
                         type="number"
                         value={editForm.thighCircumference}
@@ -1439,10 +1452,11 @@ const AdminPage = () => {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">치마길이</label>
                       <input
-                        type="number"
+                        type="text"
                         value={editForm.skirtLength}
                         onChange={(e) => setEditForm({...editForm, skirtLength: e.target.value})}
                         className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="예: 45.0, 45~50 등"
                       />
                     </div>
                     
@@ -1614,15 +1628,16 @@ const AdminPage = () => {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">소매길이</label>
                       <input
-                        type="number"
+                        type="text"
                         value={editForm.sleeveLength}
                         onChange={(e) => setEditForm({...editForm, sleeveLength: e.target.value})}
                         className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="예: 58.0, 58~60 등"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">허벌지둘레</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">허벅지둘레</label>
                       <input
                         type="number"
                         value={editForm.thighCircumference}
@@ -1654,10 +1669,11 @@ const AdminPage = () => {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">치마길이</label>
                       <input
-                        type="number"
+                        type="text"
                         value={editForm.skirtLength}
                         onChange={(e) => setEditForm({...editForm, skirtLength: e.target.value})}
                         className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="예: 45.0, 45~50 등"
                       />
                     </div>
                     
