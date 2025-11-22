@@ -2542,6 +2542,7 @@ const AdminPage = () => {
                   setCustomerOrderForm({
                     orderDate: "",
                     productName: "",
+                    selectedSize: "",
                     selectedColor: "",
                     quantity: 1,
                     specialRequests: "",
