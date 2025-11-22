@@ -2232,7 +2232,15 @@ const AdminPage = () => {
                             <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                            <span>주문일: {order.createdAt?.toDate?.()?.toLocaleDateString() || "N/A"}</span>
+                            <span>주문일: {
+                              order.orderDate 
+                                ? (order.orderDate instanceof Date 
+                                    ? order.orderDate.toLocaleDateString() 
+                                    : typeof order.orderDate === 'string' 
+                                      ? new Date(order.orderDate).toLocaleDateString() 
+                                      : order.createdAt?.toDate?.()?.toLocaleDateString() || "N/A")
+                                : order.createdAt?.toDate?.()?.toLocaleDateString() || "N/A"
+                            }</span>
                           </div>
                           <div className="flex items-center text-gray-600">
                             <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2240,6 +2248,22 @@ const AdminPage = () => {
                             </svg>
                             <span>제품: {order.productName}</span>
                           </div>
+                          {order.selectedColor && (
+                            <div className="flex items-center text-gray-600">
+                              <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
+                              </svg>
+                              <span>색상: {order.selectedColor}</span>
+                            </div>
+                          )}
+                          {order.quantity && (
+                            <div className="flex items-center text-gray-600">
+                              <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                              </svg>
+                              <span>수량: {order.quantity}개</span>
+                            </div>
+                          )}
                         </div>
                         <div className="space-y-2">
                           <div className="flex items-center text-gray-600">
@@ -2256,6 +2280,20 @@ const AdminPage = () => {
                           </div>
                         </div>
                       </div>
+                      
+                      {order.specialRequests && (
+                        <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                          <div className="flex items-start text-gray-600">
+                            <svg className="w-4 h-4 mr-2 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <div>
+                              <span className="font-medium">주문 특이사항:</span>
+                              <p className="text-sm mt-1">{order.specialRequests}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       {/* 주문 상태별 추가 정보 */}
                       {order.status === "processing" && (
