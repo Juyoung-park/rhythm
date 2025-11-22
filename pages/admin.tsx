@@ -423,7 +423,7 @@ const AdminPage = () => {
       
       // 로컬 주문 상태도 업데이트
       setOrders(orders.map(order => 
-        order.productId === productId 
+        order.productId && order.productId === productId 
           ? { ...order, ...productInfo }
           : order
       ));
@@ -2067,7 +2067,7 @@ const AdminPage = () => {
                           <div className="text-xs text-gray-500 mt-1">
                             {order.productImageUrl ? "이미지 있음" : "이미지 없음"}
                             <br />
-                            {order.productId.slice(-4)}
+                            {order.productId ? order.productId.slice(-4) : "N/A"}
                           </div>
                         </div>
                         
