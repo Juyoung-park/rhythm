@@ -111,9 +111,33 @@ const AdminPage = () => {
     selectedSize: "",
     selectedColor: "",
     quantity: 1,
+    productPrice: "",
     specialRequests: "",
     status: "pending"
   });
+  
+  // 주문 날짜 입력을 위한 별도 상태 (년/월/일)
+  const [orderDateInputs, setOrderDateInputs] = useState({
+    year: "",
+    month: "",
+    day: ""
+  });
+  
+  // 주문 날짜 입력값을 orderDate로 변환하는 함수
+  const updateOrderDateFromInputs = (inputs: {year: string, month: string, day: string}, setForm: typeof setCustomerOrderForm) => {
+    const year = inputs.year || "";
+    const month = inputs.month || "01";
+    const day = inputs.day || "01";
+    
+    if (year.length === 4 && month && day) {
+      const formattedMonth = month.padStart(2, '0');
+      const formattedDay = day.padStart(2, '0');
+      setForm((prev: any) => ({
+        ...prev,
+        orderDate: `${year}-${formattedMonth}-${formattedDay}`
+      }));
+    }
+  };
   
   // 이미지 확대 모달 상태
   const [showImageModal, setShowImageModal] = useState(false);
@@ -139,6 +163,7 @@ const AdminPage = () => {
     productName: "",
     selectedColor: "",
     quantity: 1,
+    productPrice: "",
     specialRequests: "",
     productId: "",
     selectedSize: "",
@@ -594,6 +619,7 @@ const AdminPage = () => {
         productName: newOrder.productName,
         selectedColor: newOrder.selectedColor,
         quantity: parseInt(newOrder.quantity.toString()) || 1,
+        productPrice: newOrder.productPrice ? parseFloat(newOrder.productPrice.toString().replace(/,/g, '')) : undefined,
         specialRequests: newOrder.specialRequests || "",
         status: "pending",
         orderDate: orderDateObj,
@@ -608,6 +634,7 @@ const AdminPage = () => {
         productName: "",
         selectedColor: "",
         quantity: 1,
+        productPrice: "",
         specialRequests: "",
         productId: "",
         selectedSize: "",
@@ -871,8 +898,14 @@ const AdminPage = () => {
       selectedSize: "",
       selectedColor: "",
       quantity: 1,
+      productPrice: "",
       specialRequests: "",
       status: "pending"
+    });
+    setOrderDateInputs({
+      year: "",
+      month: "",
+      day: ""
     });
   };
 
@@ -923,12 +956,21 @@ const AdminPage = () => {
       }
     }
     
+    // orderDate를 년/월/일로 분리하여 orderDateInputs 초기화
+    const dateParts = orderDate ? orderDate.split('-') : [];
+    setOrderDateInputs({
+      year: dateParts[0] || "",
+      month: dateParts[1] ? dateParts[1].replace(/^0+/, '') : "",
+      day: dateParts[2] ? dateParts[2].replace(/^0+/, '') : ""
+    });
+    
     setCustomerOrderForm({
       orderDate: orderDate || "",
       productName: order.productName || "",
       selectedSize: order.selectedSize || "",
       selectedColor: order.selectedColor || "",
       quantity: order.quantity || 1,
+      productPrice: order.productPrice ? order.productPrice.toString() : "",
       specialRequests: order.specialRequests || "",
       status: order.status || "pending"
     });
@@ -953,6 +995,7 @@ const AdminPage = () => {
         selectedSize: customerOrderForm.selectedSize || "",
         selectedColor: customerOrderForm.selectedColor,
         quantity: parseInt(customerOrderForm.quantity.toString()) || 1,
+        productPrice: customerOrderForm.productPrice ? parseFloat(customerOrderForm.productPrice.toString().replace(/,/g, '')) : undefined,
         specialRequests: customerOrderForm.specialRequests || "",
         status: customerOrderForm.status || "pending",
         orderDate: orderDateStr,
@@ -966,8 +1009,14 @@ const AdminPage = () => {
         selectedSize: "",
         selectedColor: "",
         quantity: 1,
+        productPrice: "",
         specialRequests: "",
         status: "pending"
+      });
+      setOrderDateInputs({
+        year: "",
+        month: "",
+        day: ""
       });
       setShowAddCustomerOrder(false);
       
@@ -997,6 +1046,7 @@ const AdminPage = () => {
         selectedSize: customerOrderForm.selectedSize || "",
         selectedColor: customerOrderForm.selectedColor,
         quantity: parseInt(customerOrderForm.quantity.toString()) || 1,
+        productPrice: customerOrderForm.productPrice ? parseFloat(customerOrderForm.productPrice.toString().replace(/,/g, '')) : undefined,
         specialRequests: customerOrderForm.specialRequests || "",
         status: customerOrderForm.status || "pending",
         orderDate: orderDateStr,
@@ -1010,8 +1060,14 @@ const AdminPage = () => {
         selectedSize: "",
         selectedColor: "",
         quantity: 1,
+        productPrice: "",
         specialRequests: "",
         status: "pending"
+      });
+      setOrderDateInputs({
+        year: "",
+        month: "",
+        day: ""
       });
       
       if (selectedCustomer) {
@@ -2033,6 +2089,24 @@ const AdminPage = () => {
               </div>
               
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">주문 가격</label>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={newOrder.productPrice}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9.]/g, '');
+                    // 소수점은 한 번만 허용
+                    const parts = value.split('.');
+                    const formattedValue = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : value;
+                    setNewOrder({...newOrder, productPrice: formattedValue});
+                  }}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="가격을 입력하세요 (예: 150000)"
+                />
+              </div>
+              
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">주문 특이사항</label>
                 <textarea
                   value={newOrder.specialRequests}
@@ -2054,6 +2128,7 @@ const AdminPage = () => {
                     productName: "",
                     selectedColor: "",
                     quantity: 1,
+                    productPrice: "",
                     specialRequests: "",
                     productId: "",
                     selectedSize: "",
@@ -2193,7 +2268,14 @@ const AdminPage = () => {
                 </div>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => setShowAddCustomerOrder(true)}
+                    onClick={() => {
+                      setShowAddCustomerOrder(true);
+                      setOrderDateInputs({
+                        year: "",
+                        month: "",
+                        day: ""
+                      });
+                    }}
                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
                   >
                     주문 추가
@@ -2378,6 +2460,14 @@ const AdminPage = () => {
                               <span>수량: {order.quantity}개</span>
                             </div>
                           )}
+                          {order.productPrice && (
+                            <div className="flex items-center text-gray-600 font-medium">
+                              <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              <span>가격: {typeof order.productPrice === 'number' ? order.productPrice.toLocaleString() : order.productPrice}원</span>
+                            </div>
+                          )}
                         </div>
                         <div className="space-y-2">
                           <div className="flex items-center text-gray-600">
@@ -2476,12 +2566,75 @@ const AdminPage = () => {
             <div className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">주문 날짜 *</label>
-                <input
-                  type="date"
-                  value={customerOrderForm.orderDate}
-                  onChange={(e) => setCustomerOrderForm({...customerOrderForm, orderDate: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={4}
+                    placeholder="YYYY"
+                    value={orderDateInputs.year}
+                    onChange={(e) => {
+                      const year = e.target.value.replace(/[^0-9]/g, '').slice(0, 4);
+                      setOrderDateInputs({...orderDateInputs, year});
+                      updateOrderDateFromInputs({...orderDateInputs, year}, setCustomerOrderForm);
+                      if (year.length === 4) {
+                        const monthInput = document.getElementById('orderMonth') as HTMLInputElement;
+                        if (monthInput) {
+                          setTimeout(() => monthInput.focus(), 10);
+                        }
+                      }
+                    }}
+                    onBlur={() => {
+                      updateOrderDateFromInputs(orderDateInputs, setCustomerOrderForm);
+                    }}
+                    className="w-24 border border-gray-300 rounded-lg px-3 py-2 text-center focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                  <span className="text-gray-500 font-medium">-</span>
+                  <input
+                    id="orderMonth"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={2}
+                    placeholder="MM"
+                    value={orderDateInputs.month}
+                    onChange={(e) => {
+                      const month = e.target.value.replace(/[^0-9]/g, '').slice(0, 2);
+                      const monthNum = parseInt(month) || 0;
+                      const validMonth = monthNum > 0 && monthNum <= 12 ? month : month;
+                      setOrderDateInputs({...orderDateInputs, month: validMonth});
+                      updateOrderDateFromInputs({...orderDateInputs, month: validMonth}, setCustomerOrderForm);
+                      if (validMonth.length === 2) {
+                        const dayInput = document.getElementById('orderDay') as HTMLInputElement;
+                        if (dayInput) {
+                          setTimeout(() => dayInput.focus(), 10);
+                        }
+                      }
+                    }}
+                    onBlur={() => {
+                      updateOrderDateFromInputs(orderDateInputs, setCustomerOrderForm);
+                    }}
+                    className="w-20 border border-gray-300 rounded-lg px-3 py-2 text-center focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                  <span className="text-gray-500 font-medium">-</span>
+                  <input
+                    id="orderDay"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={2}
+                    placeholder="DD"
+                    value={orderDateInputs.day}
+                    onChange={(e) => {
+                      const day = e.target.value.replace(/[^0-9]/g, '').slice(0, 2);
+                      setOrderDateInputs({...orderDateInputs, day});
+                      updateOrderDateFromInputs({...orderDateInputs, day}, setCustomerOrderForm);
+                    }}
+                    onBlur={() => {
+                      updateOrderDateFromInputs(orderDateInputs, setCustomerOrderForm);
+                    }}
+                    className="w-20 border border-gray-300 rounded-lg px-3 py-2 text-center focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">형식: YYYY-MM-DD (예: 2024-01-15)</p>
               </div>
               
               <div>
@@ -2534,6 +2687,24 @@ const AdminPage = () => {
               </div>
               
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">주문 가격</label>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={customerOrderForm.productPrice}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9.]/g, '');
+                    // 소수점은 한 번만 허용
+                    const parts = value.split('.');
+                    const formattedValue = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : value;
+                    setCustomerOrderForm({...customerOrderForm, productPrice: formattedValue});
+                  }}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="가격을 입력하세요 (예: 150000)"
+                />
+              </div>
+              
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">수량 *</label>
                 <input
                   type="number"
@@ -2580,8 +2751,14 @@ const AdminPage = () => {
                     selectedSize: "",
                     selectedColor: "",
                     quantity: 1,
+                    productPrice: "",
                     specialRequests: "",
                     status: "pending"
+                  });
+                  setOrderDateInputs({
+                    year: "",
+                    month: "",
+                    day: ""
                   });
                 }}
                 className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
