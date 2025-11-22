@@ -102,6 +102,17 @@ const AdminPage = () => {
   const [customerOrders, setCustomerOrders] = useState<Order[]>([]);
   const [showCustomerOrders, setShowCustomerOrders] = useState(false);
   
+  // 주문 내역 추가/수정 상태
+  const [showAddCustomerOrder, setShowAddCustomerOrder] = useState(false);
+  const [editingCustomerOrder, setEditingCustomerOrder] = useState<Order | null>(null);
+  const [customerOrderForm, setCustomerOrderForm] = useState({
+    orderDate: "",
+    productName: "",
+    selectedColor: "",
+    quantity: 1,
+    specialRequests: ""
+  });
+  
   // 이미지 확대 모달 상태
   const [showImageModal, setShowImageModal] = useState(false);
   const [selectedImageUrl, setSelectedImageUrl] = useState("");
@@ -821,6 +832,117 @@ const AdminPage = () => {
     setSelectedCustomer(null);
     setShowCustomerOrders(false);
     setCustomerOrders([]);
+    setShowAddCustomerOrder(false);
+    setEditingCustomerOrder(null);
+    setCustomerOrderForm({
+      orderDate: "",
+      productName: "",
+      selectedColor: "",
+      quantity: 1,
+      specialRequests: ""
+    });
+  };
+
+  const handleEditCustomerOrder = (order: Order) => {
+    setEditingCustomerOrder(order);
+    const orderDate = order.orderDate 
+      ? (order.orderDate instanceof Date 
+          ? order.orderDate.toISOString().split('T')[0] 
+          : typeof order.orderDate === 'string' 
+            ? order.orderDate.split('T')[0] 
+            : "")
+      : order.createdAt?.toDate?.() 
+        ? order.createdAt.toDate().toISOString().split('T')[0] 
+        : "";
+    
+    setCustomerOrderForm({
+      orderDate: orderDate,
+      productName: order.productName || "",
+      selectedColor: order.selectedColor || "",
+      quantity: order.quantity || 1,
+      specialRequests: order.specialRequests || ""
+    });
+  };
+
+  const handleAddCustomerOrder = async () => {
+    if (!selectedCustomer) return;
+    if (!customerOrderForm.orderDate || !customerOrderForm.productName || !customerOrderForm.selectedColor || !customerOrderForm.quantity) {
+      alert("필수 항목(주문 날짜, 품목, 색상, 수량)을 모두 입력해주세요.");
+      return;
+    }
+
+    try {
+      const orderDateObj = customerOrderForm.orderDate ? new Date(customerOrderForm.orderDate) : new Date();
+
+      await addDoc(collection(db, "orders"), {
+        customerId: selectedCustomer.id,
+        customerName: selectedCustomer.name || selectedCustomer.email,
+        customerEmail: selectedCustomer.email,
+        productName: customerOrderForm.productName,
+        selectedColor: customerOrderForm.selectedColor,
+        quantity: parseInt(customerOrderForm.quantity.toString()) || 1,
+        specialRequests: customerOrderForm.specialRequests || "",
+        status: "pending",
+        orderDate: orderDateObj,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+
+      setCustomerOrderForm({
+        orderDate: "",
+        productName: "",
+        selectedColor: "",
+        quantity: 1,
+        specialRequests: ""
+      });
+      setShowAddCustomerOrder(false);
+      
+      if (selectedCustomer) {
+        await fetchCustomerOrders(selectedCustomer);
+      }
+      alert("주문 내역이 성공적으로 추가되었습니다.");
+    } catch (error) {
+      console.error("Error adding customer order:", error);
+      alert("주문 내역 추가 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleUpdateCustomerOrder = async () => {
+    if (!editingCustomerOrder || !selectedCustomer) return;
+    if (!customerOrderForm.orderDate || !customerOrderForm.productName || !customerOrderForm.selectedColor || !customerOrderForm.quantity) {
+      alert("필수 항목(주문 날짜, 품목, 색상, 수량)을 모두 입력해주세요.");
+      return;
+    }
+
+    try {
+      const orderDateObj = customerOrderForm.orderDate ? new Date(customerOrderForm.orderDate) : editingCustomerOrder.createdAt?.toDate?.() || new Date();
+
+      await updateDoc(doc(db, "orders", editingCustomerOrder.id), {
+        productName: customerOrderForm.productName,
+        selectedColor: customerOrderForm.selectedColor,
+        quantity: parseInt(customerOrderForm.quantity.toString()) || 1,
+        specialRequests: customerOrderForm.specialRequests || "",
+        orderDate: orderDateObj,
+        updatedAt: serverTimestamp()
+      });
+
+      setEditingCustomerOrder(null);
+      setCustomerOrderForm({
+        orderDate: "",
+        productName: "",
+        selectedColor: "",
+        quantity: 1,
+        specialRequests: ""
+      });
+      
+      if (selectedCustomer) {
+        await fetchCustomerOrders(selectedCustomer);
+      }
+      alert("주문 내역이 성공적으로 수정되었습니다.");
+    } catch (error) {
+      console.error("Error updating customer order:", error);
+      alert("주문 내역 수정 중 오류가 발생했습니다.");
+    }
   };
 
   const handleImageClick = (imageUrl: string, imageAlt: string) => {
@@ -1992,6 +2114,12 @@ const AdminPage = () => {
                 </div>
                 <div className="flex gap-2">
                   <button
+                    onClick={() => setShowAddCustomerOrder(true)}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                  >
+                    주문 추가
+                  </button>
+                  <button
                     onClick={() => selectedCustomer && fetchCustomerOrders(selectedCustomer)}
                     className="text-blue-600 hover:text-blue-800 transition-colors p-1"
                     title="새로고침"
@@ -2145,6 +2273,16 @@ const AdminPage = () => {
                           </div>
                         </div>
                       )}
+                      
+                      {/* 수정 버튼 */}
+                      <div className="mt-4 flex justify-end gap-2">
+                        <button
+                          onClick={() => handleEditCustomerOrder(order)}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                        >
+                          수정
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -2158,6 +2296,103 @@ const AdminPage = () => {
                 className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
               >
                 닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 주문 내역 추가/수정 모달 */}
+      {(showAddCustomerOrder || editingCustomerOrder) && selectedCustomer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {editingCustomerOrder ? "주문 내역 수정" : "주문 내역 추가"}
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                고객: {selectedCustomer.name || selectedCustomer.email}
+              </p>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">주문 날짜 *</label>
+                <input
+                  type="date"
+                  value={customerOrderForm.orderDate}
+                  onChange={(e) => setCustomerOrderForm({...customerOrderForm, orderDate: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">품목 *</label>
+                <input
+                  type="text"
+                  value={customerOrderForm.productName}
+                  onChange={(e) => setCustomerOrderForm({...customerOrderForm, productName: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="품목명을 입력하세요"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">색상 *</label>
+                <input
+                  type="text"
+                  value={customerOrderForm.selectedColor}
+                  onChange={(e) => setCustomerOrderForm({...customerOrderForm, selectedColor: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="색상을 입력하세요"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">수량 *</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={customerOrderForm.quantity}
+                  onChange={(e) => setCustomerOrderForm({...customerOrderForm, quantity: parseInt(e.target.value) || 1})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">주문 특이사항</label>
+                <textarea
+                  value={customerOrderForm.specialRequests}
+                  onChange={(e) => setCustomerOrderForm({...customerOrderForm, specialRequests: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  rows={3}
+                  placeholder="주문 특이사항을 입력하세요"
+                />
+              </div>
+            </div>
+            
+            <div className="p-6 border-t bg-gray-50 flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowAddCustomerOrder(false);
+                  setEditingCustomerOrder(null);
+                  setCustomerOrderForm({
+                    orderDate: "",
+                    productName: "",
+                    selectedColor: "",
+                    quantity: 1,
+                    specialRequests: ""
+                  });
+                }}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={editingCustomerOrder ? handleUpdateCustomerOrder : handleAddCustomerOrder}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                {editingCustomerOrder ? "수정" : "추가"}
               </button>
             </div>
           </div>
