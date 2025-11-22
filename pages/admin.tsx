@@ -2250,9 +2250,9 @@ const AdminPage = () => {
                                     // 이미 YYYY-MM-DD 형식인 경우
                                     dateStr = order.orderDate;
                                   }
-                                } else if (order.orderDate.toDate) {
+                                } else if (order.orderDate && typeof order.orderDate === 'object' && 'toDate' in order.orderDate && typeof (order.orderDate as any).toDate === 'function') {
                                   // Firestore Timestamp인 경우
-                                  const date = order.orderDate.toDate();
+                                  const date = (order.orderDate as any).toDate();
                                   const year = date.getFullYear();
                                   const month = String(date.getMonth() + 1).padStart(2, '0');
                                   const day = String(date.getDate()).padStart(2, '0');
