@@ -349,7 +349,36 @@ const AdminPage = () => {
       console.log("Customer orders found:", customerOrders.length);
       console.log("Customer orders data:", customerOrders);
       
-      setCustomerOrders(customerOrders);
+      // 주문 날짜 순으로 정렬 (최신순, 내림차순)
+      const sortedOrders = customerOrders.sort((a, b) => {
+        const getDateValue = (order: Order): number => {
+          if (order.orderDate) {
+            if (order.orderDate instanceof Date) {
+              return order.orderDate.getTime();
+            } else if (typeof order.orderDate === 'string') {
+              // YYYY-MM-DD 형식의 문자열인 경우
+              if (order.orderDate.includes('T')) {
+                return new Date(order.orderDate).getTime();
+              } else {
+                return new Date(order.orderDate + 'T00:00:00').getTime();
+              }
+            } else if (order.orderDate && typeof order.orderDate === 'object' && 'toDate' in order.orderDate && typeof (order.orderDate as any).toDate === 'function') {
+              return (order.orderDate as any).toDate().getTime();
+            }
+          }
+          // orderDate가 없으면 createdAt 사용
+          if (order.createdAt?.toDate) {
+            return order.createdAt.toDate().getTime();
+          }
+          return 0;
+        };
+        
+        const dateA = getDateValue(a);
+        const dateB = getDateValue(b);
+        return dateB - dateA; // 내림차순 (최신순)
+      });
+      
+      setCustomerOrders(sortedOrders);
     } catch (error) {
       console.error("Error fetching customer orders:", error);
       setCustomerOrders([]);
