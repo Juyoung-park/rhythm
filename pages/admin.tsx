@@ -108,6 +108,7 @@ const AdminPage = () => {
   const [customerOrderForm, setCustomerOrderForm] = useState({
     orderDate: "",
     productName: "",
+    selectedSize: "",
     selectedColor: "",
     quantity: 1,
     specialRequests: "",
@@ -867,6 +868,7 @@ const AdminPage = () => {
     setCustomerOrderForm({
       orderDate: "",
       productName: "",
+      selectedSize: "",
       selectedColor: "",
       quantity: 1,
       specialRequests: "",
@@ -889,6 +891,7 @@ const AdminPage = () => {
     setCustomerOrderForm({
       orderDate: orderDate,
       productName: order.productName || "",
+      selectedSize: order.selectedSize || "",
       selectedColor: order.selectedColor || "",
       quantity: order.quantity || 1,
       specialRequests: order.specialRequests || "",
@@ -912,6 +915,7 @@ const AdminPage = () => {
         customerName: selectedCustomer.name || selectedCustomer.email,
         customerEmail: selectedCustomer.email,
         productName: customerOrderForm.productName,
+        selectedSize: customerOrderForm.selectedSize || "",
         selectedColor: customerOrderForm.selectedColor,
         quantity: parseInt(customerOrderForm.quantity.toString()) || 1,
         specialRequests: customerOrderForm.specialRequests || "",
@@ -924,6 +928,7 @@ const AdminPage = () => {
       setCustomerOrderForm({
         orderDate: "",
         productName: "",
+        selectedSize: "",
         selectedColor: "",
         quantity: 1,
         specialRequests: "",
@@ -954,6 +959,7 @@ const AdminPage = () => {
 
       await updateDoc(doc(db, "orders", editingCustomerOrder.id), {
         productName: customerOrderForm.productName,
+        selectedSize: customerOrderForm.selectedSize || "",
         selectedColor: customerOrderForm.selectedColor,
         quantity: parseInt(customerOrderForm.quantity.toString()) || 1,
         specialRequests: customerOrderForm.specialRequests || "",
@@ -966,6 +972,7 @@ const AdminPage = () => {
       setCustomerOrderForm({
         orderDate: "",
         productName: "",
+        selectedSize: "",
         selectedColor: "",
         quantity: 1,
         specialRequests: "",
@@ -2303,6 +2310,23 @@ const AdminPage = () => {
                             </svg>
                             <span>제품: {order.productName}</span>
                           </div>
+                          {order.selectedSize && (
+                            <div className="flex items-center text-gray-600">
+                              <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                              </svg>
+                              <span>사이즈: {order.selectedSize.includes('1/2') ? (
+                                <span className="inline-flex items-baseline">
+                                  {order.selectedSize.replace(' 1/2', '').trim()}
+                                  <span className="inline-flex flex-col items-center justify-center ml-1 text-xs leading-none" style={{verticalAlign: 'middle'}}>
+                                    <span>1</span>
+                                    <span className="border-t border-current w-full"></span>
+                                    <span>2</span>
+                                  </span>
+                                </span>
+                              ) : order.selectedSize}</span>
+                            </div>
+                          )}
                           {order.selectedColor && (
                             <div className="flex items-center text-gray-600">
                               <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2434,6 +2458,33 @@ const AdminPage = () => {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="품목명을 입력하세요"
                 />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">사이즈 *</label>
+                <select
+                  value={customerOrderForm.selectedSize}
+                  onChange={(e) => setCustomerOrderForm({...customerOrderForm, selectedSize: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="">사이즈를 선택하세요</option>
+                  <option value="XS">XS</option>
+                  <option value="S">S</option>
+                  <option value="M">M</option>
+                  <option value="L">L</option>
+                  <option value="XL">XL</option>
+                  <option value="XXL">XXL</option>
+                  <option value="XXXL">XXXL</option>
+                  <option value="44">44</option>
+                  <option value="44 1/2">44 1/2</option>
+                  <option value="55">55</option>
+                  <option value="55 1/2">55 1/2</option>
+                  <option value="66">66</option>
+                  <option value="66 1/2">66 1/2</option>
+                  <option value="77">77</option>
+                  <option value="88">88</option>
+                  <option value="99">99</option>
+                </select>
               </div>
               
               <div>
