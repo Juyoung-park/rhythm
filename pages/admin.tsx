@@ -110,7 +110,8 @@ const AdminPage = () => {
     productName: "",
     selectedColor: "",
     quantity: 1,
-    specialRequests: ""
+    specialRequests: "",
+    status: "pending"
   });
   
   // 이미지 확대 모달 상태
@@ -839,7 +840,8 @@ const AdminPage = () => {
       productName: "",
       selectedColor: "",
       quantity: 1,
-      specialRequests: ""
+      specialRequests: "",
+      status: "pending"
     });
   };
 
@@ -860,7 +862,8 @@ const AdminPage = () => {
       productName: order.productName || "",
       selectedColor: order.selectedColor || "",
       quantity: order.quantity || 1,
-      specialRequests: order.specialRequests || ""
+      specialRequests: order.specialRequests || "",
+      status: order.status || "pending"
     });
   };
 
@@ -882,7 +885,7 @@ const AdminPage = () => {
         selectedColor: customerOrderForm.selectedColor,
         quantity: parseInt(customerOrderForm.quantity.toString()) || 1,
         specialRequests: customerOrderForm.specialRequests || "",
-        status: "pending",
+        status: customerOrderForm.status || "pending",
         orderDate: orderDateObj,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
@@ -893,7 +896,8 @@ const AdminPage = () => {
         productName: "",
         selectedColor: "",
         quantity: 1,
-        specialRequests: ""
+        specialRequests: "",
+        status: "pending"
       });
       setShowAddCustomerOrder(false);
       
@@ -922,6 +926,7 @@ const AdminPage = () => {
         selectedColor: customerOrderForm.selectedColor,
         quantity: parseInt(customerOrderForm.quantity.toString()) || 1,
         specialRequests: customerOrderForm.specialRequests || "",
+        status: customerOrderForm.status || "pending",
         orderDate: orderDateObj,
         updatedAt: serverTimestamp()
       });
@@ -932,7 +937,8 @@ const AdminPage = () => {
         productName: "",
         selectedColor: "",
         quantity: 1,
-        specialRequests: ""
+        specialRequests: "",
+        status: "pending"
       });
       
       if (selectedCustomer) {
@@ -2368,6 +2374,19 @@ const AdminPage = () => {
                   rows={3}
                   placeholder="주문 특이사항을 입력하세요"
                 />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">주문 상태 *</label>
+                <select
+                  value={customerOrderForm.status}
+                  onChange={(e) => setCustomerOrderForm({...customerOrderForm, status: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="pending">대기중</option>
+                  <option value="processing">제작중</option>
+                  <option value="completed">완료</option>
+                </select>
               </div>
             </div>
             
