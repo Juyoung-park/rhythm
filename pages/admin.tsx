@@ -2316,12 +2316,12 @@ const AdminPage = () => {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                               </svg>
                               <span>사이즈: {order.selectedSize.includes('1/2') ? (
-                                <span className="inline-flex items-baseline">
+                                <span className="inline-flex items-center">
                                   {order.selectedSize.replace(' 1/2', '').trim()}
-                                  <span className="inline-flex flex-col items-center justify-center ml-1 text-xs leading-none" style={{verticalAlign: 'middle'}}>
-                                    <span>1</span>
-                                    <span className="border-t border-current w-full"></span>
-                                    <span>2</span>
+                                  <span className="inline-flex flex-col items-center justify-center ml-0.5 text-[10px] leading-tight" style={{fontSize: '0.7em'}}>
+                                    <span style={{lineHeight: '1'}}>1</span>
+                                    <span className="border-t border-current" style={{width: '0.6em', lineHeight: '1'}}></span>
+                                    <span style={{lineHeight: '1'}}>2</span>
                                   </span>
                                 </span>
                               ) : order.selectedSize}</span>
