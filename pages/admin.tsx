@@ -38,6 +38,8 @@ interface Customer {
   crotchLength?: number; // 밑위길이
   skirtLength?: number | string; // 치마길이
   pantsLength?: number; // 바지길이
+  height?: number; // 키
+  weight?: number; // 몸무게
   email: string;
   createdAt: any;
   updatedAt: any;
@@ -65,7 +67,7 @@ interface Consultation {
 interface Order {
   id: string;
   customerId: string;
-  productId: string;
+  productId?: string;
   customerName: string;
   customerEmail?: string;
   productName: string;
@@ -78,6 +80,7 @@ interface Order {
   deliveryAddress?: string;
   phoneNumber?: string;
   specialRequests?: string;
+  orderDate?: Date | string;
   createdAt: any;
   updatedAt?: any;
 }
@@ -119,13 +122,15 @@ const AdminPage = () => {
   const [showAddOrder, setShowAddOrder] = useState(false);
   const [newOrder, setNewOrder] = useState({
     customerEmail: "",
-    productId: "",
-    selectedSize: "",
+    orderDate: "",
+    productName: "",
     selectedColor: "",
     quantity: 1,
+    specialRequests: "",
+    productId: "",
+    selectedSize: "",
     deliveryAddress: "",
-    phoneNumber: "",
-    specialRequests: ""
+    phoneNumber: ""
   });
   const [editForm, setEditForm] = useState({
     name: "",
@@ -144,6 +149,8 @@ const AdminPage = () => {
     crotchLength: "",
     skirtLength: "",
     pantsLength: "",
+    height: "",
+    weight: "",
     email: ""
   });
 
@@ -513,18 +520,12 @@ const AdminPage = () => {
   };
 
   const handleAddOrder = async () => {
-    if (!newOrder.customerEmail || !newOrder.productId || !newOrder.selectedSize || !newOrder.selectedColor) {
-      alert("필수 항목을 모두 입력해주세요.");
+    if (!newOrder.customerEmail || !newOrder.orderDate || !newOrder.productName || !newOrder.selectedColor || !newOrder.quantity) {
+      alert("필수 항목(고객 이메일, 주문 날짜, 품목, 색상, 수량)을 모두 입력해주세요.");
       return;
     }
 
     try {
-      const selectedProduct = products.find(p => p.id === newOrder.productId);
-      if (!selectedProduct) {
-        alert("선택된 제품을 찾을 수 없습니다.");
-        return;
-      }
-
       // 고객 정보 가져오기
       const customersQuery = query(collection(db, "users"), where("email", "==", newOrder.customerEmail));
       const customersSnapshot = await getDocs(customersQuery);
@@ -541,19 +542,19 @@ const AdminPage = () => {
         customerName = customerData.name || newOrder.customerEmail;
       }
 
+      // 주문 날짜를 Date 객체로 변환
+      const orderDateObj = newOrder.orderDate ? new Date(newOrder.orderDate) : new Date();
+
       await addDoc(collection(db, "orders"), {
         customerId: customerId,
-        productId: newOrder.productId,
         customerName: customerName,
         customerEmail: newOrder.customerEmail,
-        productName: selectedProduct.name,
-        selectedSize: newOrder.selectedSize,
+        productName: newOrder.productName,
         selectedColor: newOrder.selectedColor,
-        quantity: newOrder.quantity,
+        quantity: parseInt(newOrder.quantity.toString()) || 1,
+        specialRequests: newOrder.specialRequests || "",
         status: "pending",
-        deliveryAddress: newOrder.deliveryAddress,
-        phoneNumber: newOrder.phoneNumber,
-        specialRequests: newOrder.specialRequests,
+        orderDate: orderDateObj,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       });
@@ -561,23 +562,25 @@ const AdminPage = () => {
       // 폼 초기화
       setNewOrder({
         customerEmail: "",
-        productId: "",
-        selectedSize: "",
+        orderDate: "",
+        productName: "",
         selectedColor: "",
         quantity: 1,
+        specialRequests: "",
+        productId: "",
+        selectedSize: "",
         deliveryAddress: "",
-        phoneNumber: "",
-        specialRequests: ""
+        phoneNumber: ""
       });
       setShowAddOrder(false);
       
       // 주문 목록 새로고침
       fetchOrders();
       
-      alert("주문이 성공적으로 추가되었습니다.");
+      alert("주문 내역이 성공적으로 추가되었습니다.");
     } catch (error) {
       console.error("Error adding order:", error);
-      alert("주문 추가 중 오류가 발생했습니다.");
+      alert("주문 내역 추가 중 오류가 발생했습니다.");
     }
   };
 
@@ -616,6 +619,8 @@ const AdminPage = () => {
       crotchLength: customer.crotchLength?.toString() || "",
       skirtLength: customer.skirtLength?.toString() || "",
       pantsLength: customer.pantsLength?.toString() || "",
+      height: customer.height?.toString() || "",
+      weight: customer.weight?.toString() || "",
       email: customer.email || ""
     });
   };
@@ -652,7 +657,9 @@ const AdminPage = () => {
         'thighCircumference',
         'topLength',
         'crotchLength',
-        'pantsLength'
+        'pantsLength',
+        'height',
+        'weight'
       ];
 
       numericFields.forEach(field => {
@@ -733,7 +740,9 @@ const AdminPage = () => {
         'thighCircumference',
         'topLength',
         'crotchLength',
-        'pantsLength'
+        'pantsLength',
+        'height',
+        'weight'
       ];
 
       numericFields.forEach(field => {
@@ -795,6 +804,8 @@ const AdminPage = () => {
       crotchLength: "",
       skirtLength: "",
       pantsLength: "",
+      height: "",
+      weight: "",
       email: ""
     });
   };
@@ -1361,6 +1372,30 @@ const AdminPage = () => {
                       className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
                   </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">키 (cm)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={editForm.height}
+                      onChange={(e) => setEditForm({...editForm, height: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      placeholder="예: 165.0"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">몸무게 (kg)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={editForm.weight}
+                      onChange={(e) => setEditForm({...editForm, weight: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      placeholder="예: 55.0"
+                    />
+                  </div>
                 </div>
 
                 {/* 신체 치수 */}
@@ -1578,6 +1613,30 @@ const AdminPage = () => {
                       className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
                   </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">키 (cm) <span className="text-gray-400 text-xs">(선택사항)</span></label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={editForm.height}
+                      onChange={(e) => setEditForm({...editForm, height: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      placeholder="예: 165.0"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">몸무게 (kg) <span className="text-gray-400 text-xs">(선택사항)</span></label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={editForm.weight}
+                      onChange={(e) => setEditForm({...editForm, weight: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      placeholder="예: 55.0"
+                    />
+                  </div>
                 </div>
 
                 {/* 신체 치수 */}
@@ -1730,60 +1789,36 @@ const AdminPage = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">제품 선택 *</label>
-                <select
-                  value={newOrder.productId}
-                  onChange={(e) => {
-                    const selectedProduct = products.find(p => p.id === e.target.value);
-                    setNewOrder({
-                      ...newOrder, 
-                      productId: e.target.value,
-                      selectedSize: "",
-                      selectedColor: ""
-                    });
-                  }}
+                <label className="block text-sm font-medium text-gray-700 mb-2">주문 날짜 *</label>
+                <input
+                  type="date"
+                  value={newOrder.orderDate}
+                  onChange={(e) => setNewOrder({...newOrder, orderDate: e.target.value})}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                >
-                  <option value="">제품을 선택하세요</option>
-                  {products.map(product => (
-                    <option key={product.id} value={product.id}>
-                      {product.name} - ₩{product.price.toLocaleString()}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
               
-              {newOrder.productId && (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">사이즈 *</label>
-                    <select
-                      value={newOrder.selectedSize}
-                      onChange={(e) => setNewOrder({...newOrder, selectedSize: e.target.value})}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    >
-                      <option value="">사이즈를 선택하세요</option>
-                      {products.find(p => p.id === newOrder.productId)?.sizes?.map(size => (
-                        <option key={size} value={size}>{size}</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">색상 *</label>
-                    <select
-                      value={newOrder.selectedColor}
-                      onChange={(e) => setNewOrder({...newOrder, selectedColor: e.target.value})}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    >
-                      <option value="">색상을 선택하세요</option>
-                      {products.find(p => p.id === newOrder.productId)?.colors?.map(color => (
-                        <option key={color} value={color}>{color}</option>
-                      ))}
-                    </select>
-                  </div>
-                </>
-              )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">품목 *</label>
+                <input
+                  type="text"
+                  value={newOrder.productName}
+                  onChange={(e) => setNewOrder({...newOrder, productName: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="품목명을 입력하세요"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">색상 *</label>
+                <input
+                  type="text"
+                  value={newOrder.selectedColor}
+                  onChange={(e) => setNewOrder({...newOrder, selectedColor: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="색상을 입력하세요"
+                />
+              </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">수량 *</label>
@@ -1797,35 +1832,13 @@ const AdminPage = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">배송지</label>
-                <input
-                  type="text"
-                  value={newOrder.deliveryAddress}
-                  onChange={(e) => setNewOrder({...newOrder, deliveryAddress: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="배송지를 입력하세요"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">연락처</label>
-                <input
-                  type="tel"
-                  value={newOrder.phoneNumber}
-                  onChange={(e) => setNewOrder({...newOrder, phoneNumber: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="연락처를 입력하세요"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">특별 요청사항</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">주문 특이사항</label>
                 <textarea
                   value={newOrder.specialRequests}
                   onChange={(e) => setNewOrder({...newOrder, specialRequests: e.target.value})}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   rows={3}
-                  placeholder="특별 요청사항이 있다면 입력하세요"
+                  placeholder="주문 특이사항을 입력하세요"
                 />
               </div>
             </div>
@@ -1836,13 +1849,15 @@ const AdminPage = () => {
                   setShowAddOrder(false);
                   setNewOrder({
                     customerEmail: "",
-                    productId: "",
-                    selectedSize: "",
+                    orderDate: "",
+                    productName: "",
                     selectedColor: "",
                     quantity: 1,
+                    specialRequests: "",
+                    productId: "",
+                    selectedSize: "",
                     deliveryAddress: "",
-                    phoneNumber: "",
-                    specialRequests: ""
+                    phoneNumber: ""
                   });
                 }}
                 className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
