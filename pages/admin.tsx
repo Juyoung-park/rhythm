@@ -878,18 +878,53 @@ const AdminPage = () => {
 
   const handleEditCustomerOrder = (order: Order) => {
     setEditingCustomerOrder(order);
-    const orderDate = order.orderDate 
-      ? (order.orderDate instanceof Date 
-          ? order.orderDate.toISOString().split('T')[0] 
-          : typeof order.orderDate === 'string' 
-            ? order.orderDate.split('T')[0] 
-            : "")
-      : order.createdAt?.toDate?.() 
-        ? order.createdAt.toDate().toISOString().split('T')[0] 
-        : "";
+    
+    // 주문 날짜 변환 (더 안전하게 처리)
+    let orderDate = "";
+    if (order.orderDate) {
+      if (order.orderDate instanceof Date) {
+        // Date 객체인 경우
+        const year = order.orderDate.getFullYear();
+        const month = String(order.orderDate.getMonth() + 1).padStart(2, '0');
+        const day = String(order.orderDate.getDate()).padStart(2, '0');
+        orderDate = `${year}-${month}-${day}`;
+      } else if (typeof order.orderDate === 'string') {
+        // 문자열인 경우 (YYYY-MM-DD 또는 ISO 형식)
+        if (order.orderDate.includes('T')) {
+          orderDate = order.orderDate.split('T')[0];
+        } else {
+          // 이미 YYYY-MM-DD 형식인 경우
+          orderDate = order.orderDate;
+        }
+      } else if (order.orderDate && typeof order.orderDate === 'object' && 'toDate' in order.orderDate && typeof (order.orderDate as any).toDate === 'function') {
+        // Firestore Timestamp인 경우
+        try {
+          const date = (order.orderDate as any).toDate();
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          orderDate = `${year}-${month}-${day}`;
+        } catch (e) {
+          console.error("Error converting orderDate:", e);
+        }
+      }
+    }
+    
+    // orderDate가 여전히 없으면 createdAt 사용 (기본값)
+    if (!orderDate && order.createdAt?.toDate) {
+      try {
+        const date = order.createdAt.toDate();
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        orderDate = `${year}-${month}-${day}`;
+      } catch (e) {
+        console.error("Error converting createdAt:", e);
+      }
+    }
     
     setCustomerOrderForm({
-      orderDate: orderDate,
+      orderDate: orderDate || "",
       productName: order.productName || "",
       selectedSize: order.selectedSize || "",
       selectedColor: order.selectedColor || "",
