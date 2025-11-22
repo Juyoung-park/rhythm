@@ -875,7 +875,8 @@ const AdminPage = () => {
     }
 
     try {
-      const orderDateObj = customerOrderForm.orderDate ? new Date(customerOrderForm.orderDate) : new Date();
+      // 날짜를 문자열로 저장하여 타임존 문제 방지
+      const orderDateStr = customerOrderForm.orderDate || new Date().toISOString().split('T')[0];
 
       await addDoc(collection(db, "orders"), {
         customerId: selectedCustomer.id,
@@ -886,7 +887,7 @@ const AdminPage = () => {
         quantity: parseInt(customerOrderForm.quantity.toString()) || 1,
         specialRequests: customerOrderForm.specialRequests || "",
         status: customerOrderForm.status || "pending",
-        orderDate: orderDateObj,
+        orderDate: orderDateStr,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       });
@@ -919,7 +920,8 @@ const AdminPage = () => {
     }
 
     try {
-      const orderDateObj = customerOrderForm.orderDate ? new Date(customerOrderForm.orderDate) : editingCustomerOrder.createdAt?.toDate?.() || new Date();
+      // 날짜를 문자열로 저장하여 타임존 문제 방지
+      const orderDateStr = customerOrderForm.orderDate || (editingCustomerOrder.createdAt?.toDate?.() ? editingCustomerOrder.createdAt.toDate().toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
 
       await updateDoc(doc(db, "orders", editingCustomerOrder.id), {
         productName: customerOrderForm.productName,
@@ -927,7 +929,7 @@ const AdminPage = () => {
         quantity: parseInt(customerOrderForm.quantity.toString()) || 1,
         specialRequests: customerOrderForm.specialRequests || "",
         status: customerOrderForm.status || "pending",
-        orderDate: orderDateObj,
+        orderDate: orderDateStr,
         updatedAt: serverTimestamp()
       });
 
@@ -2232,15 +2234,39 @@ const AdminPage = () => {
                             <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                            <span>주문일: {
-                              order.orderDate 
-                                ? (order.orderDate instanceof Date 
-                                    ? order.orderDate.toLocaleDateString() 
-                                    : typeof order.orderDate === 'string' 
-                                      ? new Date(order.orderDate).toLocaleDateString() 
-                                      : order.createdAt?.toDate?.()?.toLocaleDateString() || "N/A")
-                                : order.createdAt?.toDate?.()?.toLocaleDateString() || "N/A"
-                            }</span>
+                            <span>주문일: {(() => {
+                              let dateStr = "N/A";
+                              if (order.orderDate) {
+                                if (order.orderDate instanceof Date) {
+                                  const year = order.orderDate.getFullYear();
+                                  const month = String(order.orderDate.getMonth() + 1).padStart(2, '0');
+                                  const day = String(order.orderDate.getDate()).padStart(2, '0');
+                                  dateStr = `${year}-${month}-${day}`;
+                                } else if (typeof order.orderDate === 'string') {
+                                  // 문자열인 경우 YYYY-MM-DD 형식으로 추출
+                                  if (order.orderDate.includes('T')) {
+                                    dateStr = order.orderDate.split('T')[0];
+                                  } else {
+                                    // 이미 YYYY-MM-DD 형식인 경우
+                                    dateStr = order.orderDate;
+                                  }
+                                } else if (order.orderDate.toDate) {
+                                  // Firestore Timestamp인 경우
+                                  const date = order.orderDate.toDate();
+                                  const year = date.getFullYear();
+                                  const month = String(date.getMonth() + 1).padStart(2, '0');
+                                  const day = String(date.getDate()).padStart(2, '0');
+                                  dateStr = `${year}-${month}-${day}`;
+                                }
+                              } else if (order.createdAt?.toDate) {
+                                const date = order.createdAt.toDate();
+                                const year = date.getFullYear();
+                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                const day = String(date.getDate()).padStart(2, '0');
+                                dateStr = `${year}-${month}-${day}`;
+                              }
+                              return dateStr;
+                            })()}</span>
                           </div>
                           <div className="flex items-center text-gray-600">
                             <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
