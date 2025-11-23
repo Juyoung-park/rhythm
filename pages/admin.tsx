@@ -612,7 +612,16 @@ const AdminPage = () => {
       // 주문 날짜를 Date 객체로 변환
       const orderDateObj = newOrder.orderDate ? new Date(newOrder.orderDate) : new Date();
 
-      await addDoc(collection(db, "orders"), {
+      // 주문 가격 처리
+      const productPrice = (() => {
+        if (!newOrder.productPrice) return undefined;
+        const priceStr = typeof newOrder.productPrice === 'string' ? newOrder.productPrice.trim() : String(newOrder.productPrice).trim();
+        if (!priceStr) return undefined;
+        const parsed = parseFloat(priceStr.replace(/,/g, ''));
+        return isNaN(parsed) || parsed <= 0 ? undefined : parsed;
+      })();
+
+      const orderData: any = {
         customerId: customerId,
         customerName: customerName,
         customerEmail: newOrder.customerEmail,
@@ -620,19 +629,19 @@ const AdminPage = () => {
         selectedSize: newOrder.selectedSize || "",
         selectedColor: newOrder.selectedColor,
         quantity: parseInt(newOrder.quantity.toString()) || 1,
-        productPrice: (() => {
-          if (!newOrder.productPrice) return undefined;
-          const priceStr = typeof newOrder.productPrice === 'string' ? newOrder.productPrice.trim() : String(newOrder.productPrice).trim();
-          if (!priceStr) return undefined;
-          const parsed = parseFloat(priceStr.replace(/,/g, ''));
-          return isNaN(parsed) || parsed <= 0 ? undefined : parsed;
-        })(),
         specialRequests: newOrder.specialRequests || "",
         status: "pending",
         orderDate: orderDateObj,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
-      });
+      };
+
+      // productPrice가 undefined가 아닌 경우에만 포함
+      if (productPrice !== undefined) {
+        orderData.productPrice = productPrice;
+      }
+
+      await addDoc(collection(db, "orders"), orderData);
 
       // 폼 초기화
       setNewOrder({
@@ -994,7 +1003,16 @@ const AdminPage = () => {
       // 날짜를 문자열로 저장하여 타임존 문제 방지
       const orderDateStr = customerOrderForm.orderDate || new Date().toISOString().split('T')[0];
 
-      await addDoc(collection(db, "orders"), {
+      // 주문 가격 처리
+      const productPrice = (() => {
+        if (!customerOrderForm.productPrice) return undefined;
+        const priceStr = typeof customerOrderForm.productPrice === 'string' ? customerOrderForm.productPrice.trim() : String(customerOrderForm.productPrice).trim();
+        if (!priceStr) return undefined;
+        const parsed = parseFloat(priceStr.replace(/,/g, ''));
+        return isNaN(parsed) || parsed <= 0 ? undefined : parsed;
+      })();
+
+      const orderData: any = {
         customerId: selectedCustomer.id,
         customerName: selectedCustomer.name || selectedCustomer.email,
         customerEmail: selectedCustomer.email,
@@ -1002,19 +1020,19 @@ const AdminPage = () => {
         selectedSize: customerOrderForm.selectedSize || "",
         selectedColor: customerOrderForm.selectedColor,
         quantity: parseInt(customerOrderForm.quantity.toString()) || 1,
-        productPrice: (() => {
-          if (!customerOrderForm.productPrice) return undefined;
-          const priceStr = typeof customerOrderForm.productPrice === 'string' ? customerOrderForm.productPrice.trim() : String(customerOrderForm.productPrice).trim();
-          if (!priceStr) return undefined;
-          const parsed = parseFloat(priceStr.replace(/,/g, ''));
-          return isNaN(parsed) || parsed <= 0 ? undefined : parsed;
-        })(),
         specialRequests: customerOrderForm.specialRequests || "",
         status: customerOrderForm.status || "pending",
         orderDate: orderDateStr,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
-      });
+      };
+
+      // productPrice가 undefined가 아닌 경우에만 포함
+      if (productPrice !== undefined) {
+        orderData.productPrice = productPrice;
+      }
+
+      await addDoc(collection(db, "orders"), orderData);
 
       setCustomerOrderForm({
         orderDate: "",
