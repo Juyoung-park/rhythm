@@ -1623,12 +1623,29 @@ const AdminPage = () => {
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">사이즈</label>
-                    <input
-                      type="text"
+                    <select
                       value={editForm.size}
                       onChange={(e) => setEditForm({...editForm, size: e.target.value})}
                       className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
+                    >
+                      <option value="">사이즈를 선택하세요</option>
+                      <option value="XS">XS</option>
+                      <option value="S">S</option>
+                      <option value="M">M</option>
+                      <option value="L">L</option>
+                      <option value="XL">XL</option>
+                      <option value="XXL">XXL</option>
+                      <option value="XXXL">XXXL</option>
+                      <option value="44">44</option>
+                      <option value="44 1/2">44 1/2</option>
+                      <option value="55">55</option>
+                      <option value="55 1/2">55 1/2</option>
+                      <option value="66">66</option>
+                      <option value="66 1/2">66 1/2</option>
+                      <option value="77">77</option>
+                      <option value="88">88</option>
+                      <option value="99">99</option>
+                    </select>
                   </div>
                   
                   <div>
@@ -1864,12 +1881,29 @@ const AdminPage = () => {
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">사이즈</label>
-                    <input
-                      type="text"
+                    <select
                       value={editForm.size}
                       onChange={(e) => setEditForm({...editForm, size: e.target.value})}
                       className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
+                    >
+                      <option value="">사이즈를 선택하세요</option>
+                      <option value="XS">XS</option>
+                      <option value="S">S</option>
+                      <option value="M">M</option>
+                      <option value="L">L</option>
+                      <option value="XL">XL</option>
+                      <option value="XXL">XXL</option>
+                      <option value="XXXL">XXXL</option>
+                      <option value="44">44</option>
+                      <option value="44 1/2">44 1/2</option>
+                      <option value="55">55</option>
+                      <option value="55 1/2">55 1/2</option>
+                      <option value="66">66</option>
+                      <option value="66 1/2">66 1/2</option>
+                      <option value="77">77</option>
+                      <option value="88">88</option>
+                      <option value="99">99</option>
+                    </select>
                   </div>
                   
                   <div>
