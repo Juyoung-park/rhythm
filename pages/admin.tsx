@@ -620,10 +620,13 @@ const AdminPage = () => {
         selectedSize: newOrder.selectedSize || "",
         selectedColor: newOrder.selectedColor,
         quantity: parseInt(newOrder.quantity.toString()) || 1,
-        productPrice: newOrder.productPrice && newOrder.productPrice.trim() ? (() => {
-          const parsed = parseFloat(newOrder.productPrice.toString().replace(/,/g, '').trim());
-          return isNaN(parsed) ? undefined : parsed;
-        })() : undefined,
+        productPrice: (() => {
+          if (!newOrder.productPrice) return undefined;
+          const priceStr = typeof newOrder.productPrice === 'string' ? newOrder.productPrice.trim() : String(newOrder.productPrice).trim();
+          if (!priceStr) return undefined;
+          const parsed = parseFloat(priceStr.replace(/,/g, ''));
+          return isNaN(parsed) || parsed <= 0 ? undefined : parsed;
+        })(),
         specialRequests: newOrder.specialRequests || "",
         status: "pending",
         orderDate: orderDateObj,
@@ -999,10 +1002,13 @@ const AdminPage = () => {
         selectedSize: customerOrderForm.selectedSize || "",
         selectedColor: customerOrderForm.selectedColor,
         quantity: parseInt(customerOrderForm.quantity.toString()) || 1,
-        productPrice: customerOrderForm.productPrice && customerOrderForm.productPrice.toString().trim() ? (() => {
-          const parsed = parseFloat(customerOrderForm.productPrice.toString().replace(/,/g, '').trim());
-          return isNaN(parsed) ? undefined : parsed;
-        })() : undefined,
+        productPrice: (() => {
+          if (!customerOrderForm.productPrice) return undefined;
+          const priceStr = typeof customerOrderForm.productPrice === 'string' ? customerOrderForm.productPrice.trim() : String(customerOrderForm.productPrice).trim();
+          if (!priceStr) return undefined;
+          const parsed = parseFloat(priceStr.replace(/,/g, ''));
+          return isNaN(parsed) || parsed <= 0 ? undefined : parsed;
+        })(),
         specialRequests: customerOrderForm.specialRequests || "",
         status: customerOrderForm.status || "pending",
         orderDate: orderDateStr,
@@ -1053,10 +1059,13 @@ const AdminPage = () => {
         selectedSize: customerOrderForm.selectedSize || "",
         selectedColor: customerOrderForm.selectedColor,
         quantity: parseInt(customerOrderForm.quantity.toString()) || 1,
-        productPrice: customerOrderForm.productPrice && customerOrderForm.productPrice.toString().trim() ? (() => {
-          const parsed = parseFloat(customerOrderForm.productPrice.toString().replace(/,/g, '').trim());
-          return isNaN(parsed) ? undefined : parsed;
-        })() : undefined,
+        productPrice: (() => {
+          if (!customerOrderForm.productPrice) return undefined;
+          const priceStr = typeof customerOrderForm.productPrice === 'string' ? customerOrderForm.productPrice.trim() : String(customerOrderForm.productPrice).trim();
+          if (!priceStr) return undefined;
+          const parsed = parseFloat(priceStr.replace(/,/g, ''));
+          return isNaN(parsed) || parsed <= 0 ? undefined : parsed;
+        })(),
         specialRequests: customerOrderForm.specialRequests || "",
         status: customerOrderForm.status || "pending",
         orderDate: orderDateStr,
