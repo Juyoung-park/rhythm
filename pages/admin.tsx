@@ -612,15 +612,7 @@ const AdminPage = () => {
       // 주문 날짜를 Date 객체로 변환
       const orderDateObj = newOrder.orderDate ? new Date(newOrder.orderDate) : new Date();
 
-      // 주문 가격 처리
-      const productPrice = (() => {
-        if (!newOrder.productPrice) return undefined;
-        const priceStr = typeof newOrder.productPrice === 'string' ? newOrder.productPrice.trim() : String(newOrder.productPrice).trim();
-        if (!priceStr) return undefined;
-        const parsed = parseFloat(priceStr.replace(/,/g, ''));
-        return isNaN(parsed) || parsed <= 0 ? undefined : parsed;
-      })();
-
+      // 주문 가격 처리 (유효한 숫자인 경우에만 포함)
       const orderData: any = {
         customerId: customerId,
         customerName: customerName,
@@ -636,9 +628,15 @@ const AdminPage = () => {
         updatedAt: serverTimestamp()
       };
 
-      // productPrice가 undefined가 아닌 경우에만 포함
-      if (productPrice !== undefined) {
-        orderData.productPrice = productPrice;
+      // productPrice가 유효한 숫자인 경우에만 포함
+      if (newOrder.productPrice) {
+        const priceStr = typeof newOrder.productPrice === 'string' ? newOrder.productPrice.trim() : String(newOrder.productPrice).trim();
+        if (priceStr) {
+          const parsed = parseFloat(priceStr.replace(/,/g, ''));
+          if (!isNaN(parsed) && parsed > 0) {
+            orderData.productPrice = parsed;
+          }
+        }
       }
 
       await addDoc(collection(db, "orders"), orderData);
@@ -1003,15 +1001,7 @@ const AdminPage = () => {
       // 날짜를 문자열로 저장하여 타임존 문제 방지
       const orderDateStr = customerOrderForm.orderDate || new Date().toISOString().split('T')[0];
 
-      // 주문 가격 처리
-      const productPrice = (() => {
-        if (!customerOrderForm.productPrice) return undefined;
-        const priceStr = typeof customerOrderForm.productPrice === 'string' ? customerOrderForm.productPrice.trim() : String(customerOrderForm.productPrice).trim();
-        if (!priceStr) return undefined;
-        const parsed = parseFloat(priceStr.replace(/,/g, ''));
-        return isNaN(parsed) || parsed <= 0 ? undefined : parsed;
-      })();
-
+      // 주문 가격 처리 (유효한 숫자인 경우에만 포함)
       const orderData: any = {
         customerId: selectedCustomer.id,
         customerName: selectedCustomer.name || selectedCustomer.email,
@@ -1027,9 +1017,15 @@ const AdminPage = () => {
         updatedAt: serverTimestamp()
       };
 
-      // productPrice가 undefined가 아닌 경우에만 포함
-      if (productPrice !== undefined) {
-        orderData.productPrice = productPrice;
+      // productPrice가 유효한 숫자인 경우에만 포함
+      if (customerOrderForm.productPrice) {
+        const priceStr = typeof customerOrderForm.productPrice === 'string' ? customerOrderForm.productPrice.trim() : String(customerOrderForm.productPrice).trim();
+        if (priceStr) {
+          const parsed = parseFloat(priceStr.replace(/,/g, ''));
+          if (!isNaN(parsed) && parsed > 0) {
+            orderData.productPrice = parsed;
+          }
+        }
       }
 
       await addDoc(collection(db, "orders"), orderData);
