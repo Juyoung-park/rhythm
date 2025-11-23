@@ -1054,23 +1054,34 @@ const AdminPage = () => {
       // 날짜를 문자열로 저장하여 타임존 문제 방지
       const orderDateStr = customerOrderForm.orderDate || (editingCustomerOrder.createdAt?.toDate?.() ? editingCustomerOrder.createdAt.toDate().toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
 
-      await updateDoc(doc(db, "orders", editingCustomerOrder.id), {
+      // 주문 가격 처리
+      const productPrice = (() => {
+        if (!customerOrderForm.productPrice) return undefined;
+        const priceStr = typeof customerOrderForm.productPrice === 'string' ? customerOrderForm.productPrice.trim() : String(customerOrderForm.productPrice).trim();
+        if (!priceStr) return undefined;
+        const parsed = parseFloat(priceStr.replace(/,/g, ''));
+        return isNaN(parsed) || parsed <= 0 ? undefined : parsed;
+      })();
+
+      const updateData: any = {
         productName: customerOrderForm.productName,
         selectedSize: customerOrderForm.selectedSize || "",
         selectedColor: customerOrderForm.selectedColor,
         quantity: parseInt(customerOrderForm.quantity.toString()) || 1,
-        productPrice: (() => {
-          if (!customerOrderForm.productPrice) return undefined;
-          const priceStr = typeof customerOrderForm.productPrice === 'string' ? customerOrderForm.productPrice.trim() : String(customerOrderForm.productPrice).trim();
-          if (!priceStr) return undefined;
-          const parsed = parseFloat(priceStr.replace(/,/g, ''));
-          return isNaN(parsed) || parsed <= 0 ? undefined : parsed;
-        })(),
         specialRequests: customerOrderForm.specialRequests || "",
         status: customerOrderForm.status || "pending",
         orderDate: orderDateStr,
         updatedAt: serverTimestamp()
-      });
+      };
+
+      // productPrice가 undefined가 아닌 경우에만 포함, undefined이면 deleteField 사용
+      if (productPrice !== undefined) {
+        updateData.productPrice = productPrice;
+      } else {
+        updateData.productPrice = deleteField();
+      }
+
+      await updateDoc(doc(db, "orders", editingCustomerOrder.id), updateData);
 
       setEditingCustomerOrder(null);
       setCustomerOrderForm({
