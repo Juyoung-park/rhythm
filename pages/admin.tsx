@@ -1630,10 +1630,15 @@ const AdminPage = () => {
                     >
                       <option value="">사이즈를 선택하세요</option>
                       <option value="XS">XS</option>
+                      <option value="XS-S">XS-S</option>
                       <option value="S">S</option>
+                      <option value="S-M">S-M</option>
                       <option value="M">M</option>
+                      <option value="M-L">M-L</option>
                       <option value="L">L</option>
+                      <option value="L-XL">L-XL</option>
                       <option value="XL">XL</option>
+                      <option value="XL-XXL">XL-XXL</option>
                       <option value="XXL">XXL</option>
                       <option value="XXXL">XXXL</option>
                       <option value="44">44</option>
@@ -1888,10 +1893,15 @@ const AdminPage = () => {
                     >
                       <option value="">사이즈를 선택하세요</option>
                       <option value="XS">XS</option>
+                      <option value="XS-S">XS-S</option>
                       <option value="S">S</option>
+                      <option value="S-M">S-M</option>
                       <option value="M">M</option>
+                      <option value="M-L">M-L</option>
                       <option value="L">L</option>
+                      <option value="L-XL">L-XL</option>
                       <option value="XL">XL</option>
+                      <option value="XL-XXL">XL-XXL</option>
                       <option value="XXL">XXL</option>
                       <option value="XXXL">XXXL</option>
                       <option value="44">44</option>
