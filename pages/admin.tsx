@@ -620,7 +620,10 @@ const AdminPage = () => {
         selectedSize: newOrder.selectedSize || "",
         selectedColor: newOrder.selectedColor,
         quantity: parseInt(newOrder.quantity.toString()) || 1,
-        productPrice: newOrder.productPrice ? parseFloat(newOrder.productPrice.toString().replace(/,/g, '')) : undefined,
+        productPrice: newOrder.productPrice && newOrder.productPrice.trim() ? (() => {
+          const parsed = parseFloat(newOrder.productPrice.toString().replace(/,/g, '').trim());
+          return isNaN(parsed) ? undefined : parsed;
+        })() : undefined,
         specialRequests: newOrder.specialRequests || "",
         status: "pending",
         orderDate: orderDateObj,
@@ -996,7 +999,10 @@ const AdminPage = () => {
         selectedSize: customerOrderForm.selectedSize || "",
         selectedColor: customerOrderForm.selectedColor,
         quantity: parseInt(customerOrderForm.quantity.toString()) || 1,
-        productPrice: customerOrderForm.productPrice ? parseFloat(customerOrderForm.productPrice.toString().replace(/,/g, '')) : undefined,
+        productPrice: customerOrderForm.productPrice && customerOrderForm.productPrice.toString().trim() ? (() => {
+          const parsed = parseFloat(customerOrderForm.productPrice.toString().replace(/,/g, '').trim());
+          return isNaN(parsed) ? undefined : parsed;
+        })() : undefined,
         specialRequests: customerOrderForm.specialRequests || "",
         status: customerOrderForm.status || "pending",
         orderDate: orderDateStr,
@@ -1047,7 +1053,10 @@ const AdminPage = () => {
         selectedSize: customerOrderForm.selectedSize || "",
         selectedColor: customerOrderForm.selectedColor,
         quantity: parseInt(customerOrderForm.quantity.toString()) || 1,
-        productPrice: customerOrderForm.productPrice ? parseFloat(customerOrderForm.productPrice.toString().replace(/,/g, '')) : undefined,
+        productPrice: customerOrderForm.productPrice && customerOrderForm.productPrice.toString().trim() ? (() => {
+          const parsed = parseFloat(customerOrderForm.productPrice.toString().replace(/,/g, '').trim());
+          return isNaN(parsed) ? undefined : parsed;
+        })() : undefined,
         specialRequests: customerOrderForm.specialRequests || "",
         status: customerOrderForm.status || "pending",
         orderDate: orderDateStr,
