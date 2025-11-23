@@ -587,8 +587,8 @@ const AdminPage = () => {
   };
 
   const handleAddOrder = async () => {
-    if (!newOrder.customerEmail || !newOrder.orderDate || !newOrder.productName || !newOrder.selectedColor || !newOrder.quantity) {
-      alert("필수 항목(고객 이메일, 주문 날짜, 품목, 색상, 수량)을 모두 입력해주세요.");
+    if (!newOrder.customerEmail || !newOrder.productName || !newOrder.selectedColor || !newOrder.quantity) {
+      alert("필수 항목(고객 이메일, 품목, 색상, 수량)을 모두 입력해주세요.");
       return;
     }
 
@@ -979,8 +979,8 @@ const AdminPage = () => {
 
   const handleAddCustomerOrder = async () => {
     if (!selectedCustomer) return;
-    if (!customerOrderForm.orderDate || !customerOrderForm.productName || !customerOrderForm.selectedColor || !customerOrderForm.quantity) {
-      alert("필수 항목(주문 날짜, 품목, 색상, 수량)을 모두 입력해주세요.");
+    if (!customerOrderForm.productName || !customerOrderForm.selectedColor || !customerOrderForm.quantity) {
+      alert("필수 항목(품목, 색상, 수량)을 모두 입력해주세요.");
       return;
     }
 
@@ -2081,7 +2081,7 @@ const AdminPage = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">주문 날짜 *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">주문 날짜</label>
                 <input
                   type="date"
                   value={newOrder.orderDate}
@@ -2627,7 +2627,7 @@ const AdminPage = () => {
             
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">주문 날짜 *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">주문 날짜</label>
                 <div className="flex gap-2 items-center">
                   <input
                     type="text"
