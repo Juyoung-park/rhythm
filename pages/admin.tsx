@@ -617,6 +617,7 @@ const AdminPage = () => {
         customerName: customerName,
         customerEmail: newOrder.customerEmail,
         productName: newOrder.productName,
+        selectedSize: newOrder.selectedSize || "",
         selectedColor: newOrder.selectedColor,
         quantity: parseInt(newOrder.quantity.toString()) || 1,
         productPrice: newOrder.productPrice ? parseFloat(newOrder.productPrice.toString().replace(/,/g, '')) : undefined,
@@ -2064,6 +2065,33 @@ const AdminPage = () => {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="품목명을 입력하세요"
                 />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">사이즈 *</label>
+                <select
+                  value={newOrder.selectedSize}
+                  onChange={(e) => setNewOrder({...newOrder, selectedSize: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="">사이즈를 선택하세요</option>
+                  <option value="XS">XS</option>
+                  <option value="S">S</option>
+                  <option value="M">M</option>
+                  <option value="L">L</option>
+                  <option value="XL">XL</option>
+                  <option value="XXL">XXL</option>
+                  <option value="XXXL">XXXL</option>
+                  <option value="44">44</option>
+                  <option value="44 1/2">44 1/2</option>
+                  <option value="55">55</option>
+                  <option value="55 1/2">55 1/2</option>
+                  <option value="66">66</option>
+                  <option value="66 1/2">66 1/2</option>
+                  <option value="77">77</option>
+                  <option value="88">88</option>
+                  <option value="99">99</option>
+                </select>
               </div>
               
               <div>
